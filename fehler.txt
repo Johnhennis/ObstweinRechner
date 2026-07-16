@@ -1,4 +1,36 @@
-e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:7:43 Cannot access 'val RowColumnParentData?.weight: Float': it is internal in file.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:210:1 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:211:1 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:212:1 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:213:9 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:214:1 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:215:165 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:216:141 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:217:121 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:218:105 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:219:237 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:220:149 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:221:113 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:221:114 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:222:97 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:223:333 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:224:413 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:225:481 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:225:482 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:226:389 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:227:365 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:228:337 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:229:337 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:229:338 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:230:105 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:231:105 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:232:89 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:233:61 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:234:69 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:235:57 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:236:1 Syntax error: Expecting a top level declaration.
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:237:1 Syntax error: Expecting a top level declaration.
+
+> Task :app:compileDebugKotlin FAILED
 
 [Incubating] Problems report is available at: file:///workspaces/ObstweinRechner/build/reports/problems/problems-report.html
 
