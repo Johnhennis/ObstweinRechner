@@ -109,20 +109,19 @@ private fun FruitDropdown(
                 .menuAnchor()
                 .fillMaxWidth()
         )
-        ExposedDropdownMenuDefaults.let {
-            androidx.compose.material3.ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                recipes.forEach { recipe ->
-                    androidx.compose.material3.DropdownMenuItem(
-                        text = { Text(recipe.name) },
-                        onClick = {
-                            onSelected(recipe)
-                            expanded = false
-                        }
-                    )
-                }
+        androidx.compose.material3.DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            recipes.forEach { recipe ->
+                androidx.compose.material3.DropdownMenuItem(
+                    text = { Text(recipe.name) },
+                    onClick = {
+                        onSelected(recipe)
+                        expanded = false
+                    }
+                )
             }
         }
     }
