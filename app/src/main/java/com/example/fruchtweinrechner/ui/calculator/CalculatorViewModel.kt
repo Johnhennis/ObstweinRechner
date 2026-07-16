@@ -23,7 +23,7 @@ class CalculatorViewModel(
     private val repository: FruitRecipeRepository
 ) : ViewModel() {
 
-    private val selectedRecipeId = MutableStateFlow<Long?>(null)
+    private val selectedRecipeId = MutableStateFlow<String?>(null)
     private val zielLiterText = MutableStateFlow("10")
 
     val uiState: StateFlow<CalculatorUiState> = combine(

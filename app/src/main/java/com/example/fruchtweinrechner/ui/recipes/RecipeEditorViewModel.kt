@@ -16,7 +16,7 @@ class RecipeEditorViewModel(
      */
     fun save(recipe: FruitRecipe, onSaved: () -> Unit = {}) {
         viewModelScope.launch {
-            if (recipe.id == 0L) {
+            if (recipe.id.isEmpty()) {
                 repository.insert(recipe)
             } else {
                 repository.update(recipe)

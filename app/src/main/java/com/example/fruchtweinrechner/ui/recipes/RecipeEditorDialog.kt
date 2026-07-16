@@ -79,7 +79,7 @@ fun RecipeEditorDialog(
                 }
                 val (sa, sw, z, h, n) = parsed
                 val toSave = FruitRecipe(
-                    id = recipe?.id ?: 0L,
+                    id = recipe?.id ?: "",
                     name = name.trim(),
                     saftAusbeute = sa,
                     saftAnteilImWein = sw,
