@@ -2,21 +2,26 @@ package com.example.fruchtweinrechner.ui.calculator
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -47,9 +52,7 @@ fun CalculatorScreen(
             TopAppBar(
                 title = { Text("Fruchtwein-Rechner") },
                 actions = {
-                    androidx.compose.material3.TextButton(onClick = onOpenRecipes) {
-                        Text("Rezepte")
-                    }
+                    TextButton(onClick = onOpenRecipes) { Text("Rezepte") }
                 }
             )
         }
@@ -67,18 +70,39 @@ fun CalculatorScreen(
                 onSelected = viewModel::onRecipeSelected
             )
 
-            OutlinedTextField(
-                value = uiState.zielLiterText,
-                onValueChange = viewModel::onZielLiterChanged,
-                label = { Text("Ziel-Menge Wein (Liter)") },
-                modifier = Modifier.fillMaxWidth()
-            )
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                SegmentedButton(
+                    selected = uiState.mode == InputMode.LITER,
+                    onClick = { viewModel.onModeChanged(InputMode.LITER) },
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                ) { Text("Ziel-Liter") }
+                SegmentedButton(
+                    selected = uiState.mode == InputMode.FRUCHT_KG,
+                    onClick = { viewModel.onModeChanged(InputMode.FRUCHT_KG) },
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                ) { Text("kg Frucht") }
+            }
+
+            when (uiState.mode) {
+                InputMode.LITER -> OutlinedTextField(
+                    value = uiState.literText,
+                    onValueChange = viewModel::onLiterChanged,
+                    label = { Text("Ziel-Menge Wein (Liter)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                InputMode.FRUCHT_KG -> OutlinedTextField(
+                    value = uiState.fruchtKgText,
+                    onValueChange = viewModel::onFruchtKgChanged,
+                    label = { Text("Verfügbare Frucht (kg)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             if (uiState.selectedRecipe != null && uiState.result != null) {
                 ResultCard(recipeName = uiState.selectedRecipe!!.name, result = uiState.result!!)
             } else {
                 Text(
-                    "Bitte Frucht auswählen und eine gültige Literanzahl eingeben.",
+                    "Bitte Frucht auswählen und eine gültige Menge eingeben.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -95,27 +119,22 @@ private fun FruitDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = it }
-    ) {
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         OutlinedTextField(
             value = selected?.name ?: "",
             onValueChange = {},
             readOnly = true,
             label = { Text("Frucht") },
             trailingIcon = { Icon(Icons.Filled.ArrowDropDown, contentDescription = null) },
-            modifier = Modifier
-                .menuAnchor()
-                .fillMaxWidth()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
-        androidx.compose.material3.DropdownMenu(
+        DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier.fillMaxWidth()
         ) {
             recipes.forEach { recipe ->
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = { Text(recipe.name) },
                     onClick = {
                         onSelected(recipe)
@@ -134,31 +153,29 @@ private fun ResultCard(recipeName: String, result: CalculationResult) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                "Rezept für $recipeName",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            ResultRow("Saftmenge", "${fmt(result.saftLiter)} L")
+            Text("Rezept für $recipeName", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            ResultRow("Ziel-Menge Wein", "${fmt(result.zielLiter)} L")
             ResultRow("Fruchtmenge", "${fmt(result.fruchtKg)} kg")
+            ResultRow("Saftmenge", "${fmt(result.saftLiter)} L")
             ResultRow("Wassermenge", "${fmt(result.wasserLiter)} L")
             ResultRow("Zucker", "${fmt(result.zuckerKg)} kg")
-            ResultRow("Hefe", "${fmt(result.hefeGramm)} g")
+            ResultRow("Milchsäure", "${fmt(result.milchsaeureGramm)} g")
+            ResultRow("Antigel klein", "${fmt(result.antigelKleinGramm)} g")
+            ResultRow("Antigel groß", "${fmt(result.antigelGrossGramm)} g")
+            ResultRow("Hefe", "${fmt(result.hefeGramm)} g" + if (result.hefeSorte.isNotBlank()) " (${result.hefeSorte})" else "")
             ResultRow("Hefenährsalz", "${fmt(result.naehrsalzGramm)} g")
+            result.zusatzMengen.forEach { (name, menge) ->
+                ResultRow(name, "${fmt(menge)} g")
+            }
         }
     }
 }
 
 @Composable
 private fun ResultRow(label: String, value: String) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        androidx.compose.foundation.layout.Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-        }
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
     }
 }
 

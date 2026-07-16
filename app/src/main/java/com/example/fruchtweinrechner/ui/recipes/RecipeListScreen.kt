@@ -72,7 +72,7 @@ fun RecipeListScreen(
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(recipes, key = { it.id }) { recipe ->
+            items(recipes, key = { it.id.ifEmpty { it.name } }) { recipe ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
