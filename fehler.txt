@@ -1,0 +1,5 @@
+e: file:///workspaces/ObstweinRechner/app/src/main/java/com/example/fruchtweinrechner/ui/recipes/RecipeEditorDialog.kt:7:43 Cannot access 'val RowColumnParentData?.weight: Float': it is internal in file.
+
+[Incubating] Problems report is available at: file:///workspaces/ObstweinRechner/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
