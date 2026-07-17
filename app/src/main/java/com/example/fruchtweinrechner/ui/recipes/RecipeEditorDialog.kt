@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -30,6 +29,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,6 +47,18 @@ import com.example.fruchtweinrechner.ui.AppViewModelFactory
 private fun displayValue(value: Double?): String =
     if (value == null || value == 0.0) "" else value.toString()
 
+// Fängt den Enter-Tastendruck der Tastatur direkt ab und springt zum nächsten Feld.
+// Zuverlässiger als sich auf die IME-Aktion zu verlassen, die bei Zahlentastaturen
+// von manchen Android-Tastaturen ignoriert wird.
+private fun Modifier.moveFocusOnEnter(focusManager: FocusManager) = this.onPreviewKeyEvent { event ->
+    if (event.type == KeyEventType.KeyUp && (event.key == Key.Enter || event.key == Key.NumPadEnter)) {
+        focusManager.moveFocus(FocusDirection.Down)
+        true
+    } else {
+        false
+    }
+}
+
 @Composable
 fun RecipeEditorDialog(
     factory: AppViewModelFactory,
@@ -50,7 +67,6 @@ fun RecipeEditorDialog(
 ) {
     val viewModel: RecipeEditorViewModel = viewModel(factory = factory)
     val focusManager = LocalFocusManager.current
-    val nextFieldActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
 
     var name by remember { mutableStateOf(recipe?.name ?: "") }
     var fruchtKg by remember { mutableStateOf(displayValue(recipe?.fruchtKg)) }
@@ -90,25 +106,23 @@ fun RecipeEditorDialog(
                     onValueChange = { name = it },
                     label = { Text("Name") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    keyboardActions = nextFieldActions,
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().moveFocusOnEnter(focusManager)
                 )
-                NumberField("Frucht (kg)", fruchtKg, nextFieldActions) { fruchtKg = it }
-                NumberField("Ausbeute Saft (L)", saftLiter, nextFieldActions) { saftLiter = it }
-                NumberField("Wasser (L)", wasserLiter, nextFieldActions) { wasserLiter = it }
-                NumberField("Zucker (kg)", zuckerKg, nextFieldActions) { zuckerKg = it }
-                NumberField("Milchsäure (g)", milchsaeure, nextFieldActions) { milchsaeure = it }
-                NumberField("Antigel klein (ml)", antigelKlein, nextFieldActions) { antigelKlein = it }
-                NumberField("Antigel groß (ml)", antigelGross, nextFieldActions) { antigelGross = it }
+                NumberField("Frucht (kg)", fruchtKg, focusManager) { fruchtKg = it }
+                NumberField("Ausbeute Saft (L)", saftLiter, focusManager) { saftLiter = it }
+                NumberField("Wasser (L)", wasserLiter, focusManager) { wasserLiter = it }
+                NumberField("Zucker (kg)", zuckerKg, focusManager) { zuckerKg = it }
+                NumberField("Milchsäure (g)", milchsaeure, focusManager) { milchsaeure = it }
+                NumberField("Antigel klein (ml)", antigelKlein, focusManager) { antigelKlein = it }
+                NumberField("Antigel groß (ml)", antigelGross, focusManager) { antigelGross = it }
                 OutlinedTextField(
                     value = hefeSorte,
                     onValueChange = { hefeSorte = it },
                     label = { Text("Hefe") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    keyboardActions = nextFieldActions,
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().moveFocusOnEnter(focusManager)
                 )
 
                 Divider()
@@ -125,9 +139,8 @@ fun RecipeEditorDialog(
                             onValueChange = { extraIngredients[index] = it to ingMenge },
                             label = { Text("Name") },
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            keyboardActions = nextFieldActions,
                             singleLine = true,
-                            modifier = Modifier.width(170.dp)
+                            modifier = Modifier.width(170.dp).moveFocusOnEnter(focusManager)
                         )
                         OutlinedTextField(
                             value = ingMenge,
@@ -138,9 +151,8 @@ fun RecipeEditorDialog(
                             },
                             label = { Text("Menge") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
-                            keyboardActions = nextFieldActions,
                             singleLine = true,
-                            modifier = Modifier.width(100.dp)
+                            modifier = Modifier.width(100.dp).moveFocusOnEnter(focusManager)
                         )
                         IconButton(onClick = { extraIngredients.removeAt(index) }) {
                             Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
@@ -215,7 +227,7 @@ fun RecipeEditorDialog(
 private fun NumberField(
     label: String,
     value: String,
-    keyboardActions: KeyboardActions,
+    focusManager: FocusManager,
     onValueChange: (String) -> Unit
 ) {
     OutlinedTextField(
@@ -225,8 +237,7 @@ private fun NumberField(
         },
         label = { Text(label) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
-        keyboardActions = keyboardActions,
         singleLine = true,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().moveFocusOnEnter(focusManager)
     )
 }

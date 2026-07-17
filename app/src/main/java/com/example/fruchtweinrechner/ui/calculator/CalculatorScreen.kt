@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -50,6 +54,7 @@ fun CalculatorScreen(
 ) {
     val viewModel: CalculatorViewModel = viewModel(factory = factory)
     val uiState by viewModel.uiState.collectAsState()
+    val focusManager = LocalFocusManager.current
 
     Scaffold(
         topBar = {
@@ -93,14 +98,18 @@ fun CalculatorScreen(
                     value = uiState.literText,
                     onValueChange = viewModel::onLiterChanged,
                     label = { Text("Ziel-Menge Wein (Liter)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
                 InputMode.FRUCHT_KG -> OutlinedTextField(
                     value = uiState.fruchtKgText,
                     onValueChange = viewModel::onFruchtKgChanged,
                     label = { Text("Verfügbare Frucht (kg)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

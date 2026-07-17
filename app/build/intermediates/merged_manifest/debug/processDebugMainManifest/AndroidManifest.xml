@@ -35,7 +35,8 @@
             android:icon="@mipmap/ic_launcher"
             android:label="Fruchtwein-Rechner"
             android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/Theme.FruchtweinRechner" >
+            android:theme="@style/Theme.FruchtweinRechner"
+            android:windowSoftInputMode="adjustResize" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
