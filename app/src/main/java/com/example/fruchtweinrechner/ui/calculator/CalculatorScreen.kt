@@ -61,7 +61,7 @@ fun CalculatorScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Fruchtwein-Rechner") },
+                title = { Text("Obstwein-Rechner") },
                 actions = {
                     TextButton(onClick = onOpenRecipes) { Text("Rezepte") }
                 }
