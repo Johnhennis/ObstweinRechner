@@ -39,6 +39,7 @@ class SchmalzRecipeRepository(private val firestore: FirebaseFirestore) {
 
     // Originalrezept für 24 Liter
     private fun defaultRecipe() = SchmalzRecipe(
+        schmalzStueck = 24.0,
         ruckenfettKg = 6.0,
         aepfelStueck = 8.0,
         zwiebelnGramm = 1000.0,

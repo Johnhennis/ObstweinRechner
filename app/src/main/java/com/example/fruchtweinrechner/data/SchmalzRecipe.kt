@@ -3,6 +3,7 @@ package com.example.fruchtweinrechner.data
 // Alle Mengen beziehen sich auf das Originalrezept für 24 Liter Schmalz.
 data class SchmalzRecipe(
     val id: String = "",
+    val schmalzStueck: Double = 0.0,
     val ruckenfettKg: Double = 0.0,
     val aepfelStueck: Double = 0.0,
     val zwiebelnGramm: Double = 0.0,

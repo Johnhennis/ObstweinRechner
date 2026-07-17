@@ -115,6 +115,7 @@ private fun ResultCard(result: SchmalzCalculationResult) {
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Zutaten für ${fmt(result.zielLiter)} L Schmalz", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            ResultRow("Schmalz", "${fmt(result.schmalzStueck)} Stück")
             ResultRow("Rückenfett", "${fmt(result.ruckenfettKg)} kg")
             ResultRow("Äpfel", "${fmt(result.aepfelStueck)} Stück")
             ResultRow("Zwiebeln", "${fmt(result.zwiebelnGramm)} g")
@@ -139,6 +140,7 @@ private fun SchmalzEditorDialog(
     onDismiss: () -> Unit,
     onSave: (SchmalzRecipe) -> Unit
 ) {
+    var schmalz by remember { mutableStateOf(recipe.schmalzStueck.toString()) }
     var ruckenfett by remember { mutableStateOf(recipe.ruckenfettKg.toString()) }
     var aepfel by remember { mutableStateOf(recipe.aepfelStueck.toString()) }
     var zwiebeln by remember { mutableStateOf(recipe.zwiebelnGramm.toString()) }
@@ -160,6 +162,7 @@ private fun SchmalzEditorDialog(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                SimpleNumberField("Schmalz (Stück)", schmalz) { schmalz = it }
                 SimpleNumberField("Rückenfett (kg)", ruckenfett) { ruckenfett = it }
                 SimpleNumberField("Äpfel (Stück)", aepfel) { aepfel = it }
                 SimpleNumberField("Zwiebeln (g)", zwiebeln) { zwiebeln = it }
@@ -172,17 +175,18 @@ private fun SchmalzEditorDialog(
         confirmButton = {
             TextButton(onClick = {
                 fun parse(s: String) = if (s.isBlank()) 0.0 else s.replace(',', '.').toDoubleOrNull()
+                val sm = parse(schmalz)
                 val rf = parse(ruckenfett)
                 val ae = parse(aepfel)
                 val zw = parse(zwiebeln)
                 val sa = parse(salz)
                 val ma = parse(majoran)
                 val th = parse(thymian)
-                if (rf == null || ae == null || zw == null || sa == null || ma == null || th == null) {
+                if (sm == null || rf == null || ae == null || zw == null || sa == null || ma == null || th == null) {
                     error = "Bitte nur gültige Zahlen eingeben."
                     return@TextButton
                 }
-                onSave(recipe.copy(ruckenfettKg = rf, aepfelStueck = ae, zwiebelnGramm = zw, salzGramm = sa, majoranGramm = ma, thymianGramm = th))
+                onSave(recipe.copy(schmalzStueck = sm, ruckenfettKg = rf, aepfelStueck = ae, zwiebelnGramm = zw, salzGramm = sa, majoranGramm = ma, thymianGramm = th))
             }) { Text("Speichern") }
         },
         dismissButton = {
