@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Fruchtwein-Rechner</string>
+    <string name="app_name">Wein</string>
     <string name="gcm_defaultSenderId" translatable="false">671222128206</string>
     <string name="google_api_key" translatable="false">AIzaSyBVpDDe8XsGSVyoqJFbYrau9BbPJwtu8rg</string>
     <string name="google_app_id" translatable="false">1:671222128206:android:80f919ee68bd22cd03ad1f</string>

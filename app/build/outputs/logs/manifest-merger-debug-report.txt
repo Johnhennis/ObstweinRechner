@@ -164,7 +164,7 @@ MERGED from [com.google.android.play:core-common:2.0.3] /home/codespace/.gradle/
 	android:supportsRtl
 		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:12:9-35
 	android:label
-		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:10:90-124
+		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:10:90-110
 	android:roundIcon
 		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:10:44-89
 	android:icon
@@ -178,7 +178,7 @@ MERGED from [com.google.android.play:core-common:2.0.3] /home/codespace/.gradle/
 activity#com.example.fruchtweinrechner.MainActivity
 ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:15:9-25:20
 	android:label
-		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:18:94-128
+		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:18:94-114
 	android:windowSoftInputMode
 		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:20:13-55
 	android:exported

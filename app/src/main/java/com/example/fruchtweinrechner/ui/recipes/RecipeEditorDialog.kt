@@ -60,9 +60,13 @@ private fun Modifier.moveFocusOnEnter(focusManager: FocusManager) = this.onPrevi
     }
 }
 
-private fun Modifier.clearFocusOnEnter(focusManager: FocusManager) = this.onPreviewKeyEvent { event ->
+private fun Modifier.clearFocusOnEnter(
+    focusManager: FocusManager,
+    keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?
+) = this.onPreviewKeyEvent { event ->
     if (event.type == KeyEventType.KeyUp && (event.key == Key.Enter || event.key == Key.NumPadEnter)) {
         focusManager.clearFocus()
+        keyboardController?.hide()
         true
     } else {
         false
@@ -134,7 +138,7 @@ fun RecipeEditorDialog(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth().clearFocusOnEnter(focusManager)
+                    modifier = Modifier.fillMaxWidth().clearFocusOnEnter(focusManager, keyboardController)
                 )
 
                 Divider()
