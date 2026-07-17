@@ -13,7 +13,7 @@ class SchmalzRecipeRepository(private val firestore: FirebaseFirestore) {
     val recipe: Flow<SchmalzRecipe?> = callbackFlow {
         val listener = collection.limit(1).addSnapshotListener { snapshot, error ->
             if (error != null) {
-                close(error)
+                trySend(null)
                 return@addSnapshotListener
             }
             val doc = snapshot?.documents?.firstOrNull()

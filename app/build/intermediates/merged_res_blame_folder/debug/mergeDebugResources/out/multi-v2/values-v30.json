@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.fruchtweinrechner.app-mergeDebugResources-61:/values-v30/values-v30.xml",
+            "outputFile": "com.example.fruchtweinrechner.app-mergeDebugResources-65:/values-v30/values-v30.xml",
             "map": [
                 {
-                    "source": "/home/codespace/.gradle/caches/9.1.0/transforms/6a1c02027d87a9cc0236b9ba978d2f7f/transformed/material3-release/res/values-v30/values-v30.xml",
+                    "source": "/home/codespace/.gradle/caches/9.1.0/transforms/f8a27b2ef169236da1c123e9d184f45c/transformed/material3-release/res/values-v30/values-v30.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

@@ -254,6 +254,7 @@ layout notification_template_part_time
 mipmap ic_launcher
 mipmap ic_launcher_round
 raw firebase_common_keep
+raw firebase_crashlytics_keep
 string android_credentials_TYPE_PASSWORD_CREDENTIAL
 string androidx_credentials_TYPE_PUBLIC_KEY_CREDENTIAL
 string androidx_startup
@@ -267,6 +268,7 @@ string call_notification_ongoing_text
 string call_notification_screening_text
 string close_drawer
 string close_sheet
+string com_google_firebase_crashlytics_mapping_file_id
 string common_google_play_services_enable_button
 string common_google_play_services_enable_text
 string common_google_play_services_enable_title

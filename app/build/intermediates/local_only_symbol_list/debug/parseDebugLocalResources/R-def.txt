@@ -3,6 +3,7 @@ local
 mipmap ic_launcher
 mipmap ic_launcher_round
 string app_name
+string com.google.firebase.crashlytics.mapping_file_id
 string gcm_defaultSenderId
 string google_api_key
 string google_app_id

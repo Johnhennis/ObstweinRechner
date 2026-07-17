@@ -13,7 +13,7 @@ class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
     val allRecipes: Flow<List<FruitRecipe>> = callbackFlow {
         val listener = recipesCollection.addSnapshotListener { snapshot, error ->
             if (error != null) {
-                close(error)
+                trySend(emptyList())
                 return@addSnapshotListener
             }
             val recipes = snapshot?.documents?.mapNotNull { doc ->
