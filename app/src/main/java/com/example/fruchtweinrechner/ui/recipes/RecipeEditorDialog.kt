@@ -36,6 +36,7 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -76,6 +77,7 @@ fun RecipeEditorDialog(
 ) {
     val viewModel: RecipeEditorViewModel = viewModel(factory = factory)
     val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var name by remember { mutableStateOf(recipe?.name ?: "") }
     var fruchtKg by remember { mutableStateOf(displayValue(recipe?.fruchtKg)) }
@@ -130,7 +132,7 @@ fun RecipeEditorDialog(
                     onValueChange = { hefeSorte = it },
                     label = { Text("Hefe") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { focusManager.clearFocus() }),
+                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().clearFocusOnEnter(focusManager)
                 )
