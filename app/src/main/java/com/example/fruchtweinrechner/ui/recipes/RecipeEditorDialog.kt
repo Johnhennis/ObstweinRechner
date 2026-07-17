@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +29,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,8 +39,6 @@ import com.example.fruchtweinrechner.data.ExtraIngredient
 import com.example.fruchtweinrechner.data.FruitRecipe
 import com.example.fruchtweinrechner.ui.AppViewModelFactory
 
-// Zeigt bei bestehenden Werten von 0.0 ein leeres Feld statt einer "0.0" - so lässt
-// sich ein Wert einfach löschen/leer lassen, ohne dass eine Null im Feld klebt.
 private fun displayValue(value: Double?): String =
     if (value == null || value == 0.0) "" else value.toString()
 
@@ -46,6 +49,8 @@ fun RecipeEditorDialog(
     onDismiss: () -> Unit
 ) {
     val viewModel: RecipeEditorViewModel = viewModel(factory = factory)
+    val focusManager = LocalFocusManager.current
+    val nextFieldActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Down) })
 
     var name by remember { mutableStateOf(recipe?.name ?: "") }
     var fruchtKg by remember { mutableStateOf(displayValue(recipe?.fruchtKg)) }
@@ -69,7 +74,10 @@ fun RecipeEditorDialog(
         title = { Text(if (recipe == null) "Neue Frucht hinzufügen" else "Frucht bearbeiten") },
         text = {
             Column(
-                modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
@@ -77,15 +85,31 @@ fun RecipeEditorDialog(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
-                NumberField("Frucht (kg)", fruchtKg) { fruchtKg = it }
-                NumberField("Ausbeute Saft (L)", saftLiter) { saftLiter = it }
-                NumberField("Wasser (L)", wasserLiter) { wasserLiter = it }
-                NumberField("Zucker (kg)", zuckerKg) { zuckerKg = it }
-                NumberField("Milchsäure (g)", milchsaeure) { milchsaeure = it }
-                NumberField("Antigel klein (ml)", antigelKlein) { antigelKlein = it }
-                NumberField("Antigel groß (ml)", antigelGross) { antigelGross = it }
-                OutlinedTextField(value = hefeSorte, onValueChange = { hefeSorte = it }, label = { Text("Hefe") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = nextFieldActions,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                NumberField("Frucht (kg)", fruchtKg, nextFieldActions) { fruchtKg = it }
+                NumberField("Ausbeute Saft (L)", saftLiter, nextFieldActions) { saftLiter = it }
+                NumberField("Wasser (L)", wasserLiter, nextFieldActions) { wasserLiter = it }
+                NumberField("Zucker (kg)", zuckerKg, nextFieldActions) { zuckerKg = it }
+                NumberField("Milchsäure (g)", milchsaeure, nextFieldActions) { milchsaeure = it }
+                NumberField("Antigel klein (ml)", antigelKlein, nextFieldActions) { antigelKlein = it }
+                NumberField("Antigel groß (ml)", antigelGross, nextFieldActions) { antigelGross = it }
+                OutlinedTextField(
+                    value = hefeSorte,
+                    onValueChange = { hefeSorte = it },
+                    label = { Text("Hefe") },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = nextFieldActions,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
                 Divider()
                 Text("Zusätzliche Zutaten", style = MaterialTheme.typography.titleSmall)
@@ -100,6 +124,9 @@ fun RecipeEditorDialog(
                             value = ingName,
                             onValueChange = { extraIngredients[index] = it to ingMenge },
                             label = { Text("Name") },
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            keyboardActions = nextFieldActions,
+                            singleLine = true,
                             modifier = Modifier.width(170.dp)
                         )
                         OutlinedTextField(
@@ -110,7 +137,9 @@ fun RecipeEditorDialog(
                                 }
                             },
                             label = { Text("Menge") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
+                            keyboardActions = nextFieldActions,
+                            singleLine = true,
                             modifier = Modifier.width(100.dp)
                         )
                         IconButton(onClick = { extraIngredients.removeAt(index) }) {
@@ -183,14 +212,21 @@ fun RecipeEditorDialog(
 }
 
 @Composable
-private fun NumberField(label: String, value: String, onValueChange: (String) -> Unit) {
+private fun NumberField(
+    label: String,
+    value: String,
+    keyboardActions: KeyboardActions,
+    onValueChange: (String) -> Unit
+) {
     OutlinedTextField(
         value = value,
         onValueChange = { new ->
             if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) onValueChange(new)
         },
         label = { Text(label) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
+        keyboardActions = keyboardActions,
+        singleLine = true,
         modifier = Modifier.fillMaxWidth()
     )
 }
