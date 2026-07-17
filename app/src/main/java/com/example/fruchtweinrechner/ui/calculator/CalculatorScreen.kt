@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
@@ -31,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fruchtweinrechner.data.CalculationResult
@@ -61,7 +65,8 @@ fun CalculatorScreen(
             modifier = Modifier
                 .padding(padding)
                 .padding(16.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             FruitDropdown(
@@ -88,12 +93,14 @@ fun CalculatorScreen(
                     value = uiState.literText,
                     onValueChange = viewModel::onLiterChanged,
                     label = { Text("Ziel-Menge Wein (Liter)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
                 InputMode.FRUCHT_KG -> OutlinedTextField(
                     value = uiState.fruchtKgText,
                     onValueChange = viewModel::onFruchtKgChanged,
                     label = { Text("Verfügbare Frucht (kg)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -156,16 +163,15 @@ private fun ResultCard(recipeName: String, result: CalculationResult) {
             Text("Rezept für $recipeName", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             ResultRow("Ziel-Menge Wein", "${fmt(result.zielLiter)} L")
             ResultRow("Fruchtmenge", "${fmt(result.fruchtKg)} kg")
-            ResultRow("Saftmenge", "${fmt(result.saftLiter)} L")
-            ResultRow("Wassermenge", "${fmt(result.wasserLiter)} L")
+            ResultRow("Ausbeute Saft", "${fmt(result.saftLiter)} L")
+            ResultRow("Wasser", "${fmt(result.wasserLiter)} L")
             ResultRow("Zucker", "${fmt(result.zuckerKg)} kg")
             ResultRow("Milchsäure", "${fmt(result.milchsaeureGramm)} g")
-            ResultRow("Antigel klein", "${fmt(result.antigelKleinGramm)} g")
-            ResultRow("Antigel groß", "${fmt(result.antigelGrossGramm)} g")
-            ResultRow("Hefe", "${fmt(result.hefeGramm)} g" + if (result.hefeSorte.isNotBlank()) " (${result.hefeSorte})" else "")
-            ResultRow("Hefenährsalz", "${fmt(result.naehrsalzGramm)} g")
+            ResultRow("Antigel klein", "${fmt(result.antigelKleinMl)} ml")
+            ResultRow("Antigel groß", "${fmt(result.antigelGrossMl)} ml")
+            ResultRow("Hefe", result.hefeSorte.ifBlank { "–" })
             result.zusatzMengen.forEach { (name, menge) ->
-                ResultRow(name, "${fmt(menge)} g")
+                ResultRow(name, fmt(menge))
             }
         }
     }

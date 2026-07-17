@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -33,6 +34,11 @@ import com.example.fruchtweinrechner.data.ExtraIngredient
 import com.example.fruchtweinrechner.data.FruitRecipe
 import com.example.fruchtweinrechner.ui.AppViewModelFactory
 
+// Zeigt bei bestehenden Werten von 0.0 ein leeres Feld statt einer "0.0" - so lässt
+// sich ein Wert einfach löschen/leer lassen, ohne dass eine Null im Feld klebt.
+private fun displayValue(value: Double?): String =
+    if (value == null || value == 0.0) "" else value.toString()
+
 @Composable
 fun RecipeEditorDialog(
     factory: AppViewModelFactory,
@@ -42,20 +48,19 @@ fun RecipeEditorDialog(
     val viewModel: RecipeEditorViewModel = viewModel(factory = factory)
 
     var name by remember { mutableStateOf(recipe?.name ?: "") }
-    var saftAusbeute by remember { mutableStateOf(recipe?.saftAusbeute?.toString() ?: "0.70") }
-    var saftAnteil by remember { mutableStateOf(recipe?.saftAnteilImWein?.toString() ?: "0.80") }
-    var zucker by remember { mutableStateOf(recipe?.zuckerProLiter?.toString() ?: "150.0") }
-    var milchsaeure by remember { mutableStateOf(recipe?.milchsaeureProLiter?.toString() ?: "0.0") }
-    var antigelKlein by remember { mutableStateOf(recipe?.antigelKleinProLiter?.toString() ?: "0.0") }
-    var antigelGross by remember { mutableStateOf(recipe?.antigelGrossProLiter?.toString() ?: "0.0") }
-    var hefe by remember { mutableStateOf(recipe?.hefeProLiter?.toString() ?: "0.4") }
+    var fruchtKg by remember { mutableStateOf(displayValue(recipe?.fruchtKg)) }
+    var saftLiter by remember { mutableStateOf(displayValue(recipe?.saftLiter)) }
+    var wasserLiter by remember { mutableStateOf(displayValue(recipe?.wasserLiter)) }
+    var zuckerKg by remember { mutableStateOf(displayValue(recipe?.zuckerKg)) }
+    var milchsaeure by remember { mutableStateOf(displayValue(recipe?.milchsaeureGramm)) }
+    var antigelKlein by remember { mutableStateOf(displayValue(recipe?.antigelKleinMl)) }
+    var antigelGross by remember { mutableStateOf(displayValue(recipe?.antigelGrossMl)) }
     var hefeSorte by remember { mutableStateOf(recipe?.hefeSorte ?: "") }
-    var naehrsalz by remember { mutableStateOf(recipe?.naehrsalzProLiter?.toString() ?: "0.4") }
     var error by remember { mutableStateOf<String?>(null) }
 
     val extraIngredients = remember {
         mutableStateListOf<Pair<String, String>>().apply {
-            recipe?.zusatzZutaten?.forEach { add(it.name to it.mengeProLiter.toString()) }
+            recipe?.zusatzZutaten?.forEach { add(it.name to displayValue(it.menge)) }
         }
     }
 
@@ -67,16 +72,20 @@ fun RecipeEditorDialog(
                 modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                Text(
+                    "Alle Mengen beziehen sich auf 10 Liter fertigen Wein.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
-                NumberField("Saftausbeute (L Saft / kg Frucht)", saftAusbeute) { saftAusbeute = it }
-                NumberField("Saftanteil im Wein (0.0 – 1.0)", saftAnteil) { saftAnteil = it }
-                NumberField("Zucker (g pro Liter Wein)", zucker) { zucker = it }
-                NumberField("Milchsäure (g pro Liter Wein)", milchsaeure) { milchsaeure = it }
-                NumberField("Antigel klein (g pro Liter Wein)", antigelKlein) { antigelKlein = it }
-                NumberField("Antigel groß (g pro Liter Wein)", antigelGross) { antigelGross = it }
-                NumberField("Hefe (g pro Liter Wein)", hefe) { hefe = it }
-                OutlinedTextField(value = hefeSorte, onValueChange = { hefeSorte = it }, label = { Text("Hefesorte / Test") }, modifier = Modifier.fillMaxWidth())
-                NumberField("Hefenährsalz (g pro Liter Wein)", naehrsalz) { naehrsalz = it }
+                NumberField("Frucht (kg)", fruchtKg) { fruchtKg = it }
+                NumberField("Ausbeute Saft (L)", saftLiter) { saftLiter = it }
+                NumberField("Wasser (L)", wasserLiter) { wasserLiter = it }
+                NumberField("Zucker (kg)", zuckerKg) { zuckerKg = it }
+                NumberField("Milchsäure (g)", milchsaeure) { milchsaeure = it }
+                NumberField("Antigel klein (ml)", antigelKlein) { antigelKlein = it }
+                NumberField("Antigel groß (ml)", antigelGross) { antigelGross = it }
+                OutlinedTextField(value = hefeSorte, onValueChange = { hefeSorte = it }, label = { Text("Hefe") }, modifier = Modifier.fillMaxWidth())
 
                 Divider()
                 Text("Zusätzliche Zutaten", style = MaterialTheme.typography.titleSmall)
@@ -100,8 +109,8 @@ fun RecipeEditorDialog(
                                     extraIngredients[index] = ingName to new
                                 }
                             },
-                            label = { Text("g/L") },
-                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            label = { Text("Menge") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                             modifier = Modifier.width(100.dp)
                         )
                         IconButton(onClick = { extraIngredients.removeAt(index) }) {
@@ -110,7 +119,7 @@ fun RecipeEditorDialog(
                     }
                 }
 
-                TextButton(onClick = { extraIngredients.add("" to "0.0") }) {
+                TextButton(onClick = { extraIngredients.add("" to "") }) {
                     Icon(Icons.Filled.Add, contentDescription = null)
                     Text("Zutat hinzufügen")
                 }
@@ -120,27 +129,41 @@ fun RecipeEditorDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                val parsed = parseValues(name, saftAusbeute, saftAnteil, zucker, milchsaeure, antigelKlein, antigelGross, hefe, naehrsalz)
-                if (parsed == null) {
-                    error = "Bitte alle Felder korrekt ausfüllen (Name nicht leer, Zahlen gültig)."
+                if (name.isBlank()) {
+                    error = "Bitte einen Namen eingeben."
                     return@TextButton
                 }
+                fun parse(s: String) = if (s.isBlank()) 0.0 else s.replace(',', '.').toDoubleOrNull()
+
+                val fk = parse(fruchtKg)
+                val sl = parse(saftLiter)
+                val wl = parse(wasserLiter)
+                val zk = parse(zuckerKg)
+                val ms = parse(milchsaeure)
+                val ak = parse(antigelKlein)
+                val ag = parse(antigelGross)
+
+                if (fk == null || sl == null || wl == null || zk == null || ms == null || ak == null || ag == null) {
+                    error = "Bitte nur gültige Zahlen eingeben."
+                    return@TextButton
+                }
+
                 val zusatz = extraIngredients.mapNotNull { (n, m) ->
-                    val menge = m.replace(',', '.').toDoubleOrNull()
+                    val menge = if (m.isBlank()) 0.0 else m.replace(',', '.').toDoubleOrNull()
                     if (n.isNotBlank() && menge != null) ExtraIngredient(n.trim(), menge) else null
                 }
+
                 val toSave = FruitRecipe(
                     id = recipe?.id ?: "",
                     name = name.trim(),
-                    saftAusbeute = parsed.saftAusbeute,
-                    saftAnteilImWein = parsed.saftAnteilImWein,
-                    zuckerProLiter = parsed.zuckerProLiter,
-                    milchsaeureProLiter = parsed.milchsaeureProLiter,
-                    antigelKleinProLiter = parsed.antigelKleinProLiter,
-                    antigelGrossProLiter = parsed.antigelGrossProLiter,
-                    hefeProLiter = parsed.hefeProLiter,
+                    fruchtKg = fk,
+                    saftLiter = sl,
+                    wasserLiter = wl,
+                    zuckerKg = zk,
+                    milchsaeureGramm = ms,
+                    antigelKleinMl = ak,
+                    antigelGrossMl = ag,
                     hefeSorte = hefeSorte.trim(),
-                    naehrsalzProLiter = parsed.naehrsalzProLiter,
                     zusatzZutaten = zusatz
                 )
                 viewModel.save(toSave) { onDismiss() }
@@ -167,43 +190,7 @@ private fun NumberField(label: String, value: String, onValueChange: (String) ->
             if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) onValueChange(new)
         },
         label = { Text(label) },
-        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth()
     )
-}
-
-private data class ParsedValues(
-    val saftAusbeute: Double,
-    val saftAnteilImWein: Double,
-    val zuckerProLiter: Double,
-    val milchsaeureProLiter: Double,
-    val antigelKleinProLiter: Double,
-    val antigelGrossProLiter: Double,
-    val hefeProLiter: Double,
-    val naehrsalzProLiter: Double
-)
-
-private fun parseValues(
-    name: String,
-    saftAusbeute: String,
-    saftAnteil: String,
-    zucker: String,
-    milchsaeure: String,
-    antigelKlein: String,
-    antigelGross: String,
-    hefe: String,
-    naehrsalz: String
-): ParsedValues? {
-    if (name.isBlank()) return null
-    fun parse(s: String) = s.replace(',', '.').toDoubleOrNull()
-    val sa = parse(saftAusbeute) ?: return null
-    val sw = parse(saftAnteil) ?: return null
-    val z = parse(zucker) ?: return null
-    val m = parse(milchsaeure) ?: return null
-    val ak = parse(antigelKlein) ?: return null
-    val ag = parse(antigelGross) ?: return null
-    val h = parse(hefe) ?: return null
-    val n = parse(naehrsalz) ?: return null
-    if (sa <= 0 || sw !in 0.0..1.0) return null
-    return ParsedValues(sa, sw, z, m, ak, ag, h, n)
 }

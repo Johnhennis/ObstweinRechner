@@ -84,11 +84,11 @@ fun RecipeListScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(recipe.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(
-                            "Saftausbeute: ${recipe.saftAusbeute} L/kg · Saftanteil: ${(recipe.saftAnteilImWein * 100).toInt()}%",
+                            "Frucht: ${recipe.fruchtKg} kg · Saft: ${recipe.saftLiter} L · Wasser: ${recipe.wasserLiter} L",
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
-                            "Zucker: ${recipe.zuckerProLiter} g/L · Hefe: ${recipe.hefeProLiter} g/L · Nährsalz: ${recipe.naehrsalzProLiter} g/L",
+                            "Zucker: ${recipe.zuckerKg} kg · Hefe: ${recipe.hefeSorte}",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }

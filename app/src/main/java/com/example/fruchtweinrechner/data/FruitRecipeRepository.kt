@@ -48,9 +48,33 @@ class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
         }
     }
 
+    // Werte pro 10 Liter fertigem Wein
     private fun defaultRecipes(): List<FruitRecipe> = listOf(
-        FruitRecipe(name = "Apfel", saftAusbeute = 0.70, saftAnteilImWein = 0.80, zuckerProLiter = 150.0, hefeProLiter = 0.4, naehrsalzProLiter = 0.4),
-        FruitRecipe(name = "Kirsche (Sauerkirsch)", saftAusbeute = 0.60, saftAnteilImWein = 0.70, zuckerProLiter = 200.0, hefeProLiter = 0.4, naehrsalzProLiter = 0.4),
-        FruitRecipe(name = "Johannisbeere", saftAusbeute = 0.55, saftAnteilImWein = 0.50, zuckerProLiter = 220.0, hefeProLiter = 0.4, naehrsalzProLiter = 0.5)
+        FruitRecipe(
+            name = "Äpfel reif",
+            fruchtKg = 14.0,
+            saftLiter = 10.0,
+            hefeSorte = "Steinberg"
+        ),
+        FruitRecipe(
+            name = "Sauerkirschen",
+            fruchtKg = 7.0,
+            saftLiter = 5.0,
+            wasserLiter = 3.5,
+            zuckerKg = 2.5,
+            antigelKleinMl = 10.0,
+            antigelGrossMl = 1.5,
+            hefeSorte = "Portwein"
+        ),
+        FruitRecipe(
+            name = "Johannisbeeren sw",
+            fruchtKg = 4.0,
+            saftLiter = 3.0,
+            wasserLiter = 5.5,
+            zuckerKg = 2.5,
+            antigelKleinMl = 15.0,
+            antigelGrossMl = 1.5,
+            hefeSorte = "Portwein"
+        )
     )
 }

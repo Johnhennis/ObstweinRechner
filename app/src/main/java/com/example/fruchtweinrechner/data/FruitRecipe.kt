@@ -2,20 +2,20 @@ package com.example.fruchtweinrechner.data
 
 data class ExtraIngredient(
     val name: String = "",
-    val mengeProLiter: Double = 0.0
+    val menge: Double = 0.0
 )
 
+// Alle Mengen beziehen sich auf ein Basis-Rezept für 10 Liter fertigen Wein.
 data class FruitRecipe(
     val id: String = "",
     val name: String = "",
-    val saftAusbeute: Double = 0.0,
-    val saftAnteilImWein: Double = 0.0,
-    val zuckerProLiter: Double = 0.0,
-    val milchsaeureProLiter: Double = 0.0,
-    val antigelKleinProLiter: Double = 0.0,
-    val antigelGrossProLiter: Double = 0.0,
-    val hefeProLiter: Double = 0.0,
+    val fruchtKg: Double = 0.0,
+    val saftLiter: Double = 0.0,
+    val wasserLiter: Double = 0.0,
+    val zuckerKg: Double = 0.0,
+    val milchsaeureGramm: Double = 0.0,
+    val antigelKleinMl: Double = 0.0,
+    val antigelGrossMl: Double = 0.0,
     val hefeSorte: String = "",
-    val naehrsalzProLiter: Double = 0.0,
     val zusatzZutaten: List<ExtraIngredient> = emptyList()
 )
