@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
@@ -37,6 +39,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -48,9 +51,6 @@ import com.example.fruchtweinrechner.ui.AppViewModelFactory
 private fun displayValue(value: Double?): String =
     if (value == null || value == 0.0) "" else value.toString()
 
-// Fängt den Enter-Tastendruck der Tastatur direkt ab und springt zum nächsten Feld.
-// Zuverlässiger als sich auf die IME-Aktion zu verlassen, die bei Zahlentastaturen
-// von manchen Android-Tastaturen ignoriert wird.
 private fun Modifier.moveFocusOnEnter(focusManager: FocusManager) = this.onPreviewKeyEvent { event ->
     if (event.type == KeyEventType.KeyUp && (event.key == Key.Enter || event.key == Key.NumPadEnter)) {
         focusManager.moveFocus(FocusDirection.Down)
@@ -62,7 +62,7 @@ private fun Modifier.moveFocusOnEnter(focusManager: FocusManager) = this.onPrevi
 
 private fun Modifier.clearFocusOnEnter(
     focusManager: FocusManager,
-    keyboardController: androidx.compose.ui.platform.SoftwareKeyboardController?
+    keyboardController: SoftwareKeyboardController?
 ) = this.onPreviewKeyEvent { event ->
     if (event.type == KeyEventType.KeyUp && (event.key == Key.Enter || event.key == Key.NumPadEnter)) {
         focusManager.clearFocus()
@@ -112,7 +112,7 @@ fun RecipeEditorDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    "Alle Mengen beziehen sich auf 10 Liter fertigen Wein.",
+                    "Alle Mengen beziehen sich auf 10 Liter fertigen Wein. Mit ✕ lässt sich ein Feld leeren.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -136,8 +136,15 @@ fun RecipeEditorDialog(
                     onValueChange = { hefeSorte = it },
                     label = { Text("Hefe") },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
                     singleLine = true,
+                    trailingIcon = {
+                        if (hefeSorte.isNotEmpty()) {
+                            IconButton(onClick = { hefeSorte = "" }) {
+                                Icon(Icons.Filled.Clear, contentDescription = "Leeren")
+                            }
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth().clearFocusOnEnter(focusManager, keyboardController)
                 )
 
@@ -254,6 +261,13 @@ private fun NumberField(
         label = { Text(label) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
         singleLine = true,
+        trailingIcon = {
+            if (value.isNotEmpty()) {
+                IconButton(onClick = { onValueChange("") }) {
+                    Icon(Icons.Filled.Clear, contentDescription = "Leeren")
+                }
+            }
+        },
         modifier = Modifier.fillMaxWidth().moveFocusOnEnter(focusManager)
     )
 }

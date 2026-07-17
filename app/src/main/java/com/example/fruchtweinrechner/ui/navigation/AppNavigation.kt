@@ -1,34 +1,117 @@
 package com.example.fruchtweinrechner.ui.navigation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Kitchen
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.WineBar
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.fruchtweinrechner.ui.AppViewModelFactory
 import com.example.fruchtweinrechner.ui.calculator.CalculatorScreen
 import com.example.fruchtweinrechner.ui.recipes.RecipeListScreen
+import com.example.fruchtweinrechner.ui.schmalz.SchmalzScreen
+import com.example.fruchtweinrechner.ui.settings.SettingsScreen
+import kotlinx.coroutines.launch
 
 private object Routes {
-    const val CALCULATOR = "calculator"
-    const val RECIPES = "recipes"
+    const val WEIN = "wein"
+    const val WEIN_RECIPES = "wein_recipes"
+    const val SCHMALZ = "schmalz"
+    const val SETTINGS = "settings"
 }
 
 @Composable
 fun AppNavigation(factory: AppViewModelFactory) {
     val navController = rememberNavController()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
-    NavHost(navController = navController, startDestination = Routes.CALCULATOR) {
-        composable(Routes.CALCULATOR) {
-            CalculatorScreen(
-                factory = factory,
-                onOpenRecipes = { navController.navigate(Routes.RECIPES) }
-            )
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "Menü",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(Modifier.height(8.dp))
+                NavigationDrawerItem(
+                    label = { Text("Wein-Rechner") },
+                    icon = { Icon(Icons.Filled.WineBar, contentDescription = null) },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Routes.WEIN) { launchSingleTop = true }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Schmalz-Rechner") },
+                    icon = { Icon(Icons.Filled.Kitchen, contentDescription = null) },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Routes.SCHMALZ) { launchSingleTop = true }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Einstellungen") },
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+                    selected = false,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Routes.SETTINGS) { launchSingleTop = true }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
         }
-        composable(Routes.RECIPES) {
-            RecipeListScreen(
-                factory = factory,
-                onBack = { navController.popBackStack() }
-            )
+    ) {
+        NavHost(navController = navController, startDestination = Routes.WEIN) {
+            composable(Routes.WEIN) {
+                CalculatorScreen(
+                    factory = factory,
+                    onOpenRecipes = { navController.navigate(Routes.WEIN_RECIPES) },
+                    onOpenMenu = { scope.launch { drawerState.open() } }
+                )
+            }
+            composable(Routes.WEIN_RECIPES) {
+                RecipeListScreen(
+                    factory = factory,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+            composable(Routes.SCHMALZ) {
+                SchmalzScreen(
+                    factory = factory,
+                    onOpenMenu = { scope.launch { drawerState.open() } }
+                )
+            }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(
+                    factory = factory,
+                    onOpenMenu = { scope.launch { drawerState.open() } }
+                )
+            }
         }
     }
 }

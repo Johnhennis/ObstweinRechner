@@ -2,6 +2,8 @@ package com.example.fruchtweinrechner
 
 import android.app.Application
 import com.example.fruchtweinrechner.data.FruitRecipeRepository
+import com.example.fruchtweinrechner.data.SchmalzRecipeRepository
+import com.example.fruchtweinrechner.data.SettingsRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +19,14 @@ class FruchtweinApplication : Application() {
         FruitRecipeRepository(FirebaseFirestore.getInstance())
     }
 
+    val schmalzRepository: SchmalzRecipeRepository by lazy {
+        SchmalzRecipeRepository(FirebaseFirestore.getInstance())
+    }
+
+    val settingsRepository: SettingsRepository by lazy {
+        SettingsRepository(this)
+    }
+
     override fun onCreate() {
         super.onCreate()
         applicationScope.launch {
@@ -24,6 +34,7 @@ class FruchtweinApplication : Application() {
                 FirebaseAuth.getInstance().signInAnonymously().await()
             }
             repository.seedIfEmpty()
+            schmalzRepository.seedIfEmpty()
         }
     }
 }
