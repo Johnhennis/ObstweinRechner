@@ -47,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fruchtweinrechner.data.ExtraIngredient
 import com.example.fruchtweinrechner.data.FruitRecipe
 import com.example.fruchtweinrechner.ui.AppViewModelFactory
+import com.example.fruchtweinrechner.ui.common.ScaledContent
 
 private fun displayValue(value: Double?): String =
     if (value == null || value == 0.0) "" else value.toString()
@@ -102,145 +103,148 @@ fun RecipeEditorDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (recipe == null) "Neue Frucht hinzufügen" else "Frucht bearbeiten") },
+        title = { ScaledContent(factory) { Text(if (recipe == null) "Neue Frucht hinzufügen" else "Frucht bearbeiten") } },
         text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .imePadding(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    "Alle Mengen beziehen sich auf 10 Liter fertigen Wein. Mit ✕ lässt sich ein Feld leeren.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().moveFocusOnEnter(focusManager)
-                )
-                NumberField("Frucht (kg)", fruchtKg, focusManager) { fruchtKg = it }
-                NumberField("Ausbeute Saft (L)", saftLiter, focusManager) { saftLiter = it }
-                NumberField("Wasser (L)", wasserLiter, focusManager) { wasserLiter = it }
-                NumberField("Zucker (kg)", zuckerKg, focusManager) { zuckerKg = it }
-                NumberField("Milchsäure (g)", milchsaeure, focusManager) { milchsaeure = it }
-                NumberField("Antigel klein (ml)", antigelKlein, focusManager) { antigelKlein = it }
-                NumberField("Antigel groß (ml)", antigelGross, focusManager) { antigelGross = it }
-                OutlinedTextField(
-                    value = hefeSorte,
-                    onValueChange = { hefeSorte = it },
-                    label = { Text("Hefe") },
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
-                    singleLine = true,
-                    trailingIcon = {
-                        if (hefeSorte.isNotEmpty()) {
-                            IconButton(onClick = { hefeSorte = "" }) {
-                                Icon(Icons.Filled.Clear, contentDescription = "Leeren")
+            ScaledContent(factory) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).imePadding(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "Alle Mengen beziehen sich auf 10 Liter fertigen Wein. Mit ✕ lässt sich ein Feld leeren.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Name") },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().moveFocusOnEnter(focusManager)
+                    )
+                    NumberField("Frucht (kg)", fruchtKg, focusManager) { fruchtKg = it }
+                    NumberField("Ausbeute Saft (L)", saftLiter, focusManager) { saftLiter = it }
+                    NumberField("Wasser (L)", wasserLiter, focusManager) { wasserLiter = it }
+                    NumberField("Zucker (kg)", zuckerKg, focusManager) { zuckerKg = it }
+                    NumberField("Milchsäure (g)", milchsaeure, focusManager) { milchsaeure = it }
+                    NumberField("Antigel klein (ml)", antigelKlein, focusManager) { antigelKlein = it }
+                    NumberField("Antigel groß (ml)", antigelGross, focusManager) { antigelGross = it }
+                    OutlinedTextField(
+                        value = hefeSorte,
+                        onValueChange = { hefeSorte = it },
+                        label = { Text("Hefe") },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
+                        singleLine = true,
+                        trailingIcon = {
+                            if (hefeSorte.isNotEmpty()) {
+                                IconButton(onClick = { hefeSorte = "" }) {
+                                    Icon(Icons.Filled.Clear, contentDescription = "Leeren")
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().clearFocusOnEnter(focusManager, keyboardController)
+                    )
+
+                    Divider()
+                    Text("Zusätzliche Zutaten", style = MaterialTheme.typography.titleSmall)
+
+                    extraIngredients.forEachIndexed { index, (ingName, ingMenge) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            OutlinedTextField(
+                                value = ingName,
+                                onValueChange = { extraIngredients[index] = it to ingMenge },
+                                label = { Text("Name") },
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                                singleLine = true,
+                                modifier = Modifier.width(170.dp).moveFocusOnEnter(focusManager)
+                            )
+                            OutlinedTextField(
+                                value = ingMenge,
+                                onValueChange = { new ->
+                                    if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+                                        extraIngredients[index] = ingName to new
+                                    }
+                                },
+                                label = { Text("Menge") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
+                                singleLine = true,
+                                modifier = Modifier.width(100.dp).moveFocusOnEnter(focusManager)
+                            )
+                            IconButton(onClick = { extraIngredients.removeAt(index) }) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
                             }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth().clearFocusOnEnter(focusManager, keyboardController)
-                )
-
-                Divider()
-                Text("Zusätzliche Zutaten", style = MaterialTheme.typography.titleSmall)
-
-                extraIngredients.forEachIndexed { index, (ingName, ingMenge) ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        OutlinedTextField(
-                            value = ingName,
-                            onValueChange = { extraIngredients[index] = it to ingMenge },
-                            label = { Text("Name") },
-                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            singleLine = true,
-                            modifier = Modifier.width(170.dp).moveFocusOnEnter(focusManager)
-                        )
-                        OutlinedTextField(
-                            value = ingMenge,
-                            onValueChange = { new ->
-                                if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
-                                    extraIngredients[index] = ingName to new
-                                }
-                            },
-                            label = { Text("Menge") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Next),
-                            singleLine = true,
-                            modifier = Modifier.width(100.dp).moveFocusOnEnter(focusManager)
-                        )
-                        IconButton(onClick = { extraIngredients.removeAt(index) }) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
-                        }
                     }
-                }
 
-                TextButton(onClick = { extraIngredients.add("" to "") }) {
-                    Icon(Icons.Filled.Add, contentDescription = null)
-                    Text("Zutat hinzufügen")
-                }
+                    TextButton(onClick = { extraIngredients.add("" to "") }) {
+                        Icon(Icons.Filled.Add, contentDescription = null)
+                        Text("Zutat hinzufügen")
+                    }
 
-                error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                    error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                if (name.isBlank()) {
-                    error = "Bitte einen Namen eingeben."
-                    return@TextButton
-                }
-                fun parse(s: String) = if (s.isBlank()) 0.0 else s.replace(',', '.').toDoubleOrNull()
+            ScaledContent(factory) {
+                TextButton(onClick = {
+                    if (name.isBlank()) {
+                        error = "Bitte einen Namen eingeben."
+                        return@TextButton
+                    }
+                    fun parse(s: String) = if (s.isBlank()) 0.0 else s.replace(',', '.').toDoubleOrNull()
 
-                val fk = parse(fruchtKg)
-                val sl = parse(saftLiter)
-                val wl = parse(wasserLiter)
-                val zk = parse(zuckerKg)
-                val ms = parse(milchsaeure)
-                val ak = parse(antigelKlein)
-                val ag = parse(antigelGross)
+                    val fk = parse(fruchtKg)
+                    val sl = parse(saftLiter)
+                    val wl = parse(wasserLiter)
+                    val zk = parse(zuckerKg)
+                    val ms = parse(milchsaeure)
+                    val ak = parse(antigelKlein)
+                    val ag = parse(antigelGross)
 
-                if (fk == null || sl == null || wl == null || zk == null || ms == null || ak == null || ag == null) {
-                    error = "Bitte nur gültige Zahlen eingeben."
-                    return@TextButton
-                }
+                    if (fk == null || sl == null || wl == null || zk == null || ms == null || ak == null || ag == null) {
+                        error = "Bitte nur gültige Zahlen eingeben."
+                        return@TextButton
+                    }
 
-                val zusatz = extraIngredients.mapNotNull { (n, m) ->
-                    val menge = if (m.isBlank()) 0.0 else m.replace(',', '.').toDoubleOrNull()
-                    if (n.isNotBlank() && menge != null) ExtraIngredient(n.trim(), menge) else null
-                }
+                    val zusatz = extraIngredients.mapNotNull { (n, m) ->
+                        val menge = if (m.isBlank()) 0.0 else m.replace(',', '.').toDoubleOrNull()
+                        if (n.isNotBlank() && menge != null) ExtraIngredient(n.trim(), menge) else null
+                    }
 
-                val toSave = FruitRecipe(
-                    id = recipe?.id ?: "",
-                    name = name.trim(),
-                    fruchtKg = fk,
-                    saftLiter = sl,
-                    wasserLiter = wl,
-                    zuckerKg = zk,
-                    milchsaeureGramm = ms,
-                    antigelKleinMl = ak,
-                    antigelGrossMl = ag,
-                    hefeSorte = hefeSorte.trim(),
-                    zusatzZutaten = zusatz
-                )
-                viewModel.save(toSave) { onDismiss() }
-            }) { Text("Speichern") }
+                    val toSave = FruitRecipe(
+                        id = recipe?.id ?: "",
+                        name = name.trim(),
+                        fruchtKg = fk,
+                        saftLiter = sl,
+                        wasserLiter = wl,
+                        zuckerKg = zk,
+                        milchsaeureGramm = ms,
+                        antigelKleinMl = ak,
+                        antigelGrossMl = ag,
+                        hefeSorte = hefeSorte.trim(),
+                        zusatzZutaten = zusatz
+                    )
+                    viewModel.save(toSave) { onDismiss() }
+                }) { Text("Speichern") }
+            }
         },
         dismissButton = {
-            Row {
-                if (recipe != null) {
-                    TextButton(onClick = { viewModel.delete(recipe) { onDismiss() } }) {
-                        Text("Löschen", color = MaterialTheme.colorScheme.error)
+            ScaledContent(factory) {
+                Row {
+                    if (recipe != null) {
+                        TextButton(onClick = { viewModel.delete(recipe) { onDismiss() } }) {
+                            Text("Löschen", color = MaterialTheme.colorScheme.error)
+                        }
                     }
+                    TextButton(onClick = onDismiss) { Text("Abbrechen") }
                 }
-                TextButton(onClick = onDismiss) { Text("Abbrechen") }
             }
         }
     )

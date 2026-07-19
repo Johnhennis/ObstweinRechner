@@ -4,13 +4,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 
 class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
 
     private val recipesCollection = firestore.collection("recipes")
 
-    val allRecipes: Flow<List<FruitRecipe>> = callbackFlow {
+    // Ein gemeinsamer Listener für die ganze Sammlung; aktive und
+    // Papierkorb-Rezepte werden lokal daraus gefiltert.
+    private val allDocuments: Flow<List<FruitRecipe>> = callbackFlow {
         val listener = recipesCollection.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 trySend(emptyList())
@@ -24,20 +27,31 @@ class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
         awaitClose { listener.remove() }
     }
 
+    val allRecipes: Flow<List<FruitRecipe>> = allDocuments.map { list -> list.filter { !it.geloescht } }
+    val trashedRecipes: Flow<List<FruitRecipe>> = allDocuments.map { list -> list.filter { it.geloescht } }
+
     suspend fun getById(id: String): FruitRecipe? {
         val doc = recipesCollection.document(id).get().await()
         return doc.toObject(FruitRecipe::class.java)?.copy(id = doc.id)
     }
 
     suspend fun insert(recipe: FruitRecipe) {
-        recipesCollection.add(recipe.copy(id = "")).await()
+        recipesCollection.add(recipe.copy(id = "", geloescht = false)).await()
     }
 
     suspend fun update(recipe: FruitRecipe) {
         recipesCollection.document(recipe.id).set(recipe).await()
     }
 
-    suspend fun delete(recipe: FruitRecipe) {
+    suspend fun moveToTrash(recipe: FruitRecipe) {
+        recipesCollection.document(recipe.id).update("geloescht", true).await()
+    }
+
+    suspend fun restore(recipe: FruitRecipe) {
+        recipesCollection.document(recipe.id).update("geloescht", false).await()
+    }
+
+    suspend fun deletePermanently(recipe: FruitRecipe) {
         recipesCollection.document(recipe.id).delete().await()
     }
 

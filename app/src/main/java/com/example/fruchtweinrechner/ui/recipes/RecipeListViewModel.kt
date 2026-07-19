@@ -19,9 +19,21 @@ class RecipeListViewModel(
         initialValue = emptyList()
     )
 
+    val trashedRecipes: StateFlow<List<FruitRecipe>> = repository.trashedRecipes.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
+
     fun deleteRecipe(recipe: FruitRecipe) {
-        viewModelScope.launch {
-            repository.delete(recipe)
-        }
+        viewModelScope.launch { repository.moveToTrash(recipe) }
+    }
+
+    fun restore(recipe: FruitRecipe) {
+        viewModelScope.launch { repository.restore(recipe) }
+    }
+
+    fun deletePermanently(recipe: FruitRecipe) {
+        viewModelScope.launch { repository.deletePermanently(recipe) }
     }
 }

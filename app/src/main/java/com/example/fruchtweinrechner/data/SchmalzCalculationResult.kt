@@ -10,7 +10,8 @@ data class SchmalzCalculationResult(
     val zwiebelnGramm: Double,
     val salzGramm: Double,
     val majoranGramm: Double,
-    val thymianGramm: Double
+    val thymianGramm: Double,
+    val zusatzMengen: List<Pair<String, Double>>
 )
 
 fun SchmalzRecipe.calculate(zielLiter: Double): SchmalzCalculationResult {
@@ -23,6 +24,7 @@ fun SchmalzRecipe.calculate(zielLiter: Double): SchmalzCalculationResult {
         zwiebelnGramm = zwiebelnGramm * faktor,
         salzGramm = salzGramm * faktor,
         majoranGramm = majoranGramm * faktor,
-        thymianGramm = thymianGramm * faktor
+        thymianGramm = thymianGramm * faktor,
+        zusatzMengen = zusatzZutaten.map { it.name to (it.menge * faktor) }
     )
 }

@@ -9,5 +9,6 @@ data class SchmalzRecipe(
     val zwiebelnGramm: Double = 0.0,
     val salzGramm: Double = 0.0,
     val majoranGramm: Double = 0.0,
-    val thymianGramm: Double = 0.0
+    val thymianGramm: Double = 0.0,
+    val zusatzZutaten: List<ExtraIngredient> = emptyList()
 )

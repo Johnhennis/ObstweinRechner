@@ -10,10 +10,6 @@ class RecipeEditorViewModel(
     private val repository: FruitRecipeRepository
 ) : ViewModel() {
 
-    /**
-     * Speichert ein neues oder bestehendes Rezept.
-     * Ist [recipe.id] == 0, wird ein neuer Datensatz angelegt, ansonsten aktualisiert.
-     */
     fun save(recipe: FruitRecipe, onSaved: () -> Unit = {}) {
         viewModelScope.launch {
             if (recipe.id.isEmpty()) {
@@ -25,9 +21,10 @@ class RecipeEditorViewModel(
         }
     }
 
+    // Verschiebt in den Papierkorb, statt sofort endgültig zu löschen.
     fun delete(recipe: FruitRecipe, onDeleted: () -> Unit = {}) {
         viewModelScope.launch {
-            repository.delete(recipe)
+            repository.moveToTrash(recipe)
             onDeleted()
         }
     }

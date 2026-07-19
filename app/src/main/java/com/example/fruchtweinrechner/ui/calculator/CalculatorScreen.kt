@@ -46,7 +46,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.fruchtweinrechner.data.CalculationResult
 import com.example.fruchtweinrechner.data.FruitRecipe
 import com.example.fruchtweinrechner.ui.AppViewModelFactory
+import com.example.fruchtweinrechner.ui.common.ScaledContent
 import java.util.Locale
+
+private const val EPS = 0.0001
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,6 +87,7 @@ fun CalculatorScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             FruitDropdown(
+                factory = factory,
                 recipes = uiState.recipes,
                 selected = uiState.selectedRecipe,
                 onSelected = viewModel::onRecipeSelected
@@ -138,6 +142,7 @@ fun CalculatorScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FruitDropdown(
+    factory: AppViewModelFactory,
     recipes: List<FruitRecipe>,
     selected: FruitRecipe?,
     onSelected: (FruitRecipe) -> Unit
@@ -158,14 +163,16 @@ private fun FruitDropdown(
             onDismissRequest = { expanded = false },
             modifier = Modifier.fillMaxWidth()
         ) {
-            recipes.forEach { recipe ->
-                DropdownMenuItem(
-                    text = { Text(recipe.name) },
-                    onClick = {
-                        onSelected(recipe)
-                        expanded = false
-                    }
-                )
+            ScaledContent(factory) {
+                recipes.forEach { recipe ->
+                    DropdownMenuItem(
+                        text = { Text(recipe.name) },
+                        onClick = {
+                            onSelected(recipe)
+                            expanded = false
+                        }
+                    )
+                }
             }
         }
     }
@@ -180,16 +187,16 @@ private fun ResultCard(recipeName: String, result: CalculationResult) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Rezept für $recipeName", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             ResultRow("Ziel-Menge Wein", "${fmt(result.zielLiter)} L")
-            ResultRow("Fruchtmenge", "${fmt(result.fruchtKg)} kg")
-            ResultRow("Ausbeute Saft", "${fmt(result.saftLiter)} L")
-            ResultRow("Wasser", "${fmt(result.wasserLiter)} L")
-            ResultRow("Zucker", "${fmt(result.zuckerKg)} kg")
-            ResultRow("Milchsäure", "${fmt(result.milchsaeureGramm)} g")
-            ResultRow("Antigel klein", "${fmt(result.antigelKleinMl)} ml")
-            ResultRow("Antigel groß", "${fmt(result.antigelGrossMl)} ml")
-            ResultRow("Hefe", result.hefeSorte.ifBlank { "–" })
+            if (result.fruchtKg > EPS) ResultRow("Fruchtmenge", "${fmt(result.fruchtKg)} kg")
+            if (result.saftLiter > EPS) ResultRow("Ausbeute Saft", "${fmt(result.saftLiter)} L")
+            if (result.wasserLiter > EPS) ResultRow("Wasser", "${fmt(result.wasserLiter)} L")
+            if (result.zuckerKg > EPS) ResultRow("Zucker", "${fmt(result.zuckerKg)} kg")
+            if (result.milchsaeureGramm > EPS) ResultRow("Milchsäure", "${fmt(result.milchsaeureGramm)} g")
+            if (result.antigelKleinMl > EPS) ResultRow("Antigel klein", "${fmt(result.antigelKleinMl)} ml")
+            if (result.antigelGrossMl > EPS) ResultRow("Antigel groß", "${fmt(result.antigelGrossMl)} ml")
+            if (result.hefeSorte.isNotBlank()) ResultRow("Hefe", result.hefeSorte)
             result.zusatzMengen.forEach { (name, menge) ->
-                ResultRow(name, fmt(menge))
+                if (menge > EPS) ResultRow(name, fmt(menge))
             }
         }
     }

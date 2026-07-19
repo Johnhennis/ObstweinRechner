@@ -17,5 +17,6 @@ data class FruitRecipe(
     val antigelKleinMl: Double = 0.0,
     val antigelGrossMl: Double = 0.0,
     val hefeSorte: String = "",
-    val zusatzZutaten: List<ExtraIngredient> = emptyList()
+    val zusatzZutaten: List<ExtraIngredient> = emptyList(),
+    val geloescht: Boolean = false
 )

@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -36,12 +37,12 @@ import com.example.fruchtweinrechner.ui.AppViewModelFactory
 @Composable
 fun RecipeListScreen(
     factory: AppViewModelFactory,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onOpenTrash: () -> Unit
 ) {
     val viewModel: RecipeListViewModel = viewModel(factory = factory)
     val recipes by viewModel.recipes.collectAsState()
 
-    // null = neuer Datensatz (leeres Formular), sonst zu bearbeitendes Rezept
     var editingRecipe by remember { mutableStateOf<FruitRecipe?>(null) }
     var showEditor by remember { mutableStateOf(false) }
 
@@ -52,6 +53,11 @@ fun RecipeListScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Zurück")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onOpenTrash) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Papierkorb öffnen")
                     }
                 }
             )
@@ -66,20 +72,15 @@ fun RecipeListScreen(
         }
     ) { padding ->
         LazyColumn(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(recipes, key = { it.id.ifEmpty { it.name } }) { recipe ->
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            editingRecipe = recipe
-                            showEditor = true
-                        }
+                    modifier = Modifier.fillMaxWidth().clickable {
+                        editingRecipe = recipe
+                        showEditor = true
+                    }
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(recipe.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
