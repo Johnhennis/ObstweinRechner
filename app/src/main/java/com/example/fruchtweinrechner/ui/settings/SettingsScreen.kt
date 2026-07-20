@@ -15,8 +15,12 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -30,7 +34,14 @@ fun SettingsScreen(
     onOpenMenu: () -> Unit
 ) {
     val viewModel: SettingsViewModel = viewModel(factory = factory)
-    val fontScale by viewModel.fontScale.collectAsState()
+    val savedFontScale by viewModel.fontScale.collectAsState()
+
+    // Lokaler, sofort reagierender Zustand für flüssiges Ziehen.
+    // Erst beim Loslassen wird der Wert app-weit übernommen (siehe onValueChangeFinished
+    // unten) - so löst jede Fingerbewegung nicht mehr einen kompletten Neuaufbau
+    // der ganzen App aus, was das Ziehen vorher blockiert hat.
+    var sliderPosition by remember { mutableFloatStateOf(savedFontScale) }
+    LaunchedEffect(savedFontScale) { sliderPosition = savedFontScale }
 
     Scaffold(
         topBar = {
@@ -45,10 +56,7 @@ fun SettingsScreen(
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(16.dp)
-                .fillMaxWidth(),
+            modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text("Schriftgröße", style = MaterialTheme.typography.titleMedium)
@@ -58,19 +66,16 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Text("${(fontScale * 100).roundToInt()} %", style = MaterialTheme.typography.headlineSmall)
+            Text("${(sliderPosition * 100).roundToInt()} %", style = MaterialTheme.typography.headlineSmall)
 
             Slider(
-                value = fontScale,
-                onValueChange = { viewModel.setFontScale(it) },
-                valueRange = 0.8f..2.0f,
-                steps = 11
+                value = sliderPosition,
+                onValueChange = { sliderPosition = it },
+                onValueChangeFinished = { viewModel.setFontScale(sliderPosition) },
+                valueRange = 0.8f..2.0f
             )
 
-            Text(
-                "Beispieltext in aktueller Größe",
-                style = MaterialTheme.typography.bodyLarge
-            )
+            Text("Beispieltext in aktueller Größe", style = MaterialTheme.typography.bodyLarge)
         }
     }
 }

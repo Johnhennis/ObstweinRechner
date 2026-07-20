@@ -82,7 +82,12 @@ fun ShoppingListScreen(
                                     textDecoration = if (entry.erledigt) TextDecoration.LineThrough else TextDecoration.None
                                 )
                                 if (entry.notiz.isNotBlank()) {
-                                    Text(entry.notiz, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(
+                                        entry.notiz,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textDecoration = if (entry.erledigt) TextDecoration.LineThrough else TextDecoration.None
+                                    )
                                 }
                             }
                         }

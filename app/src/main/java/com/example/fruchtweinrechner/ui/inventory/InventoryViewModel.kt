@@ -14,9 +14,11 @@ class InventoryViewModel(
 ) : ViewModel() {
 
     val items: StateFlow<List<InventoryItem>> = repository.allItems.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList()
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
+    )
+
+    val trashedItems: StateFlow<List<InventoryItem>> = repository.trashedItems.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
     fun addItem(item: InventoryItem) {
@@ -28,6 +30,18 @@ class InventoryViewModel(
     }
 
     fun deleteItem(item: InventoryItem) {
-        viewModelScope.launch { repository.delete(item) }
+        viewModelScope.launch { repository.moveToTrash(item) }
+    }
+
+    fun restore(item: InventoryItem) {
+        viewModelScope.launch { repository.restore(item) }
+    }
+
+    fun deletePermanently(item: InventoryItem) {
+        viewModelScope.launch { repository.deletePermanently(item) }
+    }
+
+    fun emptyTrash() {
+        viewModelScope.launch { repository.emptyTrash() }
     }
 }

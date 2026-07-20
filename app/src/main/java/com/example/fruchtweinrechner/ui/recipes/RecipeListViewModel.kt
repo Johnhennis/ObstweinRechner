@@ -14,15 +14,11 @@ class RecipeListViewModel(
 ) : ViewModel() {
 
     val recipes: StateFlow<List<FruitRecipe>> = repository.allRecipes.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList()
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
     val trashedRecipes: StateFlow<List<FruitRecipe>> = repository.trashedRecipes.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = emptyList()
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
     fun deleteRecipe(recipe: FruitRecipe) {
@@ -35,5 +31,9 @@ class RecipeListViewModel(
 
     fun deletePermanently(recipe: FruitRecipe) {
         viewModelScope.launch { repository.deletePermanently(recipe) }
+    }
+
+    fun emptyTrash() {
+        viewModelScope.launch { repository.emptyTrash() }
     }
 }

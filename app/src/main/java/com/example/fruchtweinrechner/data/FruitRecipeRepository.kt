@@ -55,6 +55,11 @@ class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
         recipesCollection.document(recipe.id).delete().await()
     }
 
+    suspend fun emptyTrash() {
+        val snapshot = recipesCollection.whereEqualTo("geloescht", true).get().await()
+        snapshot.documents.forEach { it.reference.delete().await() }
+    }
+
     suspend fun seedIfEmpty() {
         val snapshot = recipesCollection.limit(1).get().await()
         if (snapshot.isEmpty) {

@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +43,7 @@ fun RecipeTrashScreen(
     val viewModel: RecipeListViewModel = viewModel(factory = factory)
     val trashed by viewModel.trashedRecipes.collectAsState()
     var confirmDelete by remember { mutableStateOf<FruitRecipe?>(null) }
+    var confirmEmpty by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -50,6 +52,13 @@ fun RecipeTrashScreen(
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Filled.ArrowBack, contentDescription = "Zurück")
+                    }
+                },
+                actions = {
+                    if (trashed.isNotEmpty()) {
+                        IconButton(onClick = { confirmEmpty = true }) {
+                            Icon(Icons.Filled.DeleteSweep, contentDescription = "Papierkorb leeren")
+                        }
                     }
                 }
             )
@@ -69,9 +78,7 @@ fun RecipeTrashScreen(
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(recipe.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                TextButton(onClick = { viewModel.restore(recipe) }) {
-                                    Text("Wiederherstellen")
-                                }
+                                TextButton(onClick = { viewModel.restore(recipe) }) { Text("Wiederherstellen") }
                                 TextButton(onClick = { confirmDelete = recipe }) {
                                     Text("Endgültig löschen", color = MaterialTheme.colorScheme.error)
                                 }
@@ -95,11 +102,23 @@ fun RecipeTrashScreen(
                     }
                 }
             },
-            dismissButton = {
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmDelete = null }) { Text("Abbrechen") } } }
+        )
+    }
+
+    if (confirmEmpty) {
+        AlertDialog(
+            onDismissRequest = { confirmEmpty = false },
+            title = { ScaledContent(factory) { Text("Papierkorb leeren?") } },
+            text = { ScaledContent(factory) { Text("Alle ${trashed.size} Rezepte im Papierkorb werden unwiderruflich gelöscht.") } },
+            confirmButton = {
                 ScaledContent(factory) {
-                    TextButton(onClick = { confirmDelete = null }) { Text("Abbrechen") }
+                    TextButton(onClick = { viewModel.emptyTrash(); confirmEmpty = false }) {
+                        Text("Alle löschen", color = MaterialTheme.colorScheme.error)
+                    }
                 }
-            }
+            },
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmEmpty = false }) { Text("Abbrechen") } } }
         )
     }
 }

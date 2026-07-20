@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -46,7 +47,8 @@ private fun formatPlain(value: Double): String = if (value == 0.0) "" else value
 @Composable
 fun InventoryScreen(
     factory: AppViewModelFactory,
-    onOpenMenu: () -> Unit
+    onOpenMenu: () -> Unit,
+    onOpenTrash: () -> Unit
 ) {
     val viewModel: InventoryViewModel = viewModel(factory = factory)
     val items by viewModel.items.collectAsState()
@@ -59,6 +61,11 @@ fun InventoryScreen(
                 navigationIcon = {
                     IconButton(onClick = onOpenMenu) {
                         Icon(Icons.Filled.Menu, contentDescription = "Menü")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onOpenTrash) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Papierkorb öffnen")
                     }
                 }
             )

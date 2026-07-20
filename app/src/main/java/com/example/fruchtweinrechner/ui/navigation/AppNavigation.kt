@@ -28,6 +28,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.fruchtweinrechner.ui.AppViewModelFactory
 import com.example.fruchtweinrechner.ui.calculator.CalculatorScreen
 import com.example.fruchtweinrechner.ui.inventory.InventoryScreen
+import com.example.fruchtweinrechner.ui.inventory.InventoryTrashScreen
 import com.example.fruchtweinrechner.ui.recipes.RecipeListScreen
 import com.example.fruchtweinrechner.ui.recipes.RecipeTrashScreen
 import com.example.fruchtweinrechner.ui.schmalz.SchmalzScreen
@@ -41,6 +42,7 @@ private object Routes {
     const val WEIN_TRASH = "wein_trash"
     const val SCHMALZ = "schmalz"
     const val INVENTORY = "inventory"
+    const val INVENTORY_TRASH = "inventory_trash"
     const val SHOPPING = "shopping"
     const val SETTINGS = "settings"
 }
@@ -122,7 +124,14 @@ fun AppNavigation(factory: AppViewModelFactory) {
                 SchmalzScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
             }
             composable(Routes.INVENTORY) {
-                InventoryScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+                InventoryScreen(
+                    factory = factory,
+                    onOpenMenu = { scope.launch { drawerState.open() } },
+                    onOpenTrash = { navController.navigate(Routes.INVENTORY_TRASH) }
+                )
+            }
+            composable(Routes.INVENTORY_TRASH) {
+                InventoryTrashScreen(factory = factory, onBack = { navController.popBackStack() })
             }
             composable(Routes.SHOPPING) {
                 ShoppingListScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
