@@ -41,8 +41,8 @@
 26        android:extractNativeLibs="false"
 27        android:icon="@mipmap/ic_launcher"
 27-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:10:9-43
-28        android:label="Wein"
-28-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:10:90-110
+28        android:label="Baumblüte"
+28-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:10:90-115
 29        android:roundIcon="@mipmap/ic_launcher_round"
 29-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:10:44-89
 30        android:supportsRtl="true"
@@ -57,8 +57,8 @@
 34-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:17:13-36
 35            android:icon="@mipmap/ic_launcher"
 35-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:18:13-47
-36            android:label="Wein"
-36-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:18:94-114
+36            android:label="Baumblüte"
+36-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:18:94-119
 37            android:roundIcon="@mipmap/ic_launcher_round"
 37-->/workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:18:48-93
 38            android:theme="@style/Theme.FruchtweinRechner"
