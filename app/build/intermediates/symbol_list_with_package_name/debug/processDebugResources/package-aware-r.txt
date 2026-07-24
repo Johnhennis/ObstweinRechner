@@ -1,4 +1,4 @@
-com.example.fruchtweinrechner
+app.johnhennis.obstweinrechner
 attr action
 attr alpha
 attr argType

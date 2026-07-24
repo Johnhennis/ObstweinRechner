@@ -17,11 +17,11 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.fruchtweinrechner"
+    namespace = "app.johnhennis.obstweinrechner"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.fruchtweinrechner"
+        applicationId = "app.johnhennis.obstweinrechner"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

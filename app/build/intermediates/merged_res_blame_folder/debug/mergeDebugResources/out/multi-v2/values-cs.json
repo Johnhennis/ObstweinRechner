@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.fruchtweinrechner.app-mergeDebugResources-65:/values-cs/values-cs.xml",
+            "outputFile": "app.johnhennis.obstweinrechner.app-mergeDebugResources-65:/values-cs/values-cs.xml",
             "map": [
                 {
                     "source": "/home/codespace/.gradle/caches/9.1.0/transforms/7319698805fdd4aabc039c9de2cfe402/transformed/browser-1.4.0/res/values-cs/values-cs.xml",

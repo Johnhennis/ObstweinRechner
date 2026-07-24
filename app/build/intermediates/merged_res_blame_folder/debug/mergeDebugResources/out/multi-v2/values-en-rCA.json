@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.fruchtweinrechner.app-mergeDebugResources-65:/values-en-rCA/values-en-rCA.xml",
+            "outputFile": "app.johnhennis.obstweinrechner.app-mergeDebugResources-65:/values-en-rCA/values-en-rCA.xml",
             "map": [
                 {
                     "source": "/home/codespace/.gradle/caches/9.1.0/transforms/94bd8a2a4fbab9f4f6e31958bffb6482/transformed/foundation-release/res/values-en-rCA/values-en-rCA.xml",

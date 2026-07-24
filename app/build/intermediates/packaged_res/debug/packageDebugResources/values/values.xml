@@ -4,7 +4,7 @@
     <string name="com.google.firebase.crashlytics.mapping_file_id" ns1:ignore="UnusedResources,TypographyDashes" translatable="false">00000000000000000000000000000000</string>
     <string name="gcm_defaultSenderId" translatable="false">671222128206</string>
     <string name="google_api_key" translatable="false">AIzaSyBVpDDe8XsGSVyoqJFbYrau9BbPJwtu8rg</string>
-    <string name="google_app_id" translatable="false">1:671222128206:android:80f919ee68bd22cd03ad1f</string>
+    <string name="google_app_id" translatable="false">1:671222128206:android:c1bee7947d3800c403ad1f</string>
     <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBVpDDe8XsGSVyoqJFbYrau9BbPJwtu8rg</string>
     <string name="google_storage_bucket" translatable="false">fruchtwein-rechner.firebasestorage.app</string>
     <string name="project_id" translatable="false">fruchtwein-rechner</string>

@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:671222128206:android:c1bee7947d3800c403ad1f",
+        "android_client_info": {
+          "package_name": "app.johnhennis.obstweinrechner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVpDDe8XsGSVyoqJFbYrau9BbPJwtu8rg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:671222128206:android:80f919ee68bd22cd03ad1f",
         "android_client_info": {
           "package_name": "com.example.fruchtweinrechner"

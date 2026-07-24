@@ -211,7 +211,7 @@ MERGED from [com.google.android.play:core-common:2.0.3] /home/codespace/.gradle/
 		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:13:9-55
 	android:name
 		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:7:9-46
-activity#com.example.fruchtweinrechner.MainActivity
+activity#app.johnhennis.obstweinrechner.MainActivity
 ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:15:9-25:20
 	android:label
 		ADDED from /workspaces/ObstweinRechner/app/src/main/AndroidManifest.xml:18:94-119
@@ -747,7 +747,7 @@ ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/tran
 		ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
 	android:name
 		ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:23:9-81
-permission#com.example.fruchtweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+permission#app.johnhennis.obstweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:22:5-24:47
 	android:protectionLevel
 		ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:24:9-44
@@ -757,7 +757,7 @@ uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:26:22-94
-uses-permission#com.example.fruchtweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission#app.johnhennis.obstweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.13.1] /home/codespace/.gradle/caches/9.1.0/transforms/5f1e0d3ff1f0e154029ce9123288a480/transformed/core-1.13.1/AndroidManifest.xml:26:22-94

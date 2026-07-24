@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.fruchtweinrechner.app-mergeDebugResources-65:/values-watch-v20/values-watch-v20.xml",
+            "outputFile": "app.johnhennis.obstweinrechner.app-mergeDebugResources-65:/values-watch-v20/values-watch-v20.xml",
             "map": [
                 {
                     "source": "/home/codespace/.gradle/caches/9.1.0/transforms/ec8e891821d8ff2ab23af739a5dcaa41/transformed/play-services-auth-20.7.0/res/values-watch-v20/values.xml",

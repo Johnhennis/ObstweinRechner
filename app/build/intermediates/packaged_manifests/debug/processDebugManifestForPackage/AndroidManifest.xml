@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.fruchtweinrechner"
+    package="app.johnhennis.obstweinrechner"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -13,13 +13,13 @@
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
 
     <permission
-        android:name="com.example.fruchtweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="app.johnhennis.obstweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.example.fruchtweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="app.johnhennis.obstweinrechner.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
-        android:name="com.example.fruchtweinrechner.FruchtweinApplication"
+        android:name="app.johnhennis.obstweinrechner.FruchtweinApplication"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
@@ -30,7 +30,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FruchtweinRechner" >
         <activity
-            android:name="com.example.fruchtweinrechner.MainActivity"
+            android:name="app.johnhennis.obstweinrechner.MainActivity"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="Baumblüte"
@@ -173,7 +173,7 @@
 
         <provider
             android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:authorities="com.example.fruchtweinrechner.firebaseinitprovider"
+            android:authorities="app.johnhennis.obstweinrechner.firebaseinitprovider"
             android:directBootAware="true"
             android:exported="false"
             android:initOrder="100" />
@@ -184,7 +184,7 @@
 
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="com.example.fruchtweinrechner.androidx-startup"
+            android:authorities="app.johnhennis.obstweinrechner.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"
