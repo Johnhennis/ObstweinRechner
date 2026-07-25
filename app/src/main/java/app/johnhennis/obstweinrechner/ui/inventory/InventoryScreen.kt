@@ -1,5 +1,6 @@
 package app.johnhennis.obstweinrechner.ui.inventory
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
@@ -49,6 +52,9 @@ import kotlinx.coroutines.delay
 private val SOLL_IST_WIDTH = 56.dp
 private val DELETE_WIDTH = 28.dp
 
+private enum class SortColumn { NAME, QUELLE }
+private enum class SortDirection { ASC, DESC }
+
 private fun formatPlain(value: Double): String = if (value == 0.0) "" else value.toInt().toString()
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,6 +68,26 @@ fun InventoryScreen(
     val items by viewModel.items.collectAsState()
     val statusMap by viewModel.statusMap.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
+    var sortColumn by remember { mutableStateOf<SortColumn?>(null) }
+    var sortDirection by remember { mutableStateOf(SortDirection.ASC) }
+
+    fun onSortClick(column: SortColumn) {
+        if (sortColumn == column) {
+            sortDirection = if (sortDirection == SortDirection.ASC) SortDirection.DESC else SortDirection.ASC
+        } else {
+            sortColumn = column
+            sortDirection = SortDirection.ASC
+        }
+    }
+
+    val sortedItems = remember(items, statusMap, sortColumn, sortDirection) {
+        val base = when (sortColumn) {
+            SortColumn.NAME -> items.sortedBy { it.name.lowercase() }
+            SortColumn.QUELLE -> items.sortedBy { (statusMap[it.id]?.quelle ?: "").lowercase() }
+            null -> items
+        }
+        if (sortDirection == SortDirection.DESC) base.reversed() else base
+    }
 
     Scaffold(
         topBar = {
@@ -104,16 +130,28 @@ fun InventoryScreen(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            ColumnLabel("Name", Modifier.weight(1.3f))
+                            SortableColumnLabel(
+                                "Name",
+                                active = sortColumn == SortColumn.NAME,
+                                direction = sortDirection,
+                                onClick = { onSortClick(SortColumn.NAME) },
+                                modifier = Modifier.weight(1.3f)
+                            )
                             ColumnLabel("Soll", Modifier.width(SOLL_IST_WIDTH))
                             ColumnLabel("Ist", Modifier.width(SOLL_IST_WIDTH))
-                            ColumnLabel("Quelle", Modifier.weight(1f))
+                            SortableColumnLabel(
+                                "Quelle",
+                                active = sortColumn == SortColumn.QUELLE,
+                                direction = sortDirection,
+                                onClick = { onSortClick(SortColumn.QUELLE) },
+                                modifier = Modifier.weight(1f)
+                            )
                             Spacer(Modifier.size(DELETE_WIDTH))
                         }
                         HorizontalDivider()
                     }
                 }
-                items(items, key = { it.id }) { item ->
+                items(sortedItems, key = { it.id }) { item ->
                     InventoryRow(
                         item = item,
                         quelle = statusMap[item.id]?.quelle ?: "",
@@ -144,6 +182,35 @@ private fun ColumnLabel(text: String, modifier: Modifier) {
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier
     )
+}
+
+@Composable
+private fun SortableColumnLabel(
+    text: String,
+    active: Boolean,
+    direction: SortDirection,
+    onClick: () -> Unit,
+    modifier: Modifier
+) {
+    Row(
+        modifier = modifier.clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (active) {
+            Icon(
+                if (direction == SortDirection.ASC) Icons.Filled.ArrowUpward else Icons.Filled.ArrowDownward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+    }
 }
 
 @Composable
