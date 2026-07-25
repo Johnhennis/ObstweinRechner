@@ -2,9 +2,11 @@ package app.johnhennis.obstweinrechner.ui.inventory
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,9 +16,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -87,8 +89,8 @@ fun InventoryScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth(),
+                contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 items(items, key = { it.id }) { item ->
                     InventoryRow(
@@ -123,64 +125,88 @@ private fun InventoryRow(
     var sollText by remember(item.id) { mutableStateOf(formatPlain(item.soll)) }
     var istText by remember(item.id) { mutableStateOf(formatPlain(item.ist)) }
     var quelleText by remember(item.id) { mutableStateOf(quelle) }
+    var quelleUserEdited by remember(item.id) { mutableStateOf(false) }
+
+    // Solange der Nutzer die Quelle hier nicht selbst bearbeitet, folgt das Feld
+    // dem gespeicherten Wert - wichtig direkt nach dem Anlegen, wenn die separat
+    // gespeicherte Quelle noch minimal nachläuft.
+    LaunchedEffect(quelle) {
+        if (!quelleUserEdited) quelleText = quelle
+    }
 
     LaunchedEffect(quelleText) {
-        delay(500)
-        onQuelleChange(quelleText)
-    }
-
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    if (item.einheit.isBlank()) item.name else "${item.name} (${item.einheit})",
-                    style = MaterialTheme.typography.titleSmall
-                )
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
-                }
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = sollText,
-                    onValueChange = { new ->
-                        if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
-                            sollText = new
-                            onUpdate(item.copy(soll = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
-                        }
-                    },
-                    label = { Text("Soll") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.width(120.dp)
-                )
-                OutlinedTextField(
-                    value = istText,
-                    onValueChange = { new ->
-                        if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
-                            istText = new
-                            onUpdate(item.copy(ist = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
-                        }
-                    },
-                    label = { Text("Ist") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.width(120.dp)
-                )
-            }
-            OutlinedTextField(
-                value = quelleText,
-                onValueChange = { quelleText = it },
-                label = { Text("Quelle") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+        if (quelleUserEdited) {
+            delay(500)
+            onQuelleChange(quelleText)
         }
     }
+
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                if (item.einheit.isBlank()) item.name else "${item.name} (${item.einheit})",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1.3f)
+            )
+            CompactField(
+                value = sollText,
+                onValueChange = { new ->
+                    if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+                        sollText = new
+                        onUpdate(item.copy(soll = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
+                    }
+                },
+                placeholder = "Soll",
+                modifier = Modifier.width(54.dp),
+                keyboardType = KeyboardType.Decimal
+            )
+            CompactField(
+                value = istText,
+                onValueChange = { new ->
+                    if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+                        istText = new
+                        onUpdate(item.copy(ist = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
+                    }
+                },
+                placeholder = "Ist",
+                modifier = Modifier.width(54.dp),
+                keyboardType = KeyboardType.Decimal
+            )
+            CompactField(
+                value = quelleText,
+                onValueChange = { quelleText = it; quelleUserEdited = true },
+                placeholder = "Quelle",
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+                Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(16.dp))
+            }
+        }
+        HorizontalDivider()
+    }
+}
+
+@Composable
+private fun CompactField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = { Text(placeholder, style = MaterialTheme.typography.bodySmall) },
+        textStyle = MaterialTheme.typography.bodySmall,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        modifier = modifier
+    )
 }
 
 @Composable

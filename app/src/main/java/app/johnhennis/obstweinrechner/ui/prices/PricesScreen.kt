@@ -177,17 +177,20 @@ private fun PriceRow(
     var datum by remember(price.id) { mutableStateOf(price.datum) }
     var preisText by remember(price.id) { mutableStateOf(if (price.preis == 0.0) "" else price.preis.toString()) }
     var quelle by remember(price.id) { mutableStateOf(price.quelle) }
+    var userEdited by remember(price.id) { mutableStateOf(false) }
 
     LaunchedEffect(fruchtart, datum, preisText, quelle) {
-        delay(500)
-        onUpdate(
-            price.copy(
-                fruchtart = fruchtart,
-                datum = datum,
-                preis = preisText.replace(',', '.').toDoubleOrNull() ?: price.preis,
-                quelle = quelle
+        if (userEdited) {
+            delay(500)
+            onUpdate(
+                price.copy(
+                    fruchtart = fruchtart,
+                    datum = datum,
+                    preis = preisText.replace(',', '.').toDoubleOrNull() ?: price.preis,
+                    quelle = quelle
+                )
             )
-        )
+        }
     }
 
     Column {
@@ -196,10 +199,16 @@ private fun PriceRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CompactField(fruchtart, { fruchtart = it }, "Frucht", Modifier.weight(1.3f))
-            CompactField(datum, { datum = it }, "Datum", Modifier.width(58.dp))
-            CompactField(preisText, { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) preisText = new }, "€", Modifier.width(54.dp), KeyboardType.Decimal)
-            CompactField(quelle, { quelle = it }, "Quelle", Modifier.weight(1f))
+            CompactField(fruchtart, { fruchtart = it; userEdited = true }, "Frucht", Modifier.weight(1.3f))
+            CompactField(datum, { datum = it; userEdited = true }, "Datum", Modifier.width(58.dp))
+            CompactField(
+                preisText,
+                { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) { preisText = new; userEdited = true } },
+                "€",
+                Modifier.width(54.dp),
+                KeyboardType.Decimal
+            )
+            CompactField(quelle, { quelle = it; userEdited = true }, "Quelle", Modifier.weight(1f))
             IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
                 Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(16.dp))
             }
