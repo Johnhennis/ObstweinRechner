@@ -3,6 +3,8 @@ package app.johnhennis.obstweinrechner.ui.shopping
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.johnhennis.obstweinrechner.data.InventoryRepository
+import app.johnhennis.obstweinrechner.data.ManualShoppingItem
+import app.johnhennis.obstweinrechner.data.ManualShoppingItemRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListStatus
 import kotlinx.coroutines.flow.SharingStarted
@@ -10,40 +12,55 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 data class ShoppingListEntry(
     val itemId: String,
     val name: String,
-    val einheit: String,
-    val benoetigt: Double,
+    val mengeText: String,
     val erledigt: Boolean,
-    val notiz: String
+    val quelle: String,
+    val manual: Boolean
 )
 
 class ShoppingListViewModel(
     private val inventoryRepository: InventoryRepository,
-    private val shoppingListRepository: ShoppingListRepository
+    private val shoppingListRepository: ShoppingListRepository,
+    private val manualShoppingItemRepository: ManualShoppingItemRepository
 ) : ViewModel() {
 
     val entries: StateFlow<List<ShoppingListEntry>> = combine(
         inventoryRepository.allItems,
-        shoppingListRepository.allStatus
-    ) { items, statusMap ->
-        items
+        shoppingListRepository.allStatus,
+        manualShoppingItemRepository.allItems
+    ) { items, statusMap, manualItems ->
+        val fromInventory = items
+            .filter { it.soll - it.ist > 0.0001 }
             .map { item ->
                 val diff = item.soll - item.ist
                 val status = statusMap[item.id] ?: ShoppingListStatus()
                 ShoppingListEntry(
                     itemId = item.id,
                     name = item.name,
-                    einheit = item.einheit,
-                    benoetigt = diff,
+                    mengeText = "${fmt(diff)}${if (item.einheit.isBlank()) "" else " ${item.einheit}"}",
                     erledigt = status.erledigt,
-                    notiz = status.notiz
+                    quelle = status.quelle,
+                    manual = false
                 )
             }
-            .filter { it.benoetigt > 0.0001 }
-            .sortedBy { it.name }
+
+        val fromManual = manualItems.map { item ->
+            ShoppingListEntry(
+                itemId = item.id,
+                name = item.name,
+                mengeText = item.menge,
+                erledigt = item.erledigt,
+                quelle = item.quelle,
+                manual = true
+            )
+        }
+
+        (fromInventory + fromManual).sortedBy { it.name }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -52,13 +69,54 @@ class ShoppingListViewModel(
 
     fun toggleErledigt(entry: ShoppingListEntry) {
         viewModelScope.launch {
-            shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = !entry.erledigt, notiz = entry.notiz))
+            if (entry.manual) {
+                manualShoppingItemRepository.update(
+                    ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = entry.quelle, erledigt = !entry.erledigt)
+                )
+            } else {
+                shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = !entry.erledigt, quelle = entry.quelle))
+            }
         }
     }
 
-    fun updateNotiz(entry: ShoppingListEntry, notiz: String) {
+    fun updateQuelle(entry: ShoppingListEntry, quelle: String) {
         viewModelScope.launch {
-            shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = entry.erledigt, notiz = notiz))
+            if (entry.manual) {
+                manualShoppingItemRepository.update(
+                    ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = quelle, erledigt = entry.erledigt)
+                )
+            } else {
+                shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = entry.erledigt, quelle = quelle))
+            }
         }
     }
+
+    fun addManualItem(name: String, menge: String, quelle: String) {
+        viewModelScope.launch {
+            manualShoppingItemRepository.insert(ManualShoppingItem(name = name, menge = menge, quelle = quelle))
+        }
+    }
+
+    fun deleteManualItem(entry: ShoppingListEntry) {
+        if (!entry.manual) return
+        viewModelScope.launch {
+            manualShoppingItemRepository.delete(ManualShoppingItem(id = entry.itemId))
+        }
+    }
+
+    fun clearSelection() {
+        viewModelScope.launch {
+            entries.value.filter { it.erledigt }.forEach { entry ->
+                if (entry.manual) {
+                    manualShoppingItemRepository.update(
+                        ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = entry.quelle, erledigt = false)
+                    )
+                } else {
+                    shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = false, quelle = entry.quelle))
+                }
+            }
+        }
+    }
+
+    private fun fmt(value: Double): String = String.format(Locale.GERMANY, "%.2f", value)
 }

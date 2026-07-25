@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Kitchen
 import androidx.compose.material.icons.filled.Settings
@@ -27,8 +28,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorScreen
+import app.johnhennis.obstweinrechner.ui.common.InAppUpdateChecker
 import app.johnhennis.obstweinrechner.ui.inventory.InventoryScreen
 import app.johnhennis.obstweinrechner.ui.inventory.InventoryTrashScreen
+import app.johnhennis.obstweinrechner.ui.prices.PricesScreen
+import app.johnhennis.obstweinrechner.ui.prices.PricesTrashScreen
 import app.johnhennis.obstweinrechner.ui.recipes.RecipeListScreen
 import app.johnhennis.obstweinrechner.ui.recipes.RecipeTrashScreen
 import app.johnhennis.obstweinrechner.ui.schmalz.SchmalzScreen
@@ -44,11 +48,15 @@ private object Routes {
     const val INVENTORY = "inventory"
     const val INVENTORY_TRASH = "inventory_trash"
     const val SHOPPING = "shopping"
+    const val PRICES = "prices"
+    const val PRICES_TRASH = "prices_trash"
     const val SETTINGS = "settings"
 }
 
 @Composable
 fun AppNavigation(factory: AppViewModelFactory) {
+    InAppUpdateChecker()
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -90,6 +98,13 @@ fun AppNavigation(factory: AppViewModelFactory) {
                     icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
                     selected = false,
                     onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.SHOPPING) { launchSingleTop = true } },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Preise Obst") },
+                    icon = { Icon(Icons.Filled.AttachMoney, contentDescription = null) },
+                    selected = false,
+                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.PRICES) { launchSingleTop = true } },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
@@ -135,6 +150,16 @@ fun AppNavigation(factory: AppViewModelFactory) {
             }
             composable(Routes.SHOPPING) {
                 ShoppingListScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+            }
+            composable(Routes.PRICES) {
+                PricesScreen(
+                    factory = factory,
+                    onOpenMenu = { scope.launch { drawerState.open() } },
+                    onOpenTrash = { navController.navigate(Routes.PRICES_TRASH) }
+                )
+            }
+            composable(Routes.PRICES_TRASH) {
+                PricesTrashScreen(factory = factory, onBack = { navController.popBackStack() })
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })

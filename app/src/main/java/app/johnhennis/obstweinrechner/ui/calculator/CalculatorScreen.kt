@@ -135,6 +135,13 @@ fun CalculatorScreen(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+
+            OutlinedTextField(
+                value = uiState.notiz,
+                onValueChange = viewModel::onNotizChanged,
+                label = { Text("Notiz zu dieser Sorte") },
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

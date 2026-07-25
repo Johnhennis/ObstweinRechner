@@ -1,0 +1,1770 @@
+]633;E;echo "########## SIGNING REPORT ##########";72d4d805-5254-4303-b3d7-cbe8581e42f4]633;C########## SIGNING REPORT ##########
+Starting a Gradle Daemon, 2 incompatible and 1 stopped Daemons could not be reused, use --status for details
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: /home/codespace/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: 2A:D4:2A:C6:C2:A1:66:29:6B:FF:97:D1:78:BF:0C:82
+SHA1: A6:33:24:DA:80:2A:2F:A8:C8:07:20:9B:2D:87:2A:AB:EC:16:1D:3E
+SHA-256: 9B:4C:65:E8:6E:53:C8:35:03:35:EA:5E:86:3B:5D:CD:8A:CF:A1:8C:05:88:18:6E:FF:F3:4A:A6:26:F9:07:DE
+Valid until: Saturday, July 8, 2056
+----------
+Variant: release
+Config: release
+Store: /workspaces/ObstweinRechner/release-keystore.jks
+Alias: baumbluete
+MD5: 57:28:C6:76:E5:9B:E6:7D:CE:D2:BB:FE:E5:10:D9:9D
+SHA1: 42:F5:F2:6F:BE:B2:18:42:3E:D3:3C:AC:B5:AE:46:57:DC:EF:70:F0
+SHA-256: F1:16:F9:CE:1D:BA:46:22:93:D9:6C:1C:80:E1:31:5A:FD:67:03:72:1D:51:8A:12:2B:2C:91:A6:38:FB:70:26
+Valid until: Monday, December 8, 2053
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: /home/codespace/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: 2A:D4:2A:C6:C2:A1:66:29:6B:FF:97:D1:78:BF:0C:82
+SHA1: A6:33:24:DA:80:2A:2F:A8:C8:07:20:9B:2D:87:2A:AB:EC:16:1D:3E
+SHA-256: 9B:4C:65:E8:6E:53:C8:35:03:35:EA:5E:86:3B:5D:CD:8A:CF:A1:8C:05:88:18:6E:FF:F3:4A:A6:26:F9:07:DE
+Valid until: Saturday, July 8, 2056
+----------
+
+[Incubating] Problems report is available at: file:///workspaces/ObstweinRechner/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.1.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 40s
+1 actionable task: 1 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.1.0/userguide/configuration_cache_enabling.html
+
+########## keystore.properties vorhanden? ##########
+./keystore.properties
+
+########## Icon-Dateien vorhanden? ##########
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-hdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-hdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-xhdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-mdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-xhdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-xxxhdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-xxhdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-xxhdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-mdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/debug/mergeDebugResources/mipmap-xxxhdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-hdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-hdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-xhdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-mdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-xhdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-xxxhdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-xxhdpi_ic_launcher.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-xxhdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-mdpi_ic_launcher_round.png.flat
+./app/build/intermediates/merged_res/release/mergeReleaseResources/mipmap-xxxhdpi_ic_launcher_round.png.flat
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-xxxhdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-xxxhdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-xxhdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-xxhdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-xhdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-xhdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-mdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-mdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-hdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/debug/packageDebugResources/mipmap-hdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-xxxhdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-xxxhdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-xxhdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-xxhdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-xhdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-xhdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-mdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-mdpi-v4/ic_launcher_round.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-hdpi-v4/ic_launcher.png
+./app/build/intermediates/packaged_res/release/packageReleaseResources/mipmap-hdpi-v4/ic_launcher_round.png
+./app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+./app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png
+./app/src/main/res/mipmap-hdpi/ic_launcher.png
+./app/src/main/res/mipmap-hdpi/ic_launcher_round.png
+./app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+./app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png
+./app/src/main/res/mipmap-xhdpi/ic_launcher.png
+./app/src/main/res/mipmap-xhdpi/ic_launcher_round.png
+./app/src/main/res/mipmap-mdpi/ic_launcher.png
+./app/src/main/res/mipmap-mdpi/ic_launcher_round.png
+
+########## QUELLDATEIEN ##########
+===== app/src/main/java/app/johnhennis/obstweinrechner/FruchtweinApplication.kt =====
+package app.johnhennis.obstweinrechner
+
+import android.app.Application
+import app.johnhennis.obstweinrechner.data.FruitRecipeRepository
+import app.johnhennis.obstweinrechner.data.InventoryRepository
+import app.johnhennis.obstweinrechner.data.SchmalzRecipeRepository
+import app.johnhennis.obstweinrechner.data.SettingsRepository
+import app.johnhennis.obstweinrechner.data.ShoppingListRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+
+class FruchtweinApplication : Application() {
+
+    private val applicationScope = CoroutineScope(SupervisorJob())
+
+    val repository: FruitRecipeRepository by lazy { FruitRecipeRepository(FirebaseFirestore.getInstance()) }
+    val schmalzRepository: SchmalzRecipeRepository by lazy { SchmalzRecipeRepository(FirebaseFirestore.getInstance()) }
+    val settingsRepository: SettingsRepository by lazy { SettingsRepository(this) }
+    val inventoryRepository: InventoryRepository by lazy { InventoryRepository(FirebaseFirestore.getInstance()) }
+    val shoppingListRepository: ShoppingListRepository by lazy { ShoppingListRepository(FirebaseFirestore.getInstance()) }
+
+    override fun onCreate() {
+        super.onCreate()
+        applicationScope.launch {
+            if (FirebaseAuth.getInstance().currentUser == null) {
+                FirebaseAuth.getInstance().signInAnonymously().await()
+            }
+            repository.seedIfEmpty()
+            schmalzRepository.seedIfEmpty()
+        }
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/AppViewModelFactory.kt =====
+package app.johnhennis.obstweinrechner.ui
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.CreationExtras
+import app.johnhennis.obstweinrechner.FruchtweinApplication
+import app.johnhennis.obstweinrechner.data.FruitRecipeRepository
+import app.johnhennis.obstweinrechner.data.InventoryRepository
+import app.johnhennis.obstweinrechner.data.SchmalzRecipeRepository
+import app.johnhennis.obstweinrechner.data.SettingsRepository
+import app.johnhennis.obstweinrechner.data.ShoppingListRepository
+import app.johnhennis.obstweinrechner.ui.calculator.CalculatorViewModel
+import app.johnhennis.obstweinrechner.ui.inventory.InventoryViewModel
+import app.johnhennis.obstweinrechner.ui.recipes.RecipeEditorViewModel
+import app.johnhennis.obstweinrechner.ui.recipes.RecipeListViewModel
+import app.johnhennis.obstweinrechner.ui.schmalz.SchmalzViewModel
+import app.johnhennis.obstweinrechner.ui.settings.SettingsViewModel
+import app.johnhennis.obstweinrechner.ui.shopping.ShoppingListViewModel
+
+class AppViewModelFactory(
+    private val repository: FruitRecipeRepository,
+    private val schmalzRepository: SchmalzRecipeRepository,
+    private val settingsRepository: SettingsRepository,
+    private val inventoryRepository: InventoryRepository,
+    private val shoppingListRepository: ShoppingListRepository
+) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+        return when {
+            modelClass.isAssignableFrom(CalculatorViewModel::class.java) -> CalculatorViewModel(repository) as T
+            modelClass.isAssignableFrom(RecipeListViewModel::class.java) -> RecipeListViewModel(repository) as T
+            modelClass.isAssignableFrom(RecipeEditorViewModel::class.java) -> RecipeEditorViewModel(repository) as T
+            modelClass.isAssignableFrom(SchmalzViewModel::class.java) -> SchmalzViewModel(schmalzRepository) as T
+            modelClass.isAssignableFrom(SettingsViewModel::class.java) -> SettingsViewModel(settingsRepository) as T
+            modelClass.isAssignableFrom(InventoryViewModel::class.java) -> InventoryViewModel(inventoryRepository) as T
+            modelClass.isAssignableFrom(ShoppingListViewModel::class.java) -> ShoppingListViewModel(inventoryRepository, shoppingListRepository) as T
+            else -> throw IllegalArgumentException("Unbekannte ViewModel-Klasse: ${modelClass.name}")
+        }
+    }
+
+    companion object {
+        fun from(application: FruchtweinApplication) = AppViewModelFactory(
+            application.repository,
+            application.schmalzRepository,
+            application.settingsRepository,
+            application.inventoryRepository,
+            application.shoppingListRepository
+        )
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/CalculationResult.kt =====
+package app.johnhennis.obstweinrechner.data
+
+private const val BASIS_LITER = 10.0
+
+data class CalculationResult(
+    val zielLiter: Double,
+    val fruchtKg: Double,
+    val saftLiter: Double,
+    val wasserLiter: Double,
+    val zuckerKg: Double,
+    val milchsaeureGramm: Double,
+    val antigelKleinMl: Double,
+    val antigelGrossMl: Double,
+    val hefeSorte: String,
+    val zusatzMengen: List<Pair<String, Double>>
+)
+
+fun FruitRecipe.calculateFromZielLiter(zielLiter: Double): CalculationResult {
+    val faktor = zielLiter / BASIS_LITER
+    return buildResult(faktor)
+}
+
+fun FruitRecipe.calculateFromFruchtKg(fruchtKgInput: Double): CalculationResult {
+    val faktor = if (fruchtKg > 0) fruchtKgInput / fruchtKg else 0.0
+    return buildResult(faktor)
+}
+
+private fun FruitRecipe.buildResult(faktor: Double): CalculationResult {
+    return CalculationResult(
+        zielLiter = BASIS_LITER * faktor,
+        fruchtKg = fruchtKg * faktor,
+        saftLiter = saftLiter * faktor,
+        wasserLiter = wasserLiter * faktor,
+        zuckerKg = zuckerKg * faktor,
+        milchsaeureGramm = milchsaeureGramm * faktor,
+        antigelKleinMl = antigelKleinMl * faktor,
+        antigelGrossMl = antigelGrossMl * faktor,
+        hefeSorte = hefeSorte,
+        zusatzMengen = zusatzZutaten.map { it.name to (it.menge * faktor) }
+    )
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/FruitRecipe.kt =====
+package app.johnhennis.obstweinrechner.data
+
+data class ExtraIngredient(
+    val name: String = "",
+    val menge: Double = 0.0
+)
+
+// Alle Mengen beziehen sich auf ein Basis-Rezept für 10 Liter fertigen Wein.
+data class FruitRecipe(
+    val id: String = "",
+    val name: String = "",
+    val fruchtKg: Double = 0.0,
+    val saftLiter: Double = 0.0,
+    val wasserLiter: Double = 0.0,
+    val zuckerKg: Double = 0.0,
+    val milchsaeureGramm: Double = 0.0,
+    val antigelKleinMl: Double = 0.0,
+    val antigelGrossMl: Double = 0.0,
+    val hefeSorte: String = "",
+    val zusatzZutaten: List<ExtraIngredient> = emptyList(),
+    val geloescht: Boolean = false
+)
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/FruitRecipeRepository.kt =====
+package app.johnhennis.obstweinrechner.data
+
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
+
+class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
+
+    private val recipesCollection = firestore.collection("recipes")
+
+    // Ein gemeinsamer Listener für die ganze Sammlung; aktive und
+    // Papierkorb-Rezepte werden lokal daraus gefiltert.
+    private val allDocuments: Flow<List<FruitRecipe>> = callbackFlow {
+        val listener = recipesCollection.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            val recipes = snapshot?.documents?.mapNotNull { doc ->
+                doc.toObject(FruitRecipe::class.java)?.copy(id = doc.id)
+            } ?: emptyList()
+            trySend(recipes.sortedBy { it.name })
+        }
+        awaitClose { listener.remove() }
+    }
+
+    val allRecipes: Flow<List<FruitRecipe>> = allDocuments.map { list -> list.filter { !it.geloescht } }
+    val trashedRecipes: Flow<List<FruitRecipe>> = allDocuments.map { list -> list.filter { it.geloescht } }
+
+    suspend fun getById(id: String): FruitRecipe? {
+        val doc = recipesCollection.document(id).get().await()
+        return doc.toObject(FruitRecipe::class.java)?.copy(id = doc.id)
+    }
+
+    suspend fun insert(recipe: FruitRecipe) {
+        recipesCollection.add(recipe.copy(id = "", geloescht = false)).await()
+    }
+
+    suspend fun update(recipe: FruitRecipe) {
+        recipesCollection.document(recipe.id).set(recipe).await()
+    }
+
+    suspend fun moveToTrash(recipe: FruitRecipe) {
+        recipesCollection.document(recipe.id).update("geloescht", true).await()
+    }
+
+    suspend fun restore(recipe: FruitRecipe) {
+        recipesCollection.document(recipe.id).update("geloescht", false).await()
+    }
+
+    suspend fun deletePermanently(recipe: FruitRecipe) {
+        recipesCollection.document(recipe.id).delete().await()
+    }
+
+    suspend fun emptyTrash() {
+        val snapshot = recipesCollection.whereEqualTo("geloescht", true).get().await()
+        snapshot.documents.forEach { it.reference.delete().await() }
+    }
+
+    suspend fun seedIfEmpty() {
+        val snapshot = recipesCollection.limit(1).get().await()
+        if (snapshot.isEmpty) {
+            defaultRecipes().forEach { recipesCollection.add(it).await() }
+        }
+    }
+
+    // Alle Werte pro 10 Liter fertigem Wein
+    private fun defaultRecipes(): List<FruitRecipe> = listOf(
+        FruitRecipe(name = "Äpfel reif", fruchtKg = 14.0, saftLiter = 10.0, hefeSorte = "Steinberg"),
+        FruitRecipe(name = "Aprikose", fruchtKg = 5.0, wasserLiter = 5.5, zuckerKg = 2.5, milchsaeureGramm = 30.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Bordeaux"),
+        FruitRecipe(name = "Aronia", fruchtKg = 9.0, wasserLiter = 6.0, zuckerKg = 2.0, antigelKleinMl = 50.0, antigelGrossMl = 3.0, hefeSorte = "Bordeaux"),
+        FruitRecipe(name = "Birnen", fruchtKg = 14.0, saftLiter = 10.0, milchsaeureGramm = 20.0, hefeSorte = "Steinberg"),
+        FruitRecipe(name = "Bananen", fruchtKg = 4.0, saftLiter = 1.0, wasserLiter = 7.5, zuckerKg = 2.5, milchsaeureGramm = 60.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Brombeeren", fruchtKg = 6.0, saftLiter = 4.5, wasserLiter = 4.0, zuckerKg = 2.5, antigelKleinMl = 15.0, antigelGrossMl = 1.5, hefeSorte = "Bordeaux"),
+        FruitRecipe(name = "Erdbeeren", fruchtKg = 6.0, saftLiter = 5.0, wasserLiter = 3.5, zuckerKg = 2.5, milchsaeureGramm = 30.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Hagebutten", fruchtKg = 3.0, wasserLiter = 8.5, zuckerKg = 2.8, milchsaeureGramm = 40.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Heidelbeeren", fruchtKg = 6.0, saftLiter = 4.5, wasserLiter = 4.0, zuckerKg = 2.5, milchsaeureGramm = 20.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Bordeaux"),
+        FruitRecipe(name = "Himbeeren", fruchtKg = 4.0, saftLiter = 3.5, wasserLiter = 5.0, zuckerKg = 2.5, milchsaeureGramm = 20.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Holunderbeeren", fruchtKg = 4.0, saftLiter = 3.0, wasserLiter = 5.5, zuckerKg = 2.5, milchsaeureGramm = 40.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Holunderblüte", fruchtKg = 0.5, wasserLiter = 8.5, zuckerKg = 2.5, milchsaeureGramm = 50.0, hefeSorte = "Portwein"),
+        FruitRecipe(
+            name = "Honig",
+            fruchtKg = 3.0,
+            wasserLiter = 7.0,
+            milchsaeureGramm = 40.0,
+            hefeSorte = "Portwein",
+            zusatzZutaten = listOf(ExtraIngredient("A-Saft (L, statt Zucker)", 1.0))
+        ),
+        FruitRecipe(name = "Johannisbeeren r/w", fruchtKg = 4.0, saftLiter = 3.0, wasserLiter = 5.5, zuckerKg = 2.5, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Johannisbeeren sw", fruchtKg = 4.0, saftLiter = 3.0, wasserLiter = 5.5, zuckerKg = 2.5, antigelKleinMl = 15.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Mirabellen", fruchtKg = 6.0, saftLiter = 4.5, wasserLiter = 4.5, zuckerKg = 2.0, milchsaeureGramm = 50.0, antigelKleinMl = 15.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Möhren", fruchtKg = 6.0, wasserLiter = 7.0, zuckerKg = 2.0, milchsaeureGramm = 10.0, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Pfirsich", fruchtKg = 10.0, saftLiter = 6.0, wasserLiter = 2.5, zuckerKg = 2.5, milchsaeureGramm = 30.0, antigelKleinMl = 20.0, antigelGrossMl = 3.0, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Pflaumen", fruchtKg = 6.0, saftLiter = 4.0, wasserLiter = 5.0, zuckerKg = 2.0, milchsaeureGramm = 40.0, antigelKleinMl = 15.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Quitten", fruchtKg = 7.0, wasserLiter = 3.5, zuckerKg = 2.5, milchsaeureGramm = 25.0, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(
+            name = "Rhabarber",
+            fruchtKg = 7.0,
+            saftLiter = 4.5,
+            wasserLiter = 3.5,
+            zuckerKg = 3.0,
+            milchsaeureGramm = 40.0,
+            hefeSorte = "Portwein",
+            zusatzZutaten = listOf(ExtraIngredient("Weinkalk (nach Gärung)", 25.0))
+        ),
+        FruitRecipe(name = "Sauerkirschen", fruchtKg = 7.0, saftLiter = 5.0, wasserLiter = 3.5, zuckerKg = 2.5, antigelKleinMl = 10.0, antigelGrossMl = 1.5, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Süßkirschen", fruchtKg = 11.0, saftLiter = 7.0, wasserLiter = 2.0, zuckerKg = 2.0, milchsaeureGramm = 30.0, antigelKleinMl = 20.0, antigelGrossMl = 3.0, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Schlehen", fruchtKg = 6.0, saftLiter = 2.5, wasserLiter = 6.0, zuckerKg = 2.5, antigelKleinMl = 20.0, antigelGrossMl = 3.0, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Stachelbeeren", fruchtKg = 6.0, saftLiter = 4.5, wasserLiter = 4.0, zuckerKg = 2.5, antigelKleinMl = 20.0, antigelGrossMl = 3.0, hefeSorte = "Portwein"),
+        FruitRecipe(name = "Trauben ws", fruchtKg = 14.0, saftLiter = 10.0, antigelKleinMl = 20.0, antigelGrossMl = 3.0, hefeSorte = "Steinberg"),
+        FruitRecipe(name = "Trauben rot", fruchtKg = 14.0, saftLiter = 10.0, antigelKleinMl = 20.0, antigelGrossMl = 3.0, hefeSorte = "Bordeaux")
+    )
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/InventoryItem.kt =====
+package app.johnhennis.obstweinrechner.data
+
+data class InventoryItem(
+    val id: String = "",
+    val name: String = "",
+    val einheit: String = "",
+    val soll: Double = 0.0,
+    val ist: Double = 0.0,
+    val geloescht: Boolean = false
+)
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/InventoryRepository.kt =====
+package app.johnhennis.obstweinrechner.data
+
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
+
+class InventoryRepository(private val firestore: FirebaseFirestore) {
+
+    private val collection = firestore.collection("inventory")
+
+    private val allDocuments: Flow<List<InventoryItem>> = callbackFlow {
+        val listener = collection.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                trySend(emptyList())
+                return@addSnapshotListener
+            }
+            val items = snapshot?.documents?.mapNotNull { doc ->
+                doc.toObject(InventoryItem::class.java)?.copy(id = doc.id)
+            } ?: emptyList()
+            trySend(items.sortedBy { it.name })
+        }
+        awaitClose { listener.remove() }
+    }
+
+    val allItems: Flow<List<InventoryItem>> = allDocuments.map { list -> list.filter { !it.geloescht } }
+    val trashedItems: Flow<List<InventoryItem>> = allDocuments.map { list -> list.filter { it.geloescht } }
+
+    suspend fun insert(item: InventoryItem) {
+        collection.add(item.copy(id = "", geloescht = false)).await()
+    }
+
+    suspend fun update(item: InventoryItem) {
+        collection.document(item.id).set(item).await()
+    }
+
+    suspend fun moveToTrash(item: InventoryItem) {
+        collection.document(item.id).update("geloescht", true).await()
+    }
+
+    suspend fun restore(item: InventoryItem) {
+        collection.document(item.id).update("geloescht", false).await()
+    }
+
+    suspend fun deletePermanently(item: InventoryItem) {
+        collection.document(item.id).delete().await()
+    }
+
+    suspend fun emptyTrash() {
+        val snapshot = collection.whereEqualTo("geloescht", true).get().await()
+        snapshot.documents.forEach { it.reference.delete().await() }
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/SchmalzCalculationResult.kt =====
+package app.johnhennis.obstweinrechner.data
+
+private const val BASIS_LITER = 24.0
+
+data class SchmalzCalculationResult(
+    val zielLiter: Double,
+    val schmalzStueck: Double,
+    val ruckenfettKg: Double,
+    val aepfelStueck: Double,
+    val zwiebelnGramm: Double,
+    val salzGramm: Double,
+    val majoranGramm: Double,
+    val thymianGramm: Double,
+    val zusatzMengen: List<Pair<String, Double>>
+)
+
+fun SchmalzRecipe.calculate(zielLiter: Double): SchmalzCalculationResult {
+    val faktor = zielLiter / BASIS_LITER
+    return SchmalzCalculationResult(
+        zielLiter = zielLiter,
+        schmalzStueck = schmalzStueck * faktor,
+        ruckenfettKg = ruckenfettKg * faktor,
+        aepfelStueck = aepfelStueck * faktor,
+        zwiebelnGramm = zwiebelnGramm * faktor,
+        salzGramm = salzGramm * faktor,
+        majoranGramm = majoranGramm * faktor,
+        thymianGramm = thymianGramm * faktor,
+        zusatzMengen = zusatzZutaten.map { it.name to (it.menge * faktor) }
+    )
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/SchmalzRecipe.kt =====
+package app.johnhennis.obstweinrechner.data
+
+// Alle Mengen beziehen sich auf das Originalrezept für 24 Liter Schmalz.
+data class SchmalzRecipe(
+    val id: String = "",
+    val schmalzStueck: Double = 0.0,
+    val ruckenfettKg: Double = 0.0,
+    val aepfelStueck: Double = 0.0,
+    val zwiebelnGramm: Double = 0.0,
+    val salzGramm: Double = 0.0,
+    val majoranGramm: Double = 0.0,
+    val thymianGramm: Double = 0.0,
+    val zusatzZutaten: List<ExtraIngredient> = emptyList()
+)
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/SchmalzRecipeRepository.kt =====
+package app.johnhennis.obstweinrechner.data
+
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+
+class SchmalzRecipeRepository(private val firestore: FirebaseFirestore) {
+
+    private val collection = firestore.collection("schmalzRecipes")
+
+    val recipe: Flow<SchmalzRecipe?> = callbackFlow {
+        val listener = collection.limit(1).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                trySend(null)
+                return@addSnapshotListener
+            }
+            val doc = snapshot?.documents?.firstOrNull()
+            trySend(doc?.toObject(SchmalzRecipe::class.java)?.copy(id = doc.id))
+        }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun save(recipe: SchmalzRecipe) {
+        if (recipe.id.isEmpty()) {
+            collection.add(recipe.copy(id = "")).await()
+        } else {
+            collection.document(recipe.id).set(recipe).await()
+        }
+    }
+
+    suspend fun seedIfEmpty() {
+        val snapshot = collection.limit(1).get().await()
+        if (snapshot.isEmpty) {
+            collection.add(defaultRecipe()).await()
+        }
+    }
+
+    // Originalrezept für 24 Liter
+    private fun defaultRecipe() = SchmalzRecipe(
+        schmalzStueck = 24.0,
+        ruckenfettKg = 6.0,
+        aepfelStueck = 8.0,
+        zwiebelnGramm = 1000.0,
+        salzGramm = 36.0,
+        majoranGramm = 36.0,
+        thymianGramm = 36.0
+    )
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/SettingsRepository.kt =====
+package app.johnhennis.obstweinrechner.data
+
+import android.content.Context
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
+// Rein lokale Einstellung (kein Firestore) - bleibt bewusst auf diesem Gerät.
+class SettingsRepository(context: Context) {
+
+    private val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
+    private val _fontScale = MutableStateFlow(prefs.getFloat(KEY_FONT_SCALE, 1.0f))
+    val fontScale: StateFlow<Float> = _fontScale
+
+    fun setFontScale(scale: Float) {
+        prefs.edit().putFloat(KEY_FONT_SCALE, scale).apply()
+        _fontScale.value = scale
+    }
+
+    companion object {
+        private const val KEY_FONT_SCALE = "font_scale"
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/ShoppingListRepository.kt =====
+package app.johnhennis.obstweinrechner.data
+
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+
+class ShoppingListRepository(private val firestore: FirebaseFirestore) {
+
+    private val collection = firestore.collection("shoppingStatus")
+
+    val allStatus: Flow<Map<String, ShoppingListStatus>> = callbackFlow {
+        val listener = collection.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                trySend(emptyMap())
+                return@addSnapshotListener
+            }
+            val map = snapshot?.documents?.associate { doc ->
+                doc.id to (doc.toObject(ShoppingListStatus::class.java) ?: ShoppingListStatus())
+            } ?: emptyMap()
+            trySend(map)
+        }
+        awaitClose { listener.remove() }
+    }
+
+    suspend fun setStatus(itemId: String, status: ShoppingListStatus) {
+        collection.document(itemId).set(status).await()
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/data/ShoppingListStatus.kt =====
+package app.johnhennis.obstweinrechner.data
+
+data class ShoppingListStatus(
+    val erledigt: Boolean = false,
+    val notiz: String = ""
+)
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/navigation/AppNavigation.kt =====
+package app.johnhennis.obstweinrechner.ui.navigation
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.Kitchen
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.WineBar
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
+import app.johnhennis.obstweinrechner.ui.calculator.CalculatorScreen
+import app.johnhennis.obstweinrechner.ui.inventory.InventoryScreen
+import app.johnhennis.obstweinrechner.ui.inventory.InventoryTrashScreen
+import app.johnhennis.obstweinrechner.ui.recipes.RecipeListScreen
+import app.johnhennis.obstweinrechner.ui.recipes.RecipeTrashScreen
+import app.johnhennis.obstweinrechner.ui.schmalz.SchmalzScreen
+import app.johnhennis.obstweinrechner.ui.settings.SettingsScreen
+import app.johnhennis.obstweinrechner.ui.shopping.ShoppingListScreen
+import kotlinx.coroutines.launch
+
+private object Routes {
+    const val WEIN = "wein"
+    const val WEIN_RECIPES = "wein_recipes"
+    const val WEIN_TRASH = "wein_trash"
+    const val SCHMALZ = "schmalz"
+    const val INVENTORY = "inventory"
+    const val INVENTORY_TRASH = "inventory_trash"
+    const val SHOPPING = "shopping"
+    const val SETTINGS = "settings"
+}
+
+@Composable
+fun AppNavigation(factory: AppViewModelFactory) {
+    val navController = rememberNavController()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    BackHandler(enabled = drawerState.isOpen) {
+        scope.launch { drawerState.close() }
+    }
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(12.dp))
+                Text("Menü", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
+                Spacer(Modifier.height(8.dp))
+                NavigationDrawerItem(
+                    label = { Text("Wein-Rechner") },
+                    icon = { Icon(Icons.Filled.WineBar, contentDescription = null) },
+                    selected = false,
+                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.WEIN) { launchSingleTop = true } },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Schmalz-Rechner") },
+                    icon = { Icon(Icons.Filled.Kitchen, contentDescription = null) },
+                    selected = false,
+                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.SCHMALZ) { launchSingleTop = true } },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Bestandsaufnahme") },
+                    icon = { Icon(Icons.Filled.Inventory2, contentDescription = null) },
+                    selected = false,
+                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.INVENTORY) { launchSingleTop = true } },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Einkaufsliste") },
+                    icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
+                    selected = false,
+                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.SHOPPING) { launchSingleTop = true } },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Einstellungen") },
+                    icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+                    selected = false,
+                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.SETTINGS) { launchSingleTop = true } },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
+        }
+    ) {
+        NavHost(navController = navController, startDestination = Routes.WEIN) {
+            composable(Routes.WEIN) {
+                CalculatorScreen(
+                    factory = factory,
+                    onOpenRecipes = { navController.navigate(Routes.WEIN_RECIPES) },
+                    onOpenMenu = { scope.launch { drawerState.open() } }
+                )
+            }
+            composable(Routes.WEIN_RECIPES) {
+                RecipeListScreen(
+                    factory = factory,
+                    onBack = { navController.popBackStack() },
+                    onOpenTrash = { navController.navigate(Routes.WEIN_TRASH) }
+                )
+            }
+            composable(Routes.WEIN_TRASH) {
+                RecipeTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+            }
+            composable(Routes.SCHMALZ) {
+                SchmalzScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+            }
+            composable(Routes.INVENTORY) {
+                InventoryScreen(
+                    factory = factory,
+                    onOpenMenu = { scope.launch { drawerState.open() } },
+                    onOpenTrash = { navController.navigate(Routes.INVENTORY_TRASH) }
+                )
+            }
+            composable(Routes.INVENTORY_TRASH) {
+                InventoryTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+            }
+            composable(Routes.SHOPPING) {
+                ShoppingListScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+            }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+            }
+        }
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/calculator/CalculatorScreen.kt =====
+package app.johnhennis.obstweinrechner.ui.calculator
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.johnhennis.obstweinrechner.data.CalculationResult
+import app.johnhennis.obstweinrechner.data.FruitRecipe
+import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
+import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+import java.util.Locale
+
+private const val EPS = 0.0001
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CalculatorScreen(
+    factory: AppViewModelFactory,
+    onOpenRecipes: () -> Unit,
+    onOpenMenu: () -> Unit
+) {
+    val viewModel: CalculatorViewModel = viewModel(factory = factory)
+    val uiState by viewModel.uiState.collectAsState()
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Obstwein-Rechner") },
+                navigationIcon = {
+                    IconButton(onClick = onOpenMenu) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menü")
+                    }
+                },
+                actions = {
+                    TextButton(onClick = onOpenRecipes) { Text("Rezepte") }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            FruitDropdown(
+                factory = factory,
+                recipes = uiState.recipes,
+                selected = uiState.selectedRecipe,
+                onSelected = viewModel::onRecipeSelected
+            )
+
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                SegmentedButton(
+                    selected = uiState.mode == InputMode.LITER,
+                    onClick = { viewModel.onModeChanged(InputMode.LITER) },
+                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
+                ) { Text("Ziel-Liter") }
+                SegmentedButton(
+                    selected = uiState.mode == InputMode.FRUCHT_KG,
+                    onClick = { viewModel.onModeChanged(InputMode.FRUCHT_KG) },
+                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
+                ) { Text("kg Frucht") }
+            }
+
+            when (uiState.mode) {
+                InputMode.LITER -> OutlinedTextField(
+                    value = uiState.literText,
+                    onValueChange = viewModel::onLiterChanged,
+                    label = { Text("Ziel-Menge Wein (Liter)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                InputMode.FRUCHT_KG -> OutlinedTextField(
+                    value = uiState.fruchtKgText,
+                    onValueChange = viewModel::onFruchtKgChanged,
+                    label = { Text("Verfügbare Frucht (kg)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            if (uiState.selectedRecipe != null && uiState.result != null) {
+                ResultCard(recipeName = uiState.selectedRecipe!!.name, result = uiState.result!!)
+            } else {
+                Text(
+                    "Bitte Frucht auswählen und eine gültige Menge eingeben.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FruitDropdown(
+    factory: AppViewModelFactory,
+    recipes: List<FruitRecipe>,
+    selected: FruitRecipe?,
+    onSelected: (FruitRecipe) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = selected?.name ?: "",
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Frucht") },
+            trailingIcon = { Icon(Icons.Filled.ArrowDropDown, contentDescription = null) },
+            modifier = Modifier.menuAnchor().fillMaxWidth()
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            ScaledContent(factory) {
+                recipes.forEach { recipe ->
+                    DropdownMenuItem(
+                        text = { Text(recipe.name) },
+                        onClick = {
+                            onSelected(recipe)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ResultCard(recipeName: String, result: CalculationResult) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Rezept für $recipeName", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            ResultRow("Ziel-Menge Wein", "${fmt(result.zielLiter)} L")
+            if (result.fruchtKg > EPS) ResultRow("Fruchtmenge", "${fmt(result.fruchtKg)} kg")
+            if (result.saftLiter > EPS) ResultRow("Ausbeute Saft", "${fmt(result.saftLiter)} L")
+            if (result.wasserLiter > EPS) ResultRow("Wasser", "${fmt(result.wasserLiter)} L")
+            if (result.zuckerKg > EPS) ResultRow("Zucker", "${fmt(result.zuckerKg)} kg")
+            if (result.milchsaeureGramm > EPS) ResultRow("Milchsäure", "${fmt(result.milchsaeureGramm)} g")
+            if (result.antigelKleinMl > EPS) ResultRow("Antigel klein", "${fmt(result.antigelKleinMl)} ml")
+            if (result.antigelGrossMl > EPS) ResultRow("Antigel groß", "${fmt(result.antigelGrossMl)} ml")
+            if (result.hefeSorte.isNotBlank()) ResultRow("Hefe", result.hefeSorte)
+            result.zusatzMengen.forEach { (name, menge) ->
+                if (menge > EPS) ResultRow(name, fmt(menge))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ResultRow(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+private fun fmt(value: Double): String = String.format(Locale.GERMANY, "%.2f", value)
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/calculator/CalculatorViewModel.kt =====
+package app.johnhennis.obstweinrechner.ui.calculator
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.johnhennis.obstweinrechner.data.CalculationResult
+import app.johnhennis.obstweinrechner.data.FruitRecipe
+import app.johnhennis.obstweinrechner.data.FruitRecipeRepository
+import app.johnhennis.obstweinrechner.data.calculateFromFruchtKg
+import app.johnhennis.obstweinrechner.data.calculateFromZielLiter
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+
+enum class InputMode { LITER, FRUCHT_KG }
+
+data class CalculatorUiState(
+    val recipes: List<FruitRecipe> = emptyList(),
+    val selectedRecipe: FruitRecipe? = null,
+    val mode: InputMode = InputMode.LITER,
+    val literText: String = "10",
+    val fruchtKgText: String = "10",
+    val result: CalculationResult? = null
+)
+
+class CalculatorViewModel(
+    private val repository: FruitRecipeRepository
+) : ViewModel() {
+
+    private val selectedRecipeId = MutableStateFlow<String?>(null)
+    private val mode = MutableStateFlow(InputMode.LITER)
+    private val literText = MutableStateFlow("10")
+    private val fruchtKgText = MutableStateFlow("10")
+
+    val uiState: StateFlow<CalculatorUiState> = combine(
+        repository.allRecipes,
+        selectedRecipeId,
+        mode,
+        literText,
+        fruchtKgText
+    ) { values ->
+        val recipes = values[0] as List<FruitRecipe>
+        val selectedId = values[1] as String?
+        val currentMode = values[2] as InputMode
+        val lText = values[3] as String
+        val kgText = values[4] as String
+
+        val selected = recipes.firstOrNull { it.id == selectedId } ?: recipes.firstOrNull()
+
+        val result = selected?.let { recipe ->
+            when (currentMode) {
+                InputMode.LITER -> lText.replace(',', '.').toDoubleOrNull()
+                    ?.takeIf { it > 0 }
+                    ?.let { recipe.calculateFromZielLiter(it) }
+
+                InputMode.FRUCHT_KG -> kgText.replace(',', '.').toDoubleOrNull()
+                    ?.takeIf { it > 0 }
+                    ?.let { recipe.calculateFromFruchtKg(it) }
+            }
+        }
+
+        CalculatorUiState(
+            recipes = recipes,
+            selectedRecipe = selected,
+            mode = currentMode,
+            literText = lText,
+            fruchtKgText = kgText,
+            result = result
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = CalculatorUiState()
+    )
+
+    fun onRecipeSelected(recipe: FruitRecipe) {
+        selectedRecipeId.value = recipe.id
+    }
+
+    fun onModeChanged(newMode: InputMode) {
+        mode.value = newMode
+    }
+
+    fun onLiterChanged(text: String) {
+        if (text.isEmpty() || text.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+            literText.value = text
+        }
+    }
+
+    fun onFruchtKgChanged(text: String) {
+        if (text.isEmpty() || text.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+            fruchtKgText.value = text
+        }
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/inventory/InventoryScreen.kt =====
+package app.johnhennis.obstweinrechner.ui.inventory
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.johnhennis.obstweinrechner.data.InventoryItem
+import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
+import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+
+private fun formatPlain(value: Double): String = if (value == 0.0) "" else value.toString()
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InventoryScreen(
+    factory: AppViewModelFactory,
+    onOpenMenu: () -> Unit,
+    onOpenTrash: () -> Unit
+) {
+    val viewModel: InventoryViewModel = viewModel(factory = factory)
+    val items by viewModel.items.collectAsState()
+    var showAdd by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Bestandsaufnahme") },
+                navigationIcon = {
+                    IconButton(onClick = onOpenMenu) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menü")
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onOpenTrash) {
+                        Icon(Icons.Filled.Delete, contentDescription = "Papierkorb öffnen")
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { showAdd = true }) {
+                Icon(Icons.Filled.Add, contentDescription = "Position hinzufügen")
+            }
+        }
+    ) { padding ->
+        if (items.isEmpty()) {
+            Column(modifier = Modifier.padding(padding).padding(16.dp)) {
+                Text(
+                    "Noch keine Positionen erfasst. Mit dem + unten rechts eine neue Position hinzufügen.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(items, key = { it.id }) { item ->
+                    InventoryRow(
+                        item = item,
+                        onUpdate = { viewModel.updateItem(it) },
+                        onDelete = { viewModel.deleteItem(item) }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showAdd) {
+        AddItemDialog(
+            factory = factory,
+            onDismiss = { showAdd = false },
+            onAdd = { viewModel.addItem(it); showAdd = false }
+        )
+    }
+}
+
+@Composable
+private fun InventoryRow(
+    item: InventoryItem,
+    onUpdate: (InventoryItem) -> Unit,
+    onDelete: () -> Unit
+) {
+    var sollText by remember(item.id) { mutableStateOf(formatPlain(item.soll)) }
+    var istText by remember(item.id) { mutableStateOf(formatPlain(item.ist)) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    if (item.einheit.isBlank()) item.name else "${item.name} (${item.einheit})",
+                    style = MaterialTheme.typography.titleSmall
+                )
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
+                }
+            }
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = sollText,
+                    onValueChange = { new ->
+                        if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+                            sollText = new
+                            onUpdate(item.copy(soll = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
+                        }
+                    },
+                    label = { Text("Soll") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    modifier = Modifier.width(120.dp)
+                )
+                OutlinedTextField(
+                    value = istText,
+                    onValueChange = { new ->
+                        if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+                            istText = new
+                            onUpdate(item.copy(ist = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
+                        }
+                    },
+                    label = { Text("Ist") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    modifier = Modifier.width(120.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddItemDialog(
+    factory: AppViewModelFactory,
+    onDismiss: () -> Unit,
+    onAdd: (InventoryItem) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var einheit by remember { mutableStateOf("") }
+    var soll by remember { mutableStateOf("") }
+    var ist by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { ScaledContent(factory) { Text("Neue Position") } },
+        text = {
+            ScaledContent(factory) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = einheit, onValueChange = { einheit = it }, label = { Text("Einheit (z. B. Flaschen, L)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(
+                        value = soll,
+                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) soll = new },
+                        label = { Text("Soll") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = ist,
+                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) ist = new },
+                        label = { Text("Ist") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                }
+            }
+        },
+        confirmButton = {
+            ScaledContent(factory) {
+                TextButton(onClick = {
+                    if (name.isBlank()) { error = "Bitte einen Namen eingeben."; return@TextButton }
+                    val sollValue = if (soll.isBlank()) 0.0 else soll.replace(',', '.').toDoubleOrNull()
+                    val istValue = if (ist.isBlank()) 0.0 else ist.replace(',', '.').toDoubleOrNull()
+                    if (sollValue == null || istValue == null) { error = "Bitte gültige Zahlen eingeben."; return@TextButton }
+                    onAdd(InventoryItem(name = name.trim(), einheit = einheit.trim(), soll = sollValue, ist = istValue))
+                }) { Text("Hinzufügen") }
+            }
+        },
+        dismissButton = {
+            ScaledContent(factory) {
+                TextButton(onClick = onDismiss) { Text("Abbrechen") }
+            }
+        }
+    )
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/inventory/InventoryTrashScreen.kt =====
+package app.johnhennis.obstweinrechner.ui.inventory
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.johnhennis.obstweinrechner.data.InventoryItem
+import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
+import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun InventoryTrashScreen(
+    factory: AppViewModelFactory,
+    onBack: () -> Unit
+) {
+    val viewModel: InventoryViewModel = viewModel(factory = factory)
+    val trashed by viewModel.trashedItems.collectAsState()
+    var confirmDelete by remember { mutableStateOf<InventoryItem?>(null) }
+    var confirmEmpty by remember { mutableStateOf(false) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Papierkorb") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Zurück")
+                    }
+                },
+                actions = {
+                    if (trashed.isNotEmpty()) {
+                        IconButton(onClick = { confirmEmpty = true }) {
+                            Icon(Icons.Filled.DeleteSweep, contentDescription = "Papierkorb leeren")
+                        }
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        if (trashed.isEmpty()) {
+            Column(modifier = Modifier.padding(padding).padding(16.dp)) {
+                Text("Der Papierkorb ist leer.", style = MaterialTheme.typography.bodyMedium)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(trashed, key = { it.id }) { item ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(item.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                TextButton(onClick = { viewModel.restore(item) }) { Text("Wiederherstellen") }
+                                TextButton(onClick = { confirmDelete = item }) {
+                                    Text("Endgültig löschen", color = MaterialTheme.colorScheme.error)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    confirmDelete?.let { item ->
+        AlertDialog(
+            onDismissRequest = { confirmDelete = null },
+            title = { ScaledContent(factory) { Text("Endgültig löschen?") } },
+            text = { ScaledContent(factory) { Text("\"${item.name}\" wird unwiderruflich gelöscht.") } },
+            confirmButton = {
+                ScaledContent(factory) {
+                    TextButton(onClick = { viewModel.deletePermanently(item); confirmDelete = null }) {
+                        Text("Löschen", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmDelete = null }) { Text("Abbrechen") } } }
+        )
+    }
+
+    if (confirmEmpty) {
+        AlertDialog(
+            onDismissRequest = { confirmEmpty = false },
+            title = { ScaledContent(factory) { Text("Papierkorb leeren?") } },
+            text = { ScaledContent(factory) { Text("Alle ${trashed.size} Positionen im Papierkorb werden unwiderruflich gelöscht.") } },
+            confirmButton = {
+                ScaledContent(factory) {
+                    TextButton(onClick = { viewModel.emptyTrash(); confirmEmpty = false }) {
+                        Text("Alle löschen", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmEmpty = false }) { Text("Abbrechen") } } }
+        )
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/inventory/InventoryViewModel.kt =====
+package app.johnhennis.obstweinrechner.ui.inventory
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.johnhennis.obstweinrechner.data.InventoryItem
+import app.johnhennis.obstweinrechner.data.InventoryRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+class InventoryViewModel(
+    private val repository: InventoryRepository
+) : ViewModel() {
+
+    val items: StateFlow<List<InventoryItem>> = repository.allItems.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
+    )
+
+    val trashedItems: StateFlow<List<InventoryItem>> = repository.trashedItems.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
+    )
+
+    fun addItem(item: InventoryItem) {
+        viewModelScope.launch { repository.insert(item) }
+    }
+
+    fun updateItem(item: InventoryItem) {
+        viewModelScope.launch { repository.update(item) }
+    }
+
+    fun deleteItem(item: InventoryItem) {
+        viewModelScope.launch { repository.moveToTrash(item) }
+    }
+
+    fun restore(item: InventoryItem) {
+        viewModelScope.launch { repository.restore(item) }
+    }
+
+    fun deletePermanently(item: InventoryItem) {
+        viewModelScope.launch { repository.deletePermanently(item) }
+    }
+
+    fun emptyTrash() {
+        viewModelScope.launch { repository.emptyTrash() }
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/shopping/ShoppingListScreen.kt =====
+package app.johnhennis.obstweinrechner.ui.shopping
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
+import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShoppingListScreen(
+    factory: AppViewModelFactory,
+    onOpenMenu: () -> Unit
+) {
+    val viewModel: ShoppingListViewModel = viewModel(factory = factory)
+    val entries by viewModel.entries.collectAsState()
+    var noteTarget by remember { mutableStateOf<ShoppingListEntry?>(null) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Einkaufsliste") },
+                navigationIcon = {
+                    IconButton(onClick = onOpenMenu) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menü")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        if (entries.isEmpty()) {
+            Column(modifier = Modifier.padding(padding).padding(16.dp)) {
+                Text("Alles vorhanden – aktuell besteht kein Nachkaufbedarf.", style = MaterialTheme.typography.bodyMedium)
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(entries, key = { it.itemId }) { entry ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth().clickable { noteTarget = entry }
+                    ) {
+                        Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(checked = entry.erledigt, onCheckedChange = { viewModel.toggleErledigt(entry) })
+                            Column(modifier = Modifier.padding(start = 8.dp)) {
+                                val einheitSuffix = if (entry.einheit.isBlank()) "" else " ${entry.einheit}"
+                                Text(
+                                    "${entry.name}: ${fmt(entry.benoetigt)}$einheitSuffix",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    textDecoration = if (entry.erledigt) TextDecoration.LineThrough else TextDecoration.None
+                                )
+                                if (entry.notiz.isNotBlank()) {
+                                    Text(
+                                        entry.notiz,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textDecoration = if (entry.erledigt) TextDecoration.LineThrough else TextDecoration.None
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    noteTarget?.let { entry ->
+        NoteDialog(
+            factory = factory,
+            entry = entry,
+            onDismiss = { noteTarget = null },
+            onSave = { text -> viewModel.updateNotiz(entry, text); noteTarget = null }
+        )
+    }
+}
+
+@Composable
+private fun NoteDialog(
+    factory: AppViewModelFactory,
+    entry: ShoppingListEntry,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var text by remember { mutableStateOf(entry.notiz) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { ScaledContent(factory) { Text(entry.name) } },
+        text = {
+            ScaledContent(factory) {
+                OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("Notiz") }, modifier = Modifier.fillMaxWidth())
+            }
+        },
+        confirmButton = { ScaledContent(factory) { TextButton(onClick = { onSave(text) }) { Text("Speichern") } } },
+        dismissButton = { ScaledContent(factory) { TextButton(onClick = onDismiss) { Text("Abbrechen") } } }
+    )
+}
+
+private fun fmt(value: Double): String = String.format(Locale.GERMANY, "%.2f", value)
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/shopping/ShoppingListViewModel.kt =====
+package app.johnhennis.obstweinrechner.ui.shopping
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import app.johnhennis.obstweinrechner.data.InventoryRepository
+import app.johnhennis.obstweinrechner.data.ShoppingListRepository
+import app.johnhennis.obstweinrechner.data.ShoppingListStatus
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+
+data class ShoppingListEntry(
+    val itemId: String,
+    val name: String,
+    val einheit: String,
+    val benoetigt: Double,
+    val erledigt: Boolean,
+    val notiz: String
+)
+
+class ShoppingListViewModel(
+    private val inventoryRepository: InventoryRepository,
+    private val shoppingListRepository: ShoppingListRepository
+) : ViewModel() {
+
+    val entries: StateFlow<List<ShoppingListEntry>> = combine(
+        inventoryRepository.allItems,
+        shoppingListRepository.allStatus
+    ) { items, statusMap ->
+        items
+            .map { item ->
+                val diff = item.soll - item.ist
+                val status = statusMap[item.id] ?: ShoppingListStatus()
+                ShoppingListEntry(
+                    itemId = item.id,
+                    name = item.name,
+                    einheit = item.einheit,
+                    benoetigt = diff,
+                    erledigt = status.erledigt,
+                    notiz = status.notiz
+                )
+            }
+            .filter { it.benoetigt > 0.0001 }
+            .sortedBy { it.name }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
+
+    fun toggleErledigt(entry: ShoppingListEntry) {
+        viewModelScope.launch {
+            shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = !entry.erledigt, notiz = entry.notiz))
+        }
+    }
+
+    fun updateNotiz(entry: ShoppingListEntry, notiz: String) {
+        viewModelScope.launch {
+            shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = entry.erledigt, notiz = notiz))
+        }
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/settings/SettingsScreen.kt =====
+package app.johnhennis.obstweinrechner.ui.settings
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
+import kotlin.math.roundToInt
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    factory: AppViewModelFactory,
+    onOpenMenu: () -> Unit
+) {
+    val viewModel: SettingsViewModel = viewModel(factory = factory)
+    val savedFontScale by viewModel.fontScale.collectAsState()
+
+    // Lokaler, sofort reagierender Zustand für flüssiges Ziehen.
+    // Erst beim Loslassen wird der Wert app-weit übernommen (siehe onValueChangeFinished
+    // unten) - so löst jede Fingerbewegung nicht mehr einen kompletten Neuaufbau
+    // der ganzen App aus, was das Ziehen vorher blockiert hat.
+    var sliderPosition by remember { mutableFloatStateOf(savedFontScale) }
+    LaunchedEffect(savedFontScale) { sliderPosition = savedFontScale }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Einstellungen") },
+                navigationIcon = {
+                    IconButton(onClick = onOpenMenu) {
+                        Icon(Icons.Filled.Menu, contentDescription = "Menü")
+                    }
+                }
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Schriftgröße", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Gilt nur auf diesem Gerät und wirkt sich auf die gesamte App aus.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Text("${(sliderPosition * 100).roundToInt()} %", style = MaterialTheme.typography.headlineSmall)
+
+            Slider(
+                value = sliderPosition,
+                onValueChange = { sliderPosition = it },
+                onValueChangeFinished = { viewModel.setFontScale(sliderPosition) },
+                valueRange = 0.8f..2.0f
+            )
+
+            Text("Beispieltext in aktueller Größe", style = MaterialTheme.typography.bodyLarge)
+        }
+    }
+}
+
+===== app/src/main/java/app/johnhennis/obstweinrechner/ui/settings/SettingsViewModel.kt =====
+package app.johnhennis.obstweinrechner.ui.settings
+
+import androidx.lifecycle.ViewModel
+import app.johnhennis.obstweinrechner.data.SettingsRepository
+import kotlinx.coroutines.flow.StateFlow
+
+class SettingsViewModel(
+    private val repository: SettingsRepository
+) : ViewModel() {
+
+    val fontScale: StateFlow<Float> = repository.fontScale
+
+    fun setFontScale(scale: Float) {
+        repository.setFontScale(scale)
+    }
+}
+

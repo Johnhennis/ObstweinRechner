@@ -1,8 +1,12 @@
 package app.johnhennis.obstweinrechner
 
 import android.app.Application
+import app.johnhennis.obstweinrechner.data.FruitPriceRepository
 import app.johnhennis.obstweinrechner.data.FruitRecipeRepository
+import app.johnhennis.obstweinrechner.data.InfoEntryRepository
 import app.johnhennis.obstweinrechner.data.InventoryRepository
+import app.johnhennis.obstweinrechner.data.ManualShoppingItemRepository
+import app.johnhennis.obstweinrechner.data.RecipeSessionRepository
 import app.johnhennis.obstweinrechner.data.SchmalzRecipeRepository
 import app.johnhennis.obstweinrechner.data.SettingsRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListRepository
@@ -22,6 +26,10 @@ class FruchtweinApplication : Application() {
     val settingsRepository: SettingsRepository by lazy { SettingsRepository(this) }
     val inventoryRepository: InventoryRepository by lazy { InventoryRepository(FirebaseFirestore.getInstance()) }
     val shoppingListRepository: ShoppingListRepository by lazy { ShoppingListRepository(FirebaseFirestore.getInstance()) }
+    val fruitPriceRepository: FruitPriceRepository by lazy { FruitPriceRepository(FirebaseFirestore.getInstance()) }
+    val infoEntryRepository: InfoEntryRepository by lazy { InfoEntryRepository(FirebaseFirestore.getInstance()) }
+    val recipeSessionRepository: RecipeSessionRepository by lazy { RecipeSessionRepository(FirebaseFirestore.getInstance()) }
+    val manualShoppingItemRepository: ManualShoppingItemRepository by lazy { ManualShoppingItemRepository(FirebaseFirestore.getInstance()) }
 
     override fun onCreate() {
         super.onCreate()
@@ -31,6 +39,7 @@ class FruchtweinApplication : Application() {
             }
             repository.seedIfEmpty()
             schmalzRepository.seedIfEmpty()
+            fruitPriceRepository.seedIfEmpty()
         }
     }
 }

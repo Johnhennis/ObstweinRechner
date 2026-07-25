@@ -1,9 +1,10 @@
-#Thu Jul 23 10:57:50 UTC 2026
+#Fri Jul 24 18:11:57 UTC 2026
 base.0=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeExtDexDebug/classes.dex
 base.1=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeProjectDexDebug/0/classes.dex
 base.10=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeExtDexDebug/classes2.dex
 base.11=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeExtDexDebug/classes3.dex
 base.12=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeExtDexDebug/classes4.dex
+base.13=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeProjectDexDebug/3/classes.dex
 base.2=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeProjectDexDebug/11/classes.dex
 base.3=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeProjectDexDebug/12/classes.dex
 base.4=/workspaces/ObstweinRechner/app/build/intermediates/dex/debug/mergeProjectDexDebug/15/classes.dex
@@ -17,6 +18,7 @@ path.1=0/classes.dex
 path.10=classes2.dex
 path.11=classes3.dex
 path.12=classes4.dex
+path.13=3/classes.dex
 path.2=11/classes.dex
 path.3=12/classes.dex
 path.4=15/classes.dex
@@ -30,6 +32,7 @@ renamed.1=classes2.dex
 renamed.10=classes11.dex
 renamed.11=classes12.dex
 renamed.12=classes13.dex
+renamed.13=classes14.dex
 renamed.2=classes3.dex
 renamed.3=classes4.dex
 renamed.4=classes5.dex
