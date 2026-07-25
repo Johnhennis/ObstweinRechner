@@ -12,8 +12,16 @@
         "source": "app.johnhennis.obstweinrechner.app-main-69:/mipmap-xxhdpi/ic_launcher_round.png"
     },
     {
+        "merged": "app.johnhennis.obstweinrechner.app-debug-67:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "app.johnhennis.obstweinrechner.app-main-69:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
         "merged": "app.johnhennis.obstweinrechner.app-debug-67:/mipmap-hdpi_ic_launcher.png.flat",
         "source": "app.johnhennis.obstweinrechner.app-main-69:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "app.johnhennis.obstweinrechner.app-debug-67:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "app.johnhennis.obstweinrechner.app-main-69:/mipmap-anydpi-v26/ic_launcher.xml"
     },
     {
         "merged": "app.johnhennis.obstweinrechner.app-debug-67:/mipmap-xhdpi_ic_launcher.png.flat",
@@ -32,8 +40,12 @@
         "source": "app.johnhennis.obstweinrechner.app-main-69:/mipmap-mdpi/ic_launcher.png"
     },
     {
-        "merged": "app.johnhennis.obstweinrechner.app-debug-67:/mipmap-xxhdpi_ic_launcher.png.flat",
-        "source": "app.johnhennis.obstweinrechner.app-main-69:/mipmap-xxhdpi/ic_launcher.png"
+        "merged": "app.johnhennis.obstweinrechner.app-debug-67:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "app.johnhennis.obstweinrechner.app-main-69:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "app.johnhennis.obstweinrechner.app-debug-67:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "app.johnhennis.obstweinrechner.app-main-69:/mipmap-anydpi-v26/ic_launcher_round.xml"
     },
     {
         "merged": "app.johnhennis.obstweinrechner.app-debug-67:/mipmap-xxxhdpi_ic_launcher.png.flat",

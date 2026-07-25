@@ -1,5 +1,6 @@
 package app.johnhennis.obstweinrechner.ui.prices
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +15,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,6 +61,7 @@ fun PricesScreen(
     val yearGroups by viewModel.yearGroups.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
+    val expanded = remember { mutableStateMapOf<Int, Boolean>() }
 
     Scaffold(
         topBar = {
@@ -90,25 +95,41 @@ fun PricesScreen(
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 yearGroups.forEach { group ->
+                    val isExpanded = expanded[group.jahr] ?: (group.jahr == viewModel.currentYear)
                     item(key = "header_${group.jahr}") {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { expanded[group.jahr] = !isExpanded }
+                                .padding(top = 10.dp, bottom = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("${group.jahr}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                    contentDescription = null
+                                )
+                                Text(
+                                    "${group.jahr} (${group.rows.size})",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                             IconButton(onClick = { confirmDeleteYear = group.jahr }, modifier = Modifier.size(32.dp)) {
                                 Icon(Icons.Filled.Delete, contentDescription = "Jahr ${group.jahr} in den Papierkorb", modifier = Modifier.size(18.dp))
                             }
                         }
                         HorizontalDivider()
                     }
-                    items(group.rows, key = { it.price.id }) { row ->
-                        PriceRow(
-                            row = row,
-                            onUpdate = { viewModel.updateEntry(it) },
-                            onDelete = { viewModel.deleteEntry(row.price) }
-                        )
+                    if (isExpanded) {
+                        items(group.rows, key = { it.price.id }) { row ->
+                            PriceRow(
+                                row = row,
+                                onUpdate = { viewModel.updateEntry(it) },
+                                onDelete = { viewModel.deleteEntry(row.price) }
+                            )
+                        }
                     }
                 }
             }
@@ -120,7 +141,11 @@ fun PricesScreen(
             factory = factory,
             defaultYear = viewModel.currentYear,
             onDismiss = { showAdd = false },
-            onAdd = { j, f, d, p, q -> viewModel.addEntry(j, f, d, p, q); showAdd = false }
+            onAdd = { j, f, d, p, q ->
+                viewModel.addEntry(j, f, d, p, q)
+                expanded[j] = true
+                showAdd = false
+            }
         )
     }
 

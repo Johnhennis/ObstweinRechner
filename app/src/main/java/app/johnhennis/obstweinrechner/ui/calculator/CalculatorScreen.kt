@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
@@ -114,7 +116,9 @@ fun CalculatorScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { if (it.isFocused) viewModel.onLiterChanged("") }
                 )
                 InputMode.FRUCHT_KG -> OutlinedTextField(
                     value = uiState.fruchtKgText,
@@ -123,7 +127,9 @@ fun CalculatorScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus(); keyboardController?.hide() }),
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onFocusChanged { if (it.isFocused) viewModel.onFruchtKgChanged("") }
                 )
             }
 
@@ -140,6 +146,13 @@ fun CalculatorScreen(
                 value = uiState.notiz,
                 onValueChange = viewModel::onNotizChanged,
                 label = { Text("Notiz zu dieser Sorte") },
+                trailingIcon = {
+                    if (uiState.notiz.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.onNotizChanged("") }) {
+                            Icon(Icons.Filled.Clear, contentDescription = "Notiz löschen")
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             )
         }
