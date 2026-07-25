@@ -44,7 +44,7 @@ import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 import kotlinx.coroutines.delay
 
-private fun formatPlain(value: Double): String = if (value == 0.0) "" else value.toString()
+private fun formatPlain(value: Double): String = if (value == 0.0) "" else value.toInt().toString()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,9 +127,6 @@ private fun InventoryRow(
     var quelleText by remember(item.id) { mutableStateOf(quelle) }
     var quelleUserEdited by remember(item.id) { mutableStateOf(false) }
 
-    // Solange der Nutzer die Quelle hier nicht selbst bearbeitet, folgt das Feld
-    // dem gespeicherten Wert - wichtig direkt nach dem Anlegen, wenn die separat
-    // gespeicherte Quelle noch minimal nachläuft.
     LaunchedEffect(quelle) {
         if (!quelleUserEdited) quelleText = quelle
     }
@@ -149,32 +146,32 @@ private fun InventoryRow(
         ) {
             Text(
                 if (item.einheit.isBlank()) item.name else "${item.name} (${item.einheit})",
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1.3f)
             )
             CompactField(
                 value = sollText,
                 onValueChange = { new ->
-                    if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+                    if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) {
                         sollText = new
-                        onUpdate(item.copy(soll = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
+                        onUpdate(item.copy(soll = new.toIntOrNull()?.toDouble() ?: 0.0))
                     }
                 },
                 placeholder = "Soll",
-                modifier = Modifier.width(54.dp),
-                keyboardType = KeyboardType.Decimal
+                modifier = Modifier.width(56.dp),
+                keyboardType = KeyboardType.Number
             )
             CompactField(
                 value = istText,
                 onValueChange = { new ->
-                    if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
+                    if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) {
                         istText = new
-                        onUpdate(item.copy(ist = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
+                        onUpdate(item.copy(ist = new.toIntOrNull()?.toDouble() ?: 0.0))
                     }
                 },
                 placeholder = "Ist",
-                modifier = Modifier.width(54.dp),
-                keyboardType = KeyboardType.Decimal
+                modifier = Modifier.width(56.dp),
+                keyboardType = KeyboardType.Number
             )
             CompactField(
                 value = quelleText,
@@ -232,17 +229,17 @@ private fun AddItemDialog(
                     OutlinedTextField(value = einheit, onValueChange = { einheit = it }, label = { Text("Einheit (z. B. Flaschen, L)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(
                         value = soll,
-                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) soll = new },
+                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) soll = new },
                         label = { Text("Soll") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = ist,
-                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) ist = new },
+                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) ist = new },
                         label = { Text("Ist") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -255,8 +252,8 @@ private fun AddItemDialog(
             ScaledContent(factory) {
                 TextButton(onClick = {
                     if (name.isBlank()) { error = "Bitte einen Namen eingeben."; return@TextButton }
-                    val sollValue = if (soll.isBlank()) 0.0 else soll.replace(',', '.').toDoubleOrNull()
-                    val istValue = if (ist.isBlank()) 0.0 else ist.replace(',', '.').toDoubleOrNull()
+                    val sollValue = if (soll.isBlank()) 0.0 else soll.toIntOrNull()?.toDouble()
+                    val istValue = if (ist.isBlank()) 0.0 else ist.toIntOrNull()?.toDouble()
                     if (sollValue == null || istValue == null) { error = "Bitte gültige Zahlen eingeben."; return@TextButton }
                     onAdd(InventoryItem(name = name.trim(), einheit = einheit.trim(), soll = sollValue, ist = istValue), quelle.trim())
                 }) { Text("Hinzufügen") }

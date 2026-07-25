@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -49,6 +50,10 @@ import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 import kotlinx.coroutines.delay
 import java.util.Locale
+
+private val DATUM_WIDTH = 76.dp
+private val PREIS_WIDTH = 70.dp
+private val DELETE_WIDTH = 28.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,6 +128,19 @@ fun PricesScreen(
                         HorizontalDivider()
                     }
                     if (isExpanded) {
+                        item(key = "columns_${group.jahr}") {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 2.dp),
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                ColumnLabel("Frucht", Modifier.weight(1.3f))
+                                ColumnLabel("Datum", Modifier.width(DATUM_WIDTH))
+                                ColumnLabel("Preis €", Modifier.width(PREIS_WIDTH))
+                                ColumnLabel("Quelle", Modifier.weight(1f))
+                                Spacer(Modifier.size(DELETE_WIDTH))
+                            }
+                        }
                         items(group.rows, key = { it.price.id }) { row ->
                             PriceRow(
                                 row = row,
@@ -167,6 +185,17 @@ fun PricesScreen(
 }
 
 @Composable
+private fun ColumnLabel(text: String, modifier: Modifier) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+    )
+}
+
+@Composable
 private fun PriceRow(
     row: PriceRow,
     onUpdate: (FruitPrice) -> Unit,
@@ -195,22 +224,21 @@ private fun PriceRow(
 
     Column {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CompactField(fruchtart, { fruchtart = it; userEdited = true }, "Frucht", Modifier.weight(1.3f))
-            CompactField(datum, { datum = it; userEdited = true }, "Datum", Modifier.width(58.dp))
-            CompactField(
+            RowField(fruchtart, { fruchtart = it; userEdited = true }, Modifier.weight(1.3f))
+            RowField(datum, { datum = it; userEdited = true }, Modifier.width(DATUM_WIDTH))
+            RowField(
                 preisText,
                 { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) { preisText = new; userEdited = true } },
-                "€",
-                Modifier.width(54.dp),
+                Modifier.width(PREIS_WIDTH),
                 KeyboardType.Decimal
             )
-            CompactField(quelle, { quelle = it; userEdited = true }, "Quelle", Modifier.weight(1f))
-            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(16.dp))
+            RowField(quelle, { quelle = it; userEdited = true }, Modifier.weight(1f))
+            IconButton(onClick = onDelete, modifier = Modifier.size(DELETE_WIDTH)) {
+                Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
             }
         }
         if (row.vorjahresPreis != null) {
@@ -225,18 +253,16 @@ private fun PriceRow(
 }
 
 @Composable
-private fun CompactField(
+private fun RowField(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, style = MaterialTheme.typography.bodySmall) },
-        textStyle = MaterialTheme.typography.bodySmall,
+        textStyle = MaterialTheme.typography.bodyMedium,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         modifier = modifier
