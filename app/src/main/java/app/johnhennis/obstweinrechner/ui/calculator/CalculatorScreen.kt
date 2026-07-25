@@ -165,8 +165,13 @@ fun CalculatorScreen(
                     .onFocusChanged {
                         if (it.isFocused) {
                             coroutineScope.launch {
-                                delay(300)
-                                scrollState.animateScrollTo(scrollState.maxValue)
+                                // Tastatur-Animation braucht etwas, bis die Scroll-Obergrenze
+                                // ihren finalen Wert erreicht - mehrfach nachscrollen statt
+                                // einmalig zu früh (mit fester Wartezeit) zu raten.
+                                repeat(8) {
+                                    delay(60)
+                                    scrollState.animateScrollTo(scrollState.maxValue)
+                                }
                             }
                         }
                     }
