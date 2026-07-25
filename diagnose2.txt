@@ -1,0 +1,83 @@
+]633;E;echo "### Container-Speicherlimit (cgroup v2) ###";2d392e9f-b294-464e-9538-9fb87a2b9f61]633;C### Container-Speicherlimit (cgroup v2) ###
+max
+### Container-Speicherlimit (cgroup v1) ###
+nicht vorhanden
+
+### Festplattenspeicher ###
+Filesystem      Size  Used Avail Use% Mounted on
+overlay          32G   16G   15G  51% /
+
+### Kernel-Log (OOM-Killer)? ###
+
+### Aktueller Speicherstand ###
+               total        used        free      shared  buff/cache   available
+Mem:           7.8Gi       6.8Gi       129Mi        67Mi       1.1Gi       929Mi
+Swap:             0B          0B          0B
+
+### Neuester Gradle-Daemon-Log (der eigentliche Absturzgrund) ###
+Datei: /home/codespace/.gradle/daemon/9.1.0/daemon-158734.out.log
+--- Inhalt ---
+2026-07-25T07:38:27.783+0000 [DEBUG] [org.gradle.launcher.daemon.bootstrap.DaemonMain] Assuming the daemon was started with following jvm opts: [-XX:MaxMetaspaceSize=384m, -Xmx1024m, -Dfile.encoding=UTF-8, -Duser.country, -Duser.language=en, -Duser.variant]
+2026-07-25T07:38:28.162+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding IP addresses for network interface docker0
+2026-07-25T07:38:28.163+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Is this a loopback interface? false
+2026-07-25T07:38:28.164+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding remote address /172.17.0.1
+2026-07-25T07:38:28.164+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding IP addresses for network interface eth0
+2026-07-25T07:38:28.166+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Is this a loopback interface? false
+2026-07-25T07:38:28.167+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding remote address /fe80:0:0:0:7eed:8dff:fec4:e88%eth0
+2026-07-25T07:38:28.167+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding remote address /10.0.1.190
+2026-07-25T07:38:28.167+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding IP addresses for network interface lo
+2026-07-25T07:38:28.168+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Is this a loopback interface? true
+2026-07-25T07:38:28.168+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding loopback address /0:0:0:0:0:0:0:1%lo
+2026-07-25T07:38:28.169+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.InetAddresses] Adding loopback address /127.0.0.1
+2026-07-25T07:38:28.231+0000 [INFO] [org.gradle.launcher.daemon.server.Daemon] start() called on daemon - DefaultDaemonContext[uid=d694e0c5-3183-4af0-ae55-5e749a022db9,javaHome=/usr/local/sdkman/candidates/java/25.0.2-ms,javaVersion=25,javaVendor=Microsoft,daemonRegistryDir=/home/codespace/.gradle/daemon,pid=158734,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=384m,-Xmx1024m,-Dfile.encoding=UTF-8,-Duser.country,-Duser.language=en,-Duser.variant]
+2026-07-25T07:38:28.271+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.TcpIncomingConnector] Listening on [8f9037d7-7bb2-4060-a21d-0f99266e637e port:39415, addresses:[localhost/127.0.0.1]].
+2026-07-25T07:38:28.327+0000 [DEBUG] [org.gradle.launcher.daemon.server.Daemon] Daemon starting at: Sat Jul 25 07:38:28 UTC 2026, with address: [8f9037d7-7bb2-4060-a21d-0f99266e637e port:39415, addresses:[localhost/127.0.0.1]]
+2026-07-25T07:38:28.327+0000 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Advertising the daemon address to the clients: [8f9037d7-7bb2-4060-a21d-0f99266e637e port:39415, addresses:[localhost/127.0.0.1]]
+2026-07-25T07:38:28.331+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Advertised daemon context: DefaultDaemonContext[uid=d694e0c5-3183-4af0-ae55-5e749a022db9,javaHome=/usr/local/sdkman/candidates/java/25.0.2-ms,javaVersion=25,javaVendor=Microsoft,daemonRegistryDir=/home/codespace/.gradle/daemon,pid=158734,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=384m,-Xmx1024m,-Dfile.encoding=UTF-8,-Duser.country,-Duser.language=en,-Duser.variant]
+2026-07-25T07:38:28.332+0000 [DEBUG] [org.gradle.launcher.daemon.registry.PersistentDaemonRegistry] Storing daemon address: [8f9037d7-7bb2-4060-a21d-0f99266e637e port:39415, addresses:[localhost/127.0.0.1]], context: DefaultDaemonContext[uid=d694e0c5-3183-4af0-ae55-5e749a022db9,javaHome=/usr/local/sdkman/candidates/java/25.0.2-ms,javaVersion=25,javaVendor=Microsoft,daemonRegistryDir=/home/codespace/.gradle/daemon,pid=158734,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=384m,-Xmx1024m,-Dfile.encoding=UTF-8,-Duser.country,-Duser.language=en,-Duser.variant]
+2026-07-25T07:38:28.378+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Waiting to acquire exclusive lock on daemon addresses registry.
+2026-07-25T07:38:28.393+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Lock acquired on daemon addresses registry.
+2026-07-25T07:38:28.413+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Releasing lock on daemon addresses registry.
+2026-07-25T07:38:28.414+0000 [LIFECYCLE] [org.gradle.launcher.daemon.server.Daemon] Daemon server started.
+2026-07-25T07:38:28.418+0000 [DEBUG] [org.gradle.launcher.daemon.bootstrap.DaemonStartupCommunication] Completed writing the daemon greeting. Closing streams...
+2026-07-25T07:38:28.509+0000 [DEBUG] [org.gradle.internal.remote.internal.inet.TcpIncomingConnector] Accepted connection from /127.0.0.1:51256 to /127.0.0.1:39415.
+2026-07-25T07:38:28.537+0000 [DEBUG] [org.gradle.launcher.daemon.server.Daemon] stopOnExpiration() called on daemon
+2026-07-25T07:38:28.560+0000 [DEBUG] [org.gradle.launcher.daemon.server.Daemon] awaitExpiration() called on daemon
+2026-07-25T07:38:28.568+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] daemon is running. Sleeping until state changes.
+2026-07-25T07:38:28.742+0000 [DEBUG] [org.gradle.launcher.daemon.server.SynchronizedDispatchConnection] thread 29: received class org.gradle.launcher.daemon.protocol.Build
+2026-07-25T07:38:28.742+0000 [DEBUG] [org.gradle.launcher.daemon.server.DefaultDaemonConnection] thread 29: Received non-IO message from client: Build{id=a437fca8-b8f5-4a64-9cf5-b5822d0366b8, currentDir=/workspaces/ObstweinRechner}
+2026-07-25T07:38:28.743+0000 [INFO] [org.gradle.launcher.daemon.server.DefaultIncomingConnectionHandler] Received command: Build{id=a437fca8-b8f5-4a64-9cf5-b5822d0366b8, currentDir=/workspaces/ObstweinRechner}.
+2026-07-25T07:38:28.743+0000 [DEBUG] [org.gradle.launcher.daemon.server.DefaultIncomingConnectionHandler] Starting executing command: Build{id=a437fca8-b8f5-4a64-9cf5-b5822d0366b8, currentDir=/workspaces/ObstweinRechner} with connection: socket connection from /127.0.0.1:39415 to /127.0.0.1:51256.
+2026-07-25T07:38:28.749+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] Command execution: started DaemonCommandExecution[command = Build{id=a437fca8-b8f5-4a64-9cf5-b5822d0366b8, currentDir=/workspaces/ObstweinRechner}, connection = DefaultDaemonConnection: socket connection from /127.0.0.1:39415 to /127.0.0.1:51256] after 0.008116666666666666 minutes of idle
+2026-07-25T07:38:28.751+0000 [INFO] [org.gradle.launcher.daemon.server.DaemonRegistryUpdater] Marking the daemon as busy, address: [8f9037d7-7bb2-4060-a21d-0f99266e637e port:39415, addresses:[localhost/127.0.0.1]]
+2026-07-25T07:38:28.751+0000 [DEBUG] [org.gradle.launcher.daemon.registry.PersistentDaemonRegistry] Marking busy by address: [8f9037d7-7bb2-4060-a21d-0f99266e637e port:39415, addresses:[localhost/127.0.0.1]]
+2026-07-25T07:38:28.752+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Waiting to acquire exclusive lock on daemon addresses registry.
+2026-07-25T07:38:28.752+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Lock acquired on daemon addresses registry.
+2026-07-25T07:38:28.753+0000 [DEBUG] [org.gradle.cache.internal.DefaultFileLockManager] Releasing lock on daemon addresses registry.
+2026-07-25T07:38:28.753+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] resetting idle timer
+2026-07-25T07:38:28.755+0000 [INFO] [org.gradle.launcher.daemon.server.exec.StartBuildOrRespondWithBusy] Daemon is about to start building Build{id=a437fca8-b8f5-4a64-9cf5-b5822d0366b8, currentDir=/workspaces/ObstweinRechner}. Dispatching build started information...
+2026-07-25T07:38:28.755+0000 [DEBUG] [org.gradle.launcher.daemon.server.SynchronizedDispatchConnection] thread 31: dispatching org.gradle.launcher.daemon.protocol.BuildStarted@7302086a
+2026-07-25T07:38:28.756+0000 [DEBUG] [org.gradle.launcher.daemon.server.DaemonStateCoordinator] daemon is running. Sleeping until state changes.
+2026-07-25T07:38:28.761+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.EstablishBuildEnvironment] Configuring env variables: [IRBRC, PATH, CODESPACES, CODESPACE_VSCODE_FOLDER, PROMPT_DIRTRIM, VSCODE_PYTHON_AUTOACTIVATE_GUARD, GITHUB_API_URL, COLORTERM, DOCKER_BUILDKIT, SDKMAN_DIR, rvm_version, VSCODE_GIT_ASKPASS_NODE, TERM_PROGRAM_VERSION, PWD, NVS_DIR, CONDA_SCRIPT, SDKMAN_BROKER_API, HUGO_ROOT, NVM_CD_FLAGS, LESSOPEN, RVM_PATH, SDKMAN_CANDIDATES_API, MY_RUBY_HOME, GITHUB_CODESPACE_TOKEN, ContainerVersion, RAILS_DEVELOPMENT_HOSTS, rvm_path, GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN, NVM_SYMLINK_CURRENT, PYTHON_ROOT, GITHUB_USER, SHLVL, DOTNET_RUNNING_IN_CONTAINER, JAVA_ROOT, GITHUB_SERVER_URL, JAVA_HOME, GIT_EDITOR, TERM, FEATURE_SPARK_POST_COMMIT_CREATE_ITERATION, GRADLE_HOME, NVM_INC, GITHUB_REPOSITORY, VSCODE_IPC_HOOK_CLI, _, NUGET_XMLDOC_MODE, RUBY_HOME, NODE_ROOT, ENABLE_DYNAMIC_INSTALL, TERM_PROGRAM, DOTNET_SKIP_FIRST_TIME_EXPERIENCE, PHP_ROOT, RUBY_ROOT, GOROOT, JUPYTERLAB_PATH, GEM_PATH, NVM_BIN, NVS_USE_XZ, DOTNET_USE_POLLING_FILE_WATCHER, VSCODE_GIT_IPC_HANDLE, PIPX_HOME, HUGO_DIR, MAVEN_HOME, MAVEN_ROOT, ORYX_PREFER_USER_INSTALLED_SDKS, GIT_ASKPASS, SHELL, GITHUB_TOKEN, GITHUB_GRAPHQL_URL, DEBIAN_FLAVOR, GOPATH, OLDPWD, GEM_HOME, PHP_PATH, DOTNET_ROOT, RUBY_VERSION, DEBUGINFOD_URLS, LS_COLORS, ORYX_ENV_TYPE, PIPX_BIN_DIR, BROWSER, LESSCLOSE, rvm_bin_path, CLOUDENV_ENVIRONMENT_ID, ORYX_SDK_STORAGE_BASE_URL, rvm_prefix, LANG, VSCODE_GIT_ASKPASS_MAIN, INTERNAL_VSCS_TARGET_URL, CONDA_DIR, VSCODE_GIT_ASKPASS_EXTRA_ARGS, SDKMAN_CANDIDATES_DIR, NVS_HOME, NVS_ROOT, NVM_DIR, NVS_OS, SHELL_LOGGED_IN, PYTHON_PATH, PYTHONIOENCODING, SDKMAN_PLATFORM, USER, ORYX_DIR, HOSTNAME, CODESPACE_NAME, NPM_GLOBAL, HOME, DYNAMIC_INSTALL_ROOT_DIR]
+2026-07-25T07:38:28.775+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.LogToClient] About to start relaying all logs to the client via the connection.
+2026-07-25T07:38:28.775+0000 [INFO] [org.gradle.launcher.daemon.server.exec.LogToClient] The client will now receive all logging from the daemon (pid: 158734). The daemon log file: /home/codespace/.gradle/daemon/9.1.0/daemon-158734.out.log
+2026-07-25T07:38:28.799+0000 [INFO] [org.gradle.launcher.daemon.server.exec.LogAndCheckHealth] Starting build in new daemon [memory: 1 GiB]
+2026-07-25T07:38:28.815+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.ExecuteBuild] The daemon has started executing the build.
+2026-07-25T07:38:28.816+0000 [DEBUG] [org.gradle.launcher.daemon.server.exec.ExecuteBuild] Executing build with daemon context: DefaultDaemonContext[uid=d694e0c5-3183-4af0-ae55-5e749a022db9,javaHome=/usr/local/sdkman/candidates/java/25.0.2-ms,javaVersion=25,javaVendor=Microsoft,daemonRegistryDir=/home/codespace/.gradle/daemon,pid=158734,idleTimeout=10800000,priority=NORMAL,applyInstrumentationAgent=true,nativeServicesMode=ENABLED,daemonOpts=-XX:MaxMetaspaceSize=384m,-Xmx1024m,-Dfile.encoding=UTF-8,-Duser.country,-Duser.language=en,-Duser.variant]
+WARNING: We recommend using a newer Android Gradle plugin to use compileSdk = 35
+
+This Android Gradle plugin (8.5.2) was tested up to compileSdk = 34.
+
+You are strongly encouraged to update your project to use a newer
+Android Gradle plugin that has been tested with compileSdk = 35.
+
+If you are already using the latest version of the Android Gradle plugin,
+you may need to wait until a newer version with support for compileSdk = 35 is available.
+
+For more information refer to the compatibility table:
+https://d.android.com/r/tools/api-level-support
+
+To suppress this warning, add/update
+    android.suppressUnsupportedCompileSdk=35
+to this project's gradle.properties.
+Daemon vm is shutting down... The daemon has exited normally or was terminated in response to a user interrupt.
