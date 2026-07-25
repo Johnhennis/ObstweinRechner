@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -36,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -43,6 +45,9 @@ import app.johnhennis.obstweinrechner.data.InventoryItem
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 import kotlinx.coroutines.delay
+
+private val SOLL_IST_WIDTH = 56.dp
+private val DELETE_WIDTH = 28.dp
 
 private fun formatPlain(value: Double): String = if (value == 0.0) "" else value.toInt().toString()
 
@@ -92,6 +97,22 @@ fun InventoryScreen(
                 modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
+                item(key = "columns") {
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ColumnLabel("Name", Modifier.weight(1.3f))
+                            ColumnLabel("Soll", Modifier.width(SOLL_IST_WIDTH))
+                            ColumnLabel("Ist", Modifier.width(SOLL_IST_WIDTH))
+                            ColumnLabel("Quelle", Modifier.weight(1f))
+                            Spacer(Modifier.size(DELETE_WIDTH))
+                        }
+                        HorizontalDivider()
+                    }
+                }
                 items(items, key = { it.id }) { item ->
                     InventoryRow(
                         item = item,
@@ -112,6 +133,17 @@ fun InventoryScreen(
             onAdd = { item, quelle -> viewModel.addItem(item, quelle); showAdd = false }
         )
     }
+}
+
+@Composable
+private fun ColumnLabel(text: String, modifier: Modifier) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -157,8 +189,7 @@ private fun InventoryRow(
                         onUpdate(item.copy(soll = new.toIntOrNull()?.toDouble() ?: 0.0))
                     }
                 },
-                placeholder = "Soll",
-                modifier = Modifier.width(56.dp),
+                modifier = Modifier.width(SOLL_IST_WIDTH),
                 keyboardType = KeyboardType.Number
             )
             CompactField(
@@ -169,17 +200,15 @@ private fun InventoryRow(
                         onUpdate(item.copy(ist = new.toIntOrNull()?.toDouble() ?: 0.0))
                     }
                 },
-                placeholder = "Ist",
-                modifier = Modifier.width(56.dp),
+                modifier = Modifier.width(SOLL_IST_WIDTH),
                 keyboardType = KeyboardType.Number
             )
             CompactField(
                 value = quelleText,
                 onValueChange = { quelleText = it; quelleUserEdited = true },
-                placeholder = "Quelle",
                 modifier = Modifier.weight(1f)
             )
-            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+            IconButton(onClick = onDelete, modifier = Modifier.size(DELETE_WIDTH)) {
                 Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(16.dp))
             }
         }
@@ -191,14 +220,12 @@ private fun InventoryRow(
 private fun CompactField(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, style = MaterialTheme.typography.bodySmall) },
         textStyle = MaterialTheme.typography.bodySmall,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
