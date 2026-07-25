@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -70,7 +68,7 @@ fun CalculatorScreen(
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val notizBringIntoViewRequester = remember { BringIntoViewRequester() }
+    val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -93,7 +91,7 @@ fun CalculatorScreen(
                 .padding(padding)
                 .padding(16.dp)
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .imePadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -164,12 +162,11 @@ fun CalculatorScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .bringIntoViewRequester(notizBringIntoViewRequester)
                     .onFocusChanged {
                         if (it.isFocused) {
                             coroutineScope.launch {
                                 delay(300)
-                                notizBringIntoViewRequester.bringIntoView()
+                                scrollState.animateScrollTo(scrollState.maxValue)
                             }
                         }
                     }
