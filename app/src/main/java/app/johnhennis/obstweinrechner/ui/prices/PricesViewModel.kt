@@ -21,6 +21,8 @@ data class YearGroup(
     val rows: List<PriceRow>
 )
 
+private fun matchKey(fruchtart: String) = fruchtart.trim().lowercase()
+
 class PricesViewModel(
     private val repository: FruitPriceRepository
 ) : ViewModel() {
@@ -28,18 +30,19 @@ class PricesViewModel(
     val currentYear: Int = Year.now().value
 
     val yearGroups: StateFlow<List<YearGroup>> = repository.allPrices.map { prices ->
-        val byFruchtart = prices.groupBy { it.fruchtart }
+        val byFruchtart = prices.groupBy { matchKey(it.fruchtart) }
         prices
             .groupBy { it.jahr }
             .toSortedMap(compareByDescending { it })
             .map { (jahr, entries) ->
                 val rows = entries.sortedBy { it.fruchtart }.map { price ->
-                    val vorjahr = if (jahr == currentYear) {
-                        byFruchtart[price.fruchtart]
-                            ?.filter { it.jahr < jahr }
-                            ?.maxByOrNull { it.jahr }
-                            ?.preis
-                    } else null
+                    // Zeigt jetzt bei JEDER Position in JEDEM Jahr den Preis aus dem
+                    // naechsten fruehreren Jahr fuer dieselbe Fruchtart, nicht nur
+                    // beim echten Kalender-Jahr.
+                    val vorjahr = byFruchtart[matchKey(price.fruchtart)]
+                        ?.filter { it.jahr < jahr }
+                        ?.maxByOrNull { it.jahr }
+                        ?.preis
                     PriceRow(price = price, vorjahresPreis = vorjahr)
                 }
                 YearGroup(jahr = jahr, rows = rows)
