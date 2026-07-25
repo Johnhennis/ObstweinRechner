@@ -35,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -66,7 +65,10 @@ fun PricesScreen(
     val yearGroups by viewModel.yearGroups.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
-    val expanded = remember { mutableStateMapOf<Int, Boolean>() }
+    // Bewusst immer nur EIN Jahr gleichzeitig offen (Akkordeon) - bei mehreren
+    // gleichzeitig ausgeklappten Jahren waren zu viele Eingabefelder auf einmal
+    // aktiv, das hat beim Scrollen geruckelt.
+    var expandedYear by remember { mutableStateOf<Int?>(viewModel.currentYear) }
 
     Scaffold(
         topBar = {
@@ -100,12 +102,12 @@ fun PricesScreen(
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 yearGroups.forEach { group ->
-                    val isExpanded = expanded[group.jahr] ?: (group.jahr == viewModel.currentYear)
+                    val isExpanded = group.jahr == expandedYear
                     item(key = "header_${group.jahr}") {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { expanded[group.jahr] = !isExpanded }
+                                .clickable { expandedYear = if (isExpanded) null else group.jahr }
                                 .padding(top = 10.dp, bottom = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
@@ -161,7 +163,7 @@ fun PricesScreen(
             onDismiss = { showAdd = false },
             onAdd = { j, f, d, p, q ->
                 viewModel.addEntry(j, f, d, p, q)
-                expanded[j] = true
+                expandedYear = j
                 showAdd = false
             }
         )

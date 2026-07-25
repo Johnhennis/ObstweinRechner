@@ -23,12 +23,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorScreen
-import app.johnhennis.obstweinrechner.ui.common.InAppUpdateChecker
 import app.johnhennis.obstweinrechner.ui.inventory.InventoryScreen
 import app.johnhennis.obstweinrechner.ui.inventory.InventoryTrashScreen
 import app.johnhennis.obstweinrechner.ui.prices.PricesScreen
@@ -55,14 +55,26 @@ private object Routes {
 
 @Composable
 fun AppNavigation(factory: AppViewModelFactory) {
-    InAppUpdateChecker()
-
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     BackHandler(enabled = drawerState.isOpen) {
         scope.launch { drawerState.close() }
+    }
+
+    // Springt bei jedem Menüpunkt zu dessen EINER Instanz zurück, statt bei
+    // jedem Wechsel eine neue draufzustapeln - vermeidet, dass sich über eine
+    // Sitzung mehrere unsichtbare Bildschirme samt Firestore-Listenern ansammeln.
+    fun navigateToTopLevel(route: String) {
+        scope.launch { drawerState.close() }
+        navController.navigate(route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
     }
 
     ModalNavigationDrawer(
@@ -76,42 +88,42 @@ fun AppNavigation(factory: AppViewModelFactory) {
                     label = { Text("Wein-Rechner") },
                     icon = { Icon(Icons.Filled.WineBar, contentDescription = null) },
                     selected = false,
-                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.WEIN) { launchSingleTop = true } },
+                    onClick = { navigateToTopLevel(Routes.WEIN) },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
                     label = { Text("Schmalz-Rechner") },
                     icon = { Icon(Icons.Filled.Kitchen, contentDescription = null) },
                     selected = false,
-                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.SCHMALZ) { launchSingleTop = true } },
+                    onClick = { navigateToTopLevel(Routes.SCHMALZ) },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
                     label = { Text("Bestandsaufnahme") },
                     icon = { Icon(Icons.Filled.Inventory2, contentDescription = null) },
                     selected = false,
-                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.INVENTORY) { launchSingleTop = true } },
+                    onClick = { navigateToTopLevel(Routes.INVENTORY) },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
                     label = { Text("Einkaufsliste") },
                     icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
                     selected = false,
-                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.SHOPPING) { launchSingleTop = true } },
+                    onClick = { navigateToTopLevel(Routes.SHOPPING) },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
                     label = { Text("Preise Obst") },
                     icon = { Icon(Icons.Filled.AttachMoney, contentDescription = null) },
                     selected = false,
-                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.PRICES) { launchSingleTop = true } },
+                    onClick = { navigateToTopLevel(Routes.PRICES) },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
                     label = { Text("Einstellungen") },
                     icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
                     selected = false,
-                    onClick = { scope.launch { drawerState.close() }; navController.navigate(Routes.SETTINGS) { launchSingleTop = true } },
+                    onClick = { navigateToTopLevel(Routes.SETTINGS) },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
             }
