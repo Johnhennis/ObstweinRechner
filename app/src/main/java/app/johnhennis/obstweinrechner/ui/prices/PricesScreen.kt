@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,9 +16,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.johnhennis.obstweinrechner.data.FruitPrice
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+import kotlinx.coroutines.delay
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,25 +86,25 @@ fun PricesScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.padding(padding).padding(horizontal = 16.dp).fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth(),
+                contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 yearGroups.forEach { group ->
                     item(key = "header_${group.jahr}") {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("${group.jahr}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-                            IconButton(onClick = { confirmDeleteYear = group.jahr }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Jahr ${group.jahr} in den Papierkorb")
+                            Text("${group.jahr}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            IconButton(onClick = { confirmDeleteYear = group.jahr }, modifier = Modifier.size(32.dp)) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Jahr ${group.jahr} in den Papierkorb", modifier = Modifier.size(18.dp))
                             }
                         }
+                        HorizontalDivider()
                     }
                     items(group.rows, key = { it.price.id }) { row ->
-                        PriceRowCard(
+                        PriceRow(
                             row = row,
                             onUpdate = { viewModel.updateEntry(it) },
                             onDelete = { viewModel.deleteEntry(row.price) }
@@ -115,8 +118,9 @@ fun PricesScreen(
     if (showAdd) {
         AddPriceDialog(
             factory = factory,
+            defaultYear = viewModel.currentYear,
             onDismiss = { showAdd = false },
-            onAdd = { f, d, p, q -> viewModel.addEntry(f, d, p, q); showAdd = false }
+            onAdd = { j, f, d, p, q -> viewModel.addEntry(j, f, d, p, q); showAdd = false }
         )
     }
 
@@ -138,7 +142,7 @@ fun PricesScreen(
 }
 
 @Composable
-private fun PriceRowCard(
+private fun PriceRow(
     row: PriceRow,
     onUpdate: (FruitPrice) -> Unit,
     onDelete: () -> Unit
@@ -149,66 +153,70 @@ private fun PriceRowCard(
     var preisText by remember(price.id) { mutableStateOf(if (price.preis == 0.0) "" else price.preis.toString()) }
     var quelle by remember(price.id) { mutableStateOf(price.quelle) }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(
-                    value = fruchtart,
-                    onValueChange = { fruchtart = it; onUpdate(price.copy(fruchtart = it)) },
-                    label = { Text("Fruchtart") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f)
-                )
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
-                }
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = datum,
-                    onValueChange = { datum = it; onUpdate(price.copy(datum = it)) },
-                    label = { Text("Datum") },
-                    singleLine = true,
-                    modifier = Modifier.width(100.dp)
-                )
-                OutlinedTextField(
-                    value = preisText,
-                    onValueChange = { new ->
-                        if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) {
-                            preisText = new
-                            onUpdate(price.copy(preis = new.replace(',', '.').toDoubleOrNull() ?: 0.0))
-                        }
-                    },
-                    label = { Text("Preis") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    modifier = Modifier.width(100.dp)
-                )
-                OutlinedTextField(
-                    value = quelle,
-                    onValueChange = { quelle = it; onUpdate(price.copy(quelle = it)) },
-                    label = { Text("Quelle") },
-                    singleLine = true,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            row.vorjahresPreis?.let {
-                Text(
-                    "Vorjahr: ${fmt(it)} €",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+    LaunchedEffect(fruchtart, datum, preisText, quelle) {
+        delay(500)
+        onUpdate(
+            price.copy(
+                fruchtart = fruchtart,
+                datum = datum,
+                preis = preisText.replace(',', '.').toDoubleOrNull() ?: price.preis,
+                quelle = quelle
+            )
+        )
+    }
+
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompactField(fruchtart, { fruchtart = it }, "Frucht", Modifier.weight(1.3f))
+            CompactField(datum, { datum = it }, "Datum", Modifier.width(58.dp))
+            CompactField(preisText, { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) preisText = new }, "€", Modifier.width(54.dp), KeyboardType.Decimal)
+            CompactField(quelle, { quelle = it }, "Quelle", Modifier.weight(1f))
+            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+                Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(16.dp))
             }
         }
+        if (row.vorjahresPreis != null) {
+            Text(
+                "Vorjahr: ${fmt(row.vorjahresPreis)} €",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        HorizontalDivider()
     }
+}
+
+@Composable
+private fun CompactField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        placeholder = { Text(placeholder, style = MaterialTheme.typography.bodySmall) },
+        textStyle = MaterialTheme.typography.bodySmall,
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        modifier = modifier
+    )
 }
 
 @Composable
 private fun AddPriceDialog(
     factory: AppViewModelFactory,
+    defaultYear: Int,
     onDismiss: () -> Unit,
-    onAdd: (String, String, Double, String) -> Unit
+    onAdd: (Int, String, String, Double, String) -> Unit
 ) {
+    var jahr by remember { mutableStateOf(defaultYear.toString()) }
     var fruchtart by remember { mutableStateOf("") }
     var datum by remember { mutableStateOf("") }
     var preis by remember { mutableStateOf("") }
@@ -221,6 +229,14 @@ private fun AddPriceDialog(
         text = {
             ScaledContent(factory) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = jahr,
+                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]{0,4}$"))) jahr = new },
+                        label = { Text("Jahr") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     OutlinedTextField(value = fruchtart, onValueChange = { fruchtart = it }, label = { Text("Fruchtart") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(value = datum, onValueChange = { datum = it }, label = { Text("Datum (z. B. 12.9.)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(
@@ -239,10 +255,12 @@ private fun AddPriceDialog(
         confirmButton = {
             ScaledContent(factory) {
                 TextButton(onClick = {
+                    val jahrValue = jahr.toIntOrNull()
+                    if (jahrValue == null || jahrValue < 2000) { error = "Bitte ein gültiges Jahr eingeben."; return@TextButton }
                     if (fruchtart.isBlank()) { error = "Bitte eine Fruchtart eingeben."; return@TextButton }
                     val preisValue = preis.replace(',', '.').toDoubleOrNull()
                     if (preisValue == null) { error = "Bitte einen gültigen Preis eingeben."; return@TextButton }
-                    onAdd(fruchtart.trim(), datum.trim(), preisValue, quelle.trim())
+                    onAdd(jahrValue, fruchtart.trim(), datum.trim(), preisValue, quelle.trim())
                 }) { Text("Hinzufügen") }
             }
         },

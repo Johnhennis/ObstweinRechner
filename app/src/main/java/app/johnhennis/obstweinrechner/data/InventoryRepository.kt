@@ -28,8 +28,9 @@ class InventoryRepository(private val firestore: FirebaseFirestore) {
     val allItems: Flow<List<InventoryItem>> = allDocuments.map { list -> list.filter { !it.geloescht } }
     val trashedItems: Flow<List<InventoryItem>> = allDocuments.map { list -> list.filter { it.geloescht } }
 
-    suspend fun insert(item: InventoryItem) {
-        collection.add(item.copy(id = "", geloescht = false)).await()
+    suspend fun insert(item: InventoryItem): String {
+        val ref = collection.add(item.copy(id = "", geloescht = false)).await()
+        return ref.id
     }
 
     suspend fun update(item: InventoryItem) {

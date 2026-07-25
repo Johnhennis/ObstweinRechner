@@ -42,7 +42,7 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(RecipeEditorViewModel::class.java) -> RecipeEditorViewModel(repository) as T
             modelClass.isAssignableFrom(SchmalzViewModel::class.java) -> SchmalzViewModel(schmalzRepository) as T
             modelClass.isAssignableFrom(SettingsViewModel::class.java) -> SettingsViewModel(settingsRepository, infoEntryRepository) as T
-            modelClass.isAssignableFrom(InventoryViewModel::class.java) -> InventoryViewModel(inventoryRepository) as T
+            modelClass.isAssignableFrom(InventoryViewModel::class.java) -> InventoryViewModel(inventoryRepository, shoppingListRepository) as T
             modelClass.isAssignableFrom(ShoppingListViewModel::class.java) -> ShoppingListViewModel(inventoryRepository, shoppingListRepository, manualShoppingItemRepository) as T
             modelClass.isAssignableFrom(PricesViewModel::class.java) -> PricesViewModel(fruitPriceRepository) as T
             else -> throw IllegalArgumentException("Unbekannte ViewModel-Klasse: ${modelClass.name}")

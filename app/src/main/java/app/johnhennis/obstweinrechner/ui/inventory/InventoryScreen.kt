@@ -12,7 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -27,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +40,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.johnhennis.obstweinrechner.data.InventoryItem
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+import kotlinx.coroutines.delay
 
 private fun formatPlain(value: Double): String = if (value == 0.0) "" else value.toString()
 
@@ -52,6 +53,7 @@ fun InventoryScreen(
 ) {
     val viewModel: InventoryViewModel = viewModel(factory = factory)
     val items by viewModel.items.collectAsState()
+    val statusMap by viewModel.statusMap.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -91,7 +93,9 @@ fun InventoryScreen(
                 items(items, key = { it.id }) { item ->
                     InventoryRow(
                         item = item,
+                        quelle = statusMap[item.id]?.quelle ?: "",
                         onUpdate = { viewModel.updateItem(it) },
+                        onQuelleChange = { viewModel.updateQuelle(item.id, it) },
                         onDelete = { viewModel.deleteItem(item) }
                     )
                 }
@@ -103,7 +107,7 @@ fun InventoryScreen(
         AddItemDialog(
             factory = factory,
             onDismiss = { showAdd = false },
-            onAdd = { viewModel.addItem(it); showAdd = false }
+            onAdd = { item, quelle -> viewModel.addItem(item, quelle); showAdd = false }
         )
     }
 }
@@ -111,11 +115,19 @@ fun InventoryScreen(
 @Composable
 private fun InventoryRow(
     item: InventoryItem,
+    quelle: String,
     onUpdate: (InventoryItem) -> Unit,
+    onQuelleChange: (String) -> Unit,
     onDelete: () -> Unit
 ) {
     var sollText by remember(item.id) { mutableStateOf(formatPlain(item.soll)) }
     var istText by remember(item.id) { mutableStateOf(formatPlain(item.ist)) }
+    var quelleText by remember(item.id) { mutableStateOf(quelle) }
+
+    LaunchedEffect(quelleText) {
+        delay(500)
+        onQuelleChange(quelleText)
+    }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -160,6 +172,13 @@ private fun InventoryRow(
                     modifier = Modifier.width(120.dp)
                 )
             }
+            OutlinedTextField(
+                value = quelleText,
+                onValueChange = { quelleText = it },
+                label = { Text("Quelle") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
@@ -168,12 +187,13 @@ private fun InventoryRow(
 private fun AddItemDialog(
     factory: AppViewModelFactory,
     onDismiss: () -> Unit,
-    onAdd: (InventoryItem) -> Unit
+    onAdd: (InventoryItem, String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var einheit by remember { mutableStateOf("") }
     var soll by remember { mutableStateOf("") }
     var ist by remember { mutableStateOf("") }
+    var quelle by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -200,6 +220,7 @@ private fun AddItemDialog(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
+                    OutlinedTextField(value = quelle, onValueChange = { quelle = it }, label = { Text("Quelle") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
             }
@@ -211,7 +232,7 @@ private fun AddItemDialog(
                     val sollValue = if (soll.isBlank()) 0.0 else soll.replace(',', '.').toDoubleOrNull()
                     val istValue = if (ist.isBlank()) 0.0 else ist.replace(',', '.').toDoubleOrNull()
                     if (sollValue == null || istValue == null) { error = "Bitte gültige Zahlen eingeben."; return@TextButton }
-                    onAdd(InventoryItem(name = name.trim(), einheit = einheit.trim(), soll = sollValue, ist = istValue))
+                    onAdd(InventoryItem(name = name.trim(), einheit = einheit.trim(), soll = sollValue, ist = istValue), quelle.trim())
                 }) { Text("Hinzufügen") }
             }
         },

@@ -25,7 +25,7 @@ class PricesViewModel(
     private val repository: FruitPriceRepository
 ) : ViewModel() {
 
-    private val currentYear = Year.now().value
+    val currentYear: Int = Year.now().value
 
     val yearGroups: StateFlow<List<YearGroup>> = repository.allPrices.map { prices ->
         val byFruchtart = prices.groupBy { it.fruchtart }
@@ -56,9 +56,9 @@ class PricesViewModel(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
-    fun addEntry(fruchtart: String, datum: String, preis: Double, quelle: String) {
+    fun addEntry(jahr: Int, fruchtart: String, datum: String, preis: Double, quelle: String) {
         viewModelScope.launch {
-            repository.insert(FruitPrice(fruchtart = fruchtart, jahr = currentYear, datum = datum, preis = preis, quelle = quelle))
+            repository.insert(FruitPrice(fruchtart = fruchtart, jahr = jahr, datum = datum, preis = preis, quelle = quelle))
         }
     }
 
