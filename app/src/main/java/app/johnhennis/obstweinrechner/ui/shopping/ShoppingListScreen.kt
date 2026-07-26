@@ -54,6 +54,7 @@ fun ShoppingListScreen(
     val entries by viewModel.entries.collectAsState()
     var quelleTarget by remember { mutableStateOf<ShoppingListEntry?>(null) }
     var showAddManual by remember { mutableStateOf(false) }
+    var confirmDeleteManual by remember { mutableStateOf<ShoppingListEntry?>(null) }
     val expanded = remember { mutableStateMapOf<String, Boolean>() }
 
     val groups = remember(entries) {
@@ -105,7 +106,10 @@ fun ShoppingListScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("$quelle (${groupEntries.size})", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                "$quelle (${groupEntries.size})",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                             Icon(
                                 if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                                 contentDescription = null
@@ -128,7 +132,7 @@ fun ShoppingListScreen(
                                         )
                                     }
                                     if (entry.manual) {
-                                        IconButton(onClick = { viewModel.deleteManualItem(entry) }) {
+                                        IconButton(onClick = { confirmDeleteManual = entry }) {
                                             Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
                                         }
                                     }
@@ -155,6 +159,22 @@ fun ShoppingListScreen(
             factory = factory,
             onDismiss = { showAddManual = false },
             onAdd = { name, menge, quelle -> viewModel.addManualItem(name, menge, quelle); showAddManual = false }
+        )
+    }
+
+    confirmDeleteManual?.let { entry ->
+        AlertDialog(
+            onDismissRequest = { confirmDeleteManual = null },
+            title = { ScaledContent(factory) { Text("Endgültig löschen?") } },
+            text = { ScaledContent(factory) { Text("\"${entry.name}\" hat keinen Papierkorb und wird sofort unwiderruflich entfernt.") } },
+            confirmButton = {
+                ScaledContent(factory) {
+                    TextButton(onClick = { viewModel.deleteManualItem(entry); confirmDeleteManual = null }) {
+                        Text("Löschen", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmDeleteManual = null }) { Text("Abbrechen") } } }
         )
     }
 }

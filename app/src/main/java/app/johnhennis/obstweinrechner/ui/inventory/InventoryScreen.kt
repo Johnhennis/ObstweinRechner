@@ -68,6 +68,7 @@ fun InventoryScreen(
     val items by viewModel.items.collectAsState()
     val statusMap by viewModel.statusMap.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
+    var confirmDeleteItem by remember { mutableStateOf<InventoryItem?>(null) }
     var sortColumn by remember { mutableStateOf<SortColumn?>(null) }
     var sortDirection by remember { mutableStateOf(SortDirection.ASC) }
 
@@ -157,7 +158,7 @@ fun InventoryScreen(
                         quelle = statusMap[item.id]?.quelle ?: "",
                         onUpdate = { viewModel.updateItem(it) },
                         onQuelleChange = { viewModel.updateQuelle(item.id, it) },
-                        onDelete = { viewModel.deleteItem(item) }
+                        onDelete = { confirmDeleteItem = item }
                     )
                 }
             }
@@ -169,6 +170,22 @@ fun InventoryScreen(
             factory = factory,
             onDismiss = { showAdd = false },
             onAdd = { item, quelle -> viewModel.addItem(item, quelle); showAdd = false }
+        )
+    }
+
+    confirmDeleteItem?.let { item ->
+        AlertDialog(
+            onDismissRequest = { confirmDeleteItem = null },
+            title = { ScaledContent(factory) { Text("In den Papierkorb verschieben?") } },
+            text = { ScaledContent(factory) { Text("\"${item.name}\" wandert in den Papierkorb und kann dort wiederhergestellt werden.") } },
+            confirmButton = {
+                ScaledContent(factory) {
+                    TextButton(onClick = { viewModel.deleteItem(item); confirmDeleteItem = null }) {
+                        Text("In den Papierkorb", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmDeleteItem = null }) { Text("Abbrechen") } } }
         )
     }
 }
