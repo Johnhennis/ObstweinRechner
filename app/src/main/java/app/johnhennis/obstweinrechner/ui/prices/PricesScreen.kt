@@ -65,9 +65,7 @@ fun PricesScreen(
     val yearGroups by viewModel.yearGroups.collectAsState()
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
-    // Bewusst immer nur EIN Jahr gleichzeitig offen (Akkordeon) - bei mehreren
-    // gleichzeitig ausgeklappten Jahren waren zu viele Eingabefelder auf einmal
-    // aktiv, das hat beim Scrollen geruckelt.
+    var confirmDeleteEntry by remember { mutableStateOf<FruitPrice?>(null) }
     var expandedYear by remember { mutableStateOf<Int?>(viewModel.currentYear) }
 
     Scaffold(
@@ -147,7 +145,7 @@ fun PricesScreen(
                             PriceRow(
                                 row = row,
                                 onUpdate = { viewModel.updateEntry(it) },
-                                onDelete = { viewModel.deleteEntry(row.price) }
+                                onDelete = { confirmDeleteEntry = row.price }
                             )
                         }
                     }
@@ -182,6 +180,23 @@ fun PricesScreen(
                 }
             },
             dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmDeleteYear = null }) { Text("Abbrechen") } } }
+        )
+    }
+
+    confirmDeleteEntry?.let { price ->
+        val bezeichnung = if (price.fruchtart.isBlank()) "diesen Eintrag" else "\"${price.fruchtart} ${price.jahr}\""
+        AlertDialog(
+            onDismissRequest = { confirmDeleteEntry = null },
+            title = { ScaledContent(factory) { Text("In den Papierkorb verschieben?") } },
+            text = { ScaledContent(factory) { Text("$bezeichnung wandert in den Papierkorb und kann dort wiederhergestellt werden.") } },
+            confirmButton = {
+                ScaledContent(factory) {
+                    TextButton(onClick = { viewModel.deleteEntry(price); confirmDeleteEntry = null }) {
+                        Text("In den Papierkorb", color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            },
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmDeleteEntry = null }) { Text("Abbrechen") } } }
         )
     }
 }
