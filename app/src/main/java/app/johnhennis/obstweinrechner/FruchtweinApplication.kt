@@ -40,6 +40,12 @@ class FruchtweinApplication : Application() {
             repository.seedIfEmpty()
             schmalzRepository.seedIfEmpty()
             fruitPriceRepository.seedIfEmpty()
+
+            val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+            if (!prefs.getBoolean("priceDataRepaired_v1", false)) {
+                fruitPriceRepository.repairSeedData()
+                prefs.edit().putBoolean("priceDataRepaired_v1", true).apply()
+            }
         }
     }
 }

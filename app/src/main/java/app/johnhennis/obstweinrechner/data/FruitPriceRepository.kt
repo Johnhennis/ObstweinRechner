@@ -48,8 +48,6 @@ class FruitPriceRepository(private val firestore: FirebaseFirestore) {
         collection.document(price.id).delete().await()
     }
 
-    // Bewusst nur ein einzelnes whereEqualTo("jahr", ...) - Firestore braucht dafür
-    // keinen manuellen Composite-Index. Der geloescht-Filter passiert clientseitig.
     suspend fun moveYearToTrash(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
         snapshot.documents.filter { it.getBoolean("geloescht") != true }
@@ -73,6 +71,27 @@ class FruitPriceRepository(private val firestore: FirebaseFirestore) {
         if (snapshot.isEmpty) {
             defaultPrices().forEach { collection.add(it).await() }
         }
+    }
+
+    // Einmalige Reparatur: entfernt Eintraege mit leerer Fruchtart (Datenfehler
+    // durch eine frueher fehlerhafte App-Version) und ergaenzt fehlende
+    // Original-Eintraege aus der Seedliste, ohne bereits vorhandene (auch im
+    // Papierkorb!) oder selbst hinzugefuegte Eintraege anzutasten.
+    suspend fun repairSeedData() {
+        val allSnapshot = collection.get().await()
+
+        allSnapshot.documents
+            .filter { (it.getString("fruchtart") ?: "").isBlank() }
+            .forEach { it.reference.delete().await() }
+
+        val stillThere = collection.get().await().documents.mapNotNull {
+            it.toObject(FruitPrice::class.java)
+        }
+        val existingKeys = stillThere.map { it.fruchtart.trim().lowercase() to it.jahr }.toSet()
+
+        defaultPrices()
+            .filter { (it.fruchtart.trim().lowercase() to it.jahr) !in existingKeys }
+            .forEach { collection.add(it).await() }
     }
 
     // Aus Früchtekauf.xlsx übernommen (53 Einträge, Stand Juli 2026).
