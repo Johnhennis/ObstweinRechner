@@ -308,14 +308,14 @@ private fun StockRow(
 private fun CompactField(
     value: String,
     onValueChange: (String) -> Unit,
-    placeholder: String,
+    label: String,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        placeholder = { Text(placeholder, style = MaterialTheme.typography.bodySmall) },
+        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
         textStyle = MaterialTheme.typography.bodySmall,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
