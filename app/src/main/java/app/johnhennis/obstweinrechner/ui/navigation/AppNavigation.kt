@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Inventory
-import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Kitchen
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -31,8 +30,6 @@ import androidx.navigation.compose.rememberNavController
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorScreen
 import app.johnhennis.obstweinrechner.ui.common.InAppUpdateChecker
-import app.johnhennis.obstweinrechner.ui.inventory.InventoryScreen
-import app.johnhennis.obstweinrechner.ui.inventory.InventoryTrashScreen
 import app.johnhennis.obstweinrechner.ui.prices.PricesScreen
 import app.johnhennis.obstweinrechner.ui.prices.PricesTrashScreen
 import app.johnhennis.obstweinrechner.ui.recipes.RecipeListScreen
@@ -49,8 +46,6 @@ private object Routes {
     const val WEIN_RECIPES = "wein_recipes"
     const val WEIN_TRASH = "wein_trash"
     const val SCHMALZ = "schmalz"
-    const val INVENTORY = "inventory"
-    const val INVENTORY_TRASH = "inventory_trash"
     const val SHOPPING = "shopping"
     const val PRICES = "prices"
     const val PRICES_TRASH = "prices_trash"
@@ -104,13 +99,6 @@ fun AppNavigation(factory: AppViewModelFactory) {
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
-                    label = { Text("Bestandsaufnahme") },
-                    icon = { Icon(Icons.Filled.Inventory2, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.INVENTORY) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
                     label = { Text("Bestandsliste") },
                     icon = { Icon(Icons.Filled.Inventory, contentDescription = null) },
                     selected = false,
@@ -161,16 +149,6 @@ fun AppNavigation(factory: AppViewModelFactory) {
             }
             composable(Routes.SCHMALZ) {
                 SchmalzScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
-            }
-            composable(Routes.INVENTORY) {
-                InventoryScreen(
-                    factory = factory,
-                    onOpenMenu = { scope.launch { drawerState.open() } },
-                    onOpenTrash = { navController.navigate(Routes.INVENTORY_TRASH) }
-                )
-            }
-            composable(Routes.INVENTORY_TRASH) {
-                InventoryTrashScreen(factory = factory, onBack = { navController.popBackStack() })
             }
             composable(Routes.SHOPPING) {
                 ShoppingListScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })

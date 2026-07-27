@@ -2,17 +2,19 @@ package app.johnhennis.obstweinrechner.ui.shopping
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.johnhennis.obstweinrechner.data.InventoryRepository
 import app.johnhennis.obstweinrechner.data.ManualShoppingItem
 import app.johnhennis.obstweinrechner.data.ManualShoppingItemRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListStatus
+import app.johnhennis.obstweinrechner.data.StockItemRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.Locale
+import java.time.Year
+
+enum class ShoppingListSource { STOCK, MANUAL }
 
 data class ShoppingListEntry(
     val itemId: String,
@@ -20,32 +22,39 @@ data class ShoppingListEntry(
     val mengeText: String,
     val erledigt: Boolean,
     val quelle: String,
-    val manual: Boolean
+    val source: ShoppingListSource
 )
 
 class ShoppingListViewModel(
-    private val inventoryRepository: InventoryRepository,
+    private val stockItemRepository: StockItemRepository,
     private val shoppingListRepository: ShoppingListRepository,
     private val manualShoppingItemRepository: ManualShoppingItemRepository
 ) : ViewModel() {
 
+    private val currentYear = Year.now().value
+
+    // Nur das aktuelle Kalenderjahr - vergangene Jahre der Bestandsliste
+    // wurden ja bereits eingekauft und sollen nicht wieder auftauchen.
     val entries: StateFlow<List<ShoppingListEntry>> = combine(
-        inventoryRepository.allItems,
+        stockItemRepository.allItems,
         shoppingListRepository.allStatus,
         manualShoppingItemRepository.allItems
-    ) { items, statusMap, manualItems ->
-        val fromInventory = items
-            .filter { it.soll - it.ist > 0.0001 }
+    ) { stockItems, statusMap, manualItems ->
+        val fromStock = stockItems
+            .filter { it.jahr == currentYear }
+            .filter { item ->
+                val v = item.einkauf.trim()
+                v.isNotEmpty() && (v.toDoubleOrNull()?.let { it != 0.0 } ?: true)
+            }
             .map { item ->
-                val diff = item.soll - item.ist
-                val status = statusMap[item.id] ?: ShoppingListStatus()
+                val status = statusMap[item.id]
                 ShoppingListEntry(
                     itemId = item.id,
-                    name = item.name,
-                    mengeText = "${fmt(diff)}${if (item.einheit.isBlank()) "" else " ${item.einheit}"}",
-                    erledigt = status.erledigt,
-                    quelle = status.quelle,
-                    manual = false
+                    name = item.art,
+                    mengeText = "${item.einkauf}${if (item.einheit.isBlank()) "" else " ${item.einheit}"}",
+                    erledigt = status?.erledigt ?: false,
+                    quelle = status?.quelle?.ifBlank { item.quelle } ?: item.quelle,
+                    source = ShoppingListSource.STOCK
                 )
             }
 
@@ -56,11 +65,11 @@ class ShoppingListViewModel(
                 mengeText = item.menge,
                 erledigt = item.erledigt,
                 quelle = item.quelle,
-                manual = true
+                source = ShoppingListSource.MANUAL
             )
         }
 
-        (fromInventory + fromManual).sortedBy { it.name }
+        (fromStock + fromManual).sortedBy { it.name }
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -69,24 +78,22 @@ class ShoppingListViewModel(
 
     fun toggleErledigt(entry: ShoppingListEntry) {
         viewModelScope.launch {
-            if (entry.manual) {
-                manualShoppingItemRepository.update(
+            when (entry.source) {
+                ShoppingListSource.MANUAL -> manualShoppingItemRepository.update(
                     ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = entry.quelle, erledigt = !entry.erledigt)
                 )
-            } else {
-                shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = !entry.erledigt, quelle = entry.quelle))
+                ShoppingListSource.STOCK -> shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = !entry.erledigt, quelle = entry.quelle))
             }
         }
     }
 
     fun updateQuelle(entry: ShoppingListEntry, quelle: String) {
         viewModelScope.launch {
-            if (entry.manual) {
-                manualShoppingItemRepository.update(
+            when (entry.source) {
+                ShoppingListSource.MANUAL -> manualShoppingItemRepository.update(
                     ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = quelle, erledigt = entry.erledigt)
                 )
-            } else {
-                shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = entry.erledigt, quelle = quelle))
+                ShoppingListSource.STOCK -> shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = entry.erledigt, quelle = quelle))
             }
         }
     }
@@ -98,7 +105,7 @@ class ShoppingListViewModel(
     }
 
     fun deleteManualItem(entry: ShoppingListEntry) {
-        if (!entry.manual) return
+        if (entry.source != ShoppingListSource.MANUAL) return
         viewModelScope.launch {
             manualShoppingItemRepository.delete(ManualShoppingItem(id = entry.itemId))
         }
@@ -107,16 +114,13 @@ class ShoppingListViewModel(
     fun clearSelection() {
         viewModelScope.launch {
             entries.value.filter { it.erledigt }.forEach { entry ->
-                if (entry.manual) {
-                    manualShoppingItemRepository.update(
+                when (entry.source) {
+                    ShoppingListSource.MANUAL -> manualShoppingItemRepository.update(
                         ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = entry.quelle, erledigt = false)
                     )
-                } else {
-                    shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = false, quelle = entry.quelle))
+                    ShoppingListSource.STOCK -> shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = false, quelle = entry.quelle))
                 }
             }
         }
     }
-
-    private fun fmt(value: Double): String = String.format(Locale.GERMANY, "%.2f", value)
 }

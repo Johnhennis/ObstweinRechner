@@ -131,7 +131,7 @@ fun ShoppingListScreen(
                                             textDecoration = if (entry.erledigt) TextDecoration.LineThrough else TextDecoration.None
                                         )
                                     }
-                                    if (entry.manual) {
+                                    if (entry.source == ShoppingListSource.MANUAL) {
                                         IconButton(onClick = { confirmDeleteManual = entry }) {
                                             Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
                                         }
