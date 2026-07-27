@@ -68,7 +68,8 @@ fun StockScreen(
     var confirmDeleteItem by remember { mutableStateOf<StockItem?>(null) }
     var confirmNewYear by remember { mutableStateOf(false) }
     var resultMessage by remember { mutableStateOf<String?>(null) }
-    var expandedYear by remember { mutableStateOf<Int?>(viewModel.currentYear) }
+    // Bewusst alle Jahre zugeklappt beim Öffnen der Seite.
+    var expandedYear by remember { mutableStateOf<Int?>(null) }
 
     val latestYear = yearGroups.maxOfOrNull { it.jahr }
 
