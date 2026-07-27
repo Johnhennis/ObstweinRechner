@@ -18,12 +18,12 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "app.johnhennis.obstweinrechner"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "app.johnhennis.obstweinrechner"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 5
         versionName = "1.4"
     }
