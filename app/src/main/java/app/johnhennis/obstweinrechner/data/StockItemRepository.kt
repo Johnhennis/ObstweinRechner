@@ -66,6 +66,39 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
             .forEach { it.reference.delete().await() }
     }
 
+    suspend fun yearExists(jahr: Int): Boolean {
+        val snapshot = collection.whereEqualTo("jahr", jahr).limit(1).get().await()
+        return !snapshot.isEmpty
+    }
+
+    // Legt ein neues Jahr an, indem alle (nicht gelöschten) Positionen aus
+    // fromYear kopiert werden: Vorjahr-Bestand = bisheriger Rest,
+    // Einkauf = bisher "für Folgejahr". Rest/für Folgejahr starten leer,
+    // die sollen ja erst im Laufe der neuen Saison eingetragen werden.
+    // Gibt die Anzahl der übernommenen Positionen zurück.
+    suspend fun createNextYear(fromYear: Int, toYear: Int): Int {
+        val snapshot = collection.whereEqualTo("jahr", fromYear).get().await()
+        val items = snapshot.documents
+            .mapNotNull { it.toObject(StockItem::class.java) }
+            .filter { !it.geloescht }
+        items.forEach { old ->
+            collection.add(
+                StockItem(
+                    jahr = toYear,
+                    art = old.art,
+                    quelle = old.quelle,
+                    einheit = old.einheit,
+                    bestandVorjahr = old.rest,
+                    einkauf = old.fuerFolgejahr,
+                    rest = "",
+                    fuerFolgejahr = "",
+                    bemerkung = ""
+                )
+            ).await()
+        }
+        return items.size
+    }
+
     suspend fun seedIfEmpty() {
         val snapshot = collection.limit(1).get().await()
         if (snapshot.isEmpty) {

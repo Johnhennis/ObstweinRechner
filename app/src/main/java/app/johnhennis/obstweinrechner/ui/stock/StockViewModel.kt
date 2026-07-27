@@ -80,4 +80,25 @@ class StockViewModel(
     fun deleteYearPermanently(jahr: Int) {
         viewModelScope.launch { repository.deleteYearPermanently(jahr) }
     }
+
+    // Legt aus dem jeweils neuesten vorhandenen Jahr automatisch das
+    // Folgejahr an (Vorjahr-Bestand = bisheriger Rest, Einkauf = bisher
+    // "für Folgejahr"). onResult liefert Erfolg/Misserfolg + Meldungstext
+    // fuer eine einfache Rueckmeldung in der UI.
+    fun createNextYear(onResult: (Boolean, String) -> Unit) {
+        val latest = yearGroups.value.maxOfOrNull { it.jahr }
+        if (latest == null) {
+            onResult(false, "Keine Positionen vorhanden, aus denen ein neues Jahr abgeleitet werden könnte.")
+            return
+        }
+        val nextYear = latest + 1
+        viewModelScope.launch {
+            if (repository.yearExists(nextYear)) {
+                onResult(false, "Jahr $nextYear existiert bereits.")
+                return@launch
+            }
+            val count = repository.createNextYear(latest, nextYear)
+            onResult(true, "Jahr $nextYear angelegt mit $count Positionen aus $latest.")
+        }
+    }
 }

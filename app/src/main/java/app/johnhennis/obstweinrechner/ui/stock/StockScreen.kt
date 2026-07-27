@@ -14,12 +14,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -66,9 +66,11 @@ fun StockScreen(
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
     var confirmDeleteItem by remember { mutableStateOf<StockItem?>(null) }
-    // Wie bei der Preisliste: bewusst nur ein Jahr gleichzeitig offen, damit
-    // nicht zu viele Felder auf einmal aktiv sind (Scroll-Performance).
+    var confirmNewYear by remember { mutableStateOf(false) }
+    var resultMessage by remember { mutableStateOf<String?>(null) }
     var expandedYear by remember { mutableStateOf<Int?>(viewModel.currentYear) }
+
+    val latestYear = yearGroups.maxOfOrNull { it.jahr }
 
     Scaffold(
         topBar = {
@@ -80,6 +82,11 @@ fun StockScreen(
                     }
                 },
                 actions = {
+                    if (latestYear != null) {
+                        IconButton(onClick = { confirmNewYear = true }) {
+                            Icon(Icons.Filled.ContentCopy, contentDescription = "Neues Jahr anlegen")
+                        }
+                    }
                     IconButton(onClick = onOpenTrash) {
                         Icon(Icons.Filled.Delete, contentDescription = "Papierkorb öffnen")
                     }
@@ -99,8 +106,7 @@ fun StockScreen(
         } else {
             LazyColumn(
                 modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth(),
-                contentPadding = PaddingValues(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(vertical = 8.dp)
             ) {
                 yearGroups.forEach { group ->
                     val isExpanded = group.jahr == expandedYear
@@ -110,7 +116,7 @@ fun StockScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { expandedYear = if (isExpanded) null else group.jahr }
-                                    .padding(top = 6.dp, bottom = 4.dp),
+                                    .padding(top = 8.dp, bottom = 4.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -134,7 +140,7 @@ fun StockScreen(
                     }
                     if (isExpanded) {
                         items(group.items, key = { it.id }) { item ->
-                            StockCard(
+                            StockRow(
                                 item = item,
                                 onUpdate = { viewModel.updateItem(it) },
                                 onDelete = { confirmDeleteItem = item }
@@ -190,10 +196,46 @@ fun StockScreen(
             dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmDeleteItem = null }) { Text("Abbrechen") } } }
         )
     }
+
+    if (confirmNewYear && latestYear != null) {
+        AlertDialog(
+            onDismissRequest = { confirmNewYear = false },
+            title = { ScaledContent(factory) { Text("Jahr ${latestYear + 1} anlegen?") } },
+            text = {
+                ScaledContent(factory) {
+                    Text(
+                        "Alle Positionen aus $latestYear werden übernommen: Vorjahr-Bestand = bisheriger Rest, " +
+                            "Einkauf = bisher \"für Folgejahr\". Rest bleibt offen, bis du ihn einträgst."
+                    )
+                }
+            },
+            confirmButton = {
+                ScaledContent(factory) {
+                    TextButton(onClick = {
+                        confirmNewYear = false
+                        viewModel.createNextYear { _, message ->
+                            resultMessage = message
+                            expandedYear = latestYear + 1
+                        }
+                    }) { Text("Anlegen") }
+                }
+            },
+            dismissButton = { ScaledContent(factory) { TextButton(onClick = { confirmNewYear = false }) { Text("Abbrechen") } } }
+        )
+    }
+
+    resultMessage?.let { msg ->
+        AlertDialog(
+            onDismissRequest = { resultMessage = null },
+            title = { ScaledContent(factory) { Text("Bestandsliste") } },
+            text = { ScaledContent(factory) { Text(msg) } },
+            confirmButton = { ScaledContent(factory) { TextButton(onClick = { resultMessage = null }) { Text("OK") } } }
+        )
+    }
 }
 
 @Composable
-private fun StockCard(
+private fun StockRow(
     item: StockItem,
     onUpdate: (StockItem) -> Unit,
     onDelete: () -> Unit
@@ -224,52 +266,59 @@ private fun StockCard(
     val bedarf = tryParse(bestandVorjahr)?.let { bv -> tryParse(einkauf)?.let { ek -> bv + ek } }
     val verbraucht = bedarf?.let { bd -> tryParse(rest)?.let { r -> bd - r } }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                LabeledField(art, { art = it; userEdited = true }, null, Modifier.weight(1f))
-                IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
-                }
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+            CompactField(art, { art = it; userEdited = true }, "Art", Modifier.weight(1.4f))
+            CompactField(quelle, { quelle = it; userEdited = true }, "Quelle", Modifier.weight(1f))
+            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+                Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                LabeledField(quelle, { quelle = it; userEdited = true }, "Quelle", Modifier.weight(1f))
-                LabeledField(einheit, { einheit = it; userEdited = true }, "Einheit", Modifier.weight(1f))
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                LabeledField(bestandVorjahr, { bestandVorjahr = it; userEdited = true }, "Vorjahr", Modifier.weight(1f))
-                LabeledField(einkauf, { einkauf = it; userEdited = true }, "Einkauf", Modifier.weight(1f))
-                LabeledField(rest, { rest = it; userEdited = true }, "Rest", Modifier.weight(1f))
-                LabeledField(fuerFolgejahr, { fuerFolgejahr = it; userEdited = true }, "Folgejahr", Modifier.weight(1f))
-            }
-            if (bedarf != null || verbraucht != null) {
-                Text(
-                    listOfNotNull(
-                        bedarf?.let { "Bedarf: ${fmtNum(it)}" },
-                        verbraucht?.let { "Verbraucht: ${fmtNum(it)}" }
-                    ).joinToString("   "),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            LabeledField(bemerkung, { bemerkung = it; userEdited = true }, "Bemerkung", Modifier.fillMaxWidth())
         }
+        Row(
+            modifier = Modifier.padding(top = 3.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompactField(einheit, { einheit = it; userEdited = true }, "Einheit", Modifier.weight(1f))
+            CompactField(bestandVorjahr, { bestandVorjahr = it; userEdited = true }, "Vorjahr", Modifier.weight(0.8f))
+            CompactField(einkauf, { einkauf = it; userEdited = true }, "Einkauf", Modifier.weight(0.8f))
+            CompactField(rest, { rest = it; userEdited = true }, "Rest", Modifier.weight(0.8f))
+            CompactField(fuerFolgejahr, { fuerFolgejahr = it; userEdited = true }, "Folgejahr", Modifier.weight(0.9f))
+        }
+        if (bedarf != null || verbraucht != null) {
+            Text(
+                listOfNotNull(
+                    bedarf?.let { "Bedarf: ${fmtNum(it)}" },
+                    verbraucht?.let { "Verbraucht: ${fmtNum(it)}" }
+                ).joinToString("   "),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+        CompactField(
+            bemerkung, { bemerkung = it; userEdited = true }, "Bemerkung",
+            Modifier.fillMaxWidth().padding(top = 3.dp)
+        )
+        HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
     }
 }
 
 @Composable
-private fun LabeledField(
+private fun CompactField(
     value: String,
     onValueChange: (String) -> Unit,
-    label: String?,
-    modifier: Modifier = Modifier
+    placeholder: String,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = label?.let { { Text(it, style = MaterialTheme.typography.labelSmall) } },
-        textStyle = MaterialTheme.typography.bodyMedium,
+        placeholder = { Text(placeholder, style = MaterialTheme.typography.bodySmall) },
+        textStyle = MaterialTheme.typography.bodySmall,
         singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         modifier = modifier
     )
 }
