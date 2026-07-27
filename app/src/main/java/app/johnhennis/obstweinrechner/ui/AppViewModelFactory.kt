@@ -13,6 +13,7 @@ import app.johnhennis.obstweinrechner.data.RecipeSessionRepository
 import app.johnhennis.obstweinrechner.data.SchmalzRecipeRepository
 import app.johnhennis.obstweinrechner.data.SettingsRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListRepository
+import app.johnhennis.obstweinrechner.data.StockItemRepository
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorViewModel
 import app.johnhennis.obstweinrechner.ui.inventory.InventoryViewModel
 import app.johnhennis.obstweinrechner.ui.prices.PricesViewModel
@@ -21,6 +22,7 @@ import app.johnhennis.obstweinrechner.ui.recipes.RecipeListViewModel
 import app.johnhennis.obstweinrechner.ui.schmalz.SchmalzViewModel
 import app.johnhennis.obstweinrechner.ui.settings.SettingsViewModel
 import app.johnhennis.obstweinrechner.ui.shopping.ShoppingListViewModel
+import app.johnhennis.obstweinrechner.ui.stock.StockViewModel
 
 class AppViewModelFactory(
     private val repository: FruitRecipeRepository,
@@ -31,7 +33,8 @@ class AppViewModelFactory(
     private val fruitPriceRepository: FruitPriceRepository,
     private val infoEntryRepository: InfoEntryRepository,
     private val recipeSessionRepository: RecipeSessionRepository,
-    private val manualShoppingItemRepository: ManualShoppingItemRepository
+    private val manualShoppingItemRepository: ManualShoppingItemRepository,
+    private val stockItemRepository: StockItemRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -45,6 +48,7 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(InventoryViewModel::class.java) -> InventoryViewModel(inventoryRepository, shoppingListRepository) as T
             modelClass.isAssignableFrom(ShoppingListViewModel::class.java) -> ShoppingListViewModel(inventoryRepository, shoppingListRepository, manualShoppingItemRepository) as T
             modelClass.isAssignableFrom(PricesViewModel::class.java) -> PricesViewModel(fruitPriceRepository) as T
+            modelClass.isAssignableFrom(StockViewModel::class.java) -> StockViewModel(stockItemRepository) as T
             else -> throw IllegalArgumentException("Unbekannte ViewModel-Klasse: ${modelClass.name}")
         }
     }
@@ -59,7 +63,8 @@ class AppViewModelFactory(
             application.fruitPriceRepository,
             application.infoEntryRepository,
             application.recipeSessionRepository,
-            application.manualShoppingItemRepository
+            application.manualShoppingItemRepository,
+            application.stockItemRepository
         )
     }
 }

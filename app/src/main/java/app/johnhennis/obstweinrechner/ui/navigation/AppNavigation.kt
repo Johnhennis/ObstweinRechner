@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Kitchen
 import androidx.compose.material.icons.filled.Settings
@@ -29,6 +30,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorScreen
+import app.johnhennis.obstweinrechner.ui.common.InAppUpdateChecker
 import app.johnhennis.obstweinrechner.ui.inventory.InventoryScreen
 import app.johnhennis.obstweinrechner.ui.inventory.InventoryTrashScreen
 import app.johnhennis.obstweinrechner.ui.prices.PricesScreen
@@ -38,6 +40,8 @@ import app.johnhennis.obstweinrechner.ui.recipes.RecipeTrashScreen
 import app.johnhennis.obstweinrechner.ui.schmalz.SchmalzScreen
 import app.johnhennis.obstweinrechner.ui.settings.SettingsScreen
 import app.johnhennis.obstweinrechner.ui.shopping.ShoppingListScreen
+import app.johnhennis.obstweinrechner.ui.stock.StockScreen
+import app.johnhennis.obstweinrechner.ui.stock.StockTrashScreen
 import kotlinx.coroutines.launch
 
 private object Routes {
@@ -50,11 +54,15 @@ private object Routes {
     const val SHOPPING = "shopping"
     const val PRICES = "prices"
     const val PRICES_TRASH = "prices_trash"
+    const val STOCK = "stock"
+    const val STOCK_TRASH = "stock_trash"
     const val SETTINGS = "settings"
 }
 
 @Composable
 fun AppNavigation(factory: AppViewModelFactory) {
+    InAppUpdateChecker()
+
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -63,9 +71,6 @@ fun AppNavigation(factory: AppViewModelFactory) {
         scope.launch { drawerState.close() }
     }
 
-    // Springt bei jedem Menüpunkt zu dessen EINER Instanz zurück, statt bei
-    // jedem Wechsel eine neue draufzustapeln - vermeidet, dass sich über eine
-    // Sitzung mehrere unsichtbare Bildschirme samt Firestore-Listenern ansammeln.
     fun navigateToTopLevel(route: String) {
         scope.launch { drawerState.close() }
         navController.navigate(route) {
@@ -103,6 +108,13 @@ fun AppNavigation(factory: AppViewModelFactory) {
                     icon = { Icon(Icons.Filled.Inventory2, contentDescription = null) },
                     selected = false,
                     onClick = { navigateToTopLevel(Routes.INVENTORY) },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                NavigationDrawerItem(
+                    label = { Text("Bestandsliste") },
+                    icon = { Icon(Icons.Filled.Inventory, contentDescription = null) },
+                    selected = false,
+                    onClick = { navigateToTopLevel(Routes.STOCK) },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 NavigationDrawerItem(
@@ -172,6 +184,16 @@ fun AppNavigation(factory: AppViewModelFactory) {
             }
             composable(Routes.PRICES_TRASH) {
                 PricesTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+            }
+            composable(Routes.STOCK) {
+                StockScreen(
+                    factory = factory,
+                    onOpenMenu = { scope.launch { drawerState.open() } },
+                    onOpenTrash = { navController.navigate(Routes.STOCK_TRASH) }
+                )
+            }
+            composable(Routes.STOCK_TRASH) {
+                StockTrashScreen(factory = factory, onBack = { navController.popBackStack() })
             }
             composable(Routes.SETTINGS) {
                 SettingsScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })

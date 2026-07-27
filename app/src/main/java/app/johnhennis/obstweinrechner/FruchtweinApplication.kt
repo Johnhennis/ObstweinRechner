@@ -10,6 +10,7 @@ import app.johnhennis.obstweinrechner.data.RecipeSessionRepository
 import app.johnhennis.obstweinrechner.data.SchmalzRecipeRepository
 import app.johnhennis.obstweinrechner.data.SettingsRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListRepository
+import app.johnhennis.obstweinrechner.data.StockItemRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,7 @@ class FruchtweinApplication : Application() {
     val infoEntryRepository: InfoEntryRepository by lazy { InfoEntryRepository(FirebaseFirestore.getInstance()) }
     val recipeSessionRepository: RecipeSessionRepository by lazy { RecipeSessionRepository(FirebaseFirestore.getInstance()) }
     val manualShoppingItemRepository: ManualShoppingItemRepository by lazy { ManualShoppingItemRepository(FirebaseFirestore.getInstance()) }
+    val stockItemRepository: StockItemRepository by lazy { StockItemRepository(FirebaseFirestore.getInstance()) }
 
     override fun onCreate() {
         super.onCreate()
@@ -40,12 +42,7 @@ class FruchtweinApplication : Application() {
             repository.seedIfEmpty()
             schmalzRepository.seedIfEmpty()
             fruitPriceRepository.seedIfEmpty()
-
-            val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-            if (!prefs.getBoolean("priceDataRepaired_v1", false)) {
-                fruitPriceRepository.repairSeedData()
-                prefs.edit().putBoolean("priceDataRepaired_v1", true).apply()
-            }
+            stockItemRepository.seedIfEmpty()
         }
     }
 }

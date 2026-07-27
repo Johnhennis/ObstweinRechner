@@ -125,7 +125,7 @@ private fun ResultCard(result: SchmalzCalculationResult) {
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Zutaten für ${fmt(result.zielLiter)} L Schmalz", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            if (result.schmalzStueck > EPS) ResultRow("Schmalz", "${fmt(result.schmalzStueck)} Stück")
+            if (result.schmalzStueck > EPS) ResultRow("Schmalz (250g)", "${fmt(result.schmalzStueck)} Stück")
             if (result.ruckenfettKg > EPS) ResultRow("Rückenfett", "${fmt(result.ruckenfettKg)} kg")
             if (result.aepfelStueck > EPS) ResultRow("Äpfel", "${fmt(result.aepfelStueck)} Stück")
             if (result.zwiebelnGramm > EPS) ResultRow("Zwiebeln", "${fmt(result.zwiebelnGramm)} g")
@@ -183,7 +183,7 @@ private fun SchmalzEditorDialog(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    SimpleNumberField("Schmalz (Stück)", schmalz) { schmalz = it }
+                    SimpleNumberField("Schmalz (250g)", schmalz) { schmalz = it }
                     SimpleNumberField("Rückenfett (kg)", ruckenfett) { ruckenfett = it }
                     SimpleNumberField("Äpfel (Stück)", aepfel) { aepfel = it }
                     SimpleNumberField("Zwiebeln (g)", zwiebeln) { zwiebeln = it }
