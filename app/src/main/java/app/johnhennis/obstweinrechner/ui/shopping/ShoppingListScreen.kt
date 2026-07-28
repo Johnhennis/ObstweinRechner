@@ -44,6 +44,20 @@ import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 
 private const val UNKATEGORISIERT = "Unkategorisiert"
 
+// Zerlegt "5 Stk" in Anzeige "5x Becher Wein 0,2" + Einheit-Zusatz "Stk".
+// Nur wenn die führende Angabe wirklich eine Zahl ist (nicht z.B. "viele") -
+// sonst bliebe es beim alten "Name: viele Stk"-Format.
+private fun formatEntryLabel(name: String, mengeText: String): Pair<String, String?> {
+    if (mengeText.isBlank()) return name to null
+    val parts = mengeText.trim().split(" ", limit = 2)
+    val qtyRaw = parts[0]
+    val rest = parts.getOrNull(1)?.takeIf { it.isNotBlank() }
+    val qtyNum = qtyRaw.replace(',', '.').toDoubleOrNull()
+        ?: return "$name: $mengeText" to null
+    val qtyFormatted = if (qtyNum == qtyNum.toLong().toDouble()) qtyNum.toLong().toString() else qtyRaw
+    return "${qtyFormatted}x $name" to rest
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(
@@ -124,12 +138,20 @@ fun ShoppingListScreen(
                                 Row(modifier = Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(checked = entry.erledigt, onCheckedChange = { viewModel.toggleErledigt(entry) })
                                     Column(modifier = Modifier.padding(start = 8.dp).weight(1f)) {
-                                        val mengeSuffix = if (entry.mengeText.isBlank()) "" else ": ${entry.mengeText}"
+                                        val (primary, unit) = formatEntryLabel(entry.name, entry.mengeText)
                                         Text(
-                                            "${entry.name}$mengeSuffix",
+                                            primary,
                                             style = MaterialTheme.typography.bodyLarge,
                                             textDecoration = if (entry.erledigt) TextDecoration.LineThrough else TextDecoration.None
                                         )
+                                        if (unit != null) {
+                                            Text(
+                                                unit,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                textDecoration = if (entry.erledigt) TextDecoration.LineThrough else TextDecoration.None
+                                            )
+                                        }
                                     }
                                     if (entry.source == ShoppingListSource.MANUAL) {
                                         IconButton(onClick = { confirmDeleteManual = entry }) {
