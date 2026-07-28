@@ -40,14 +40,13 @@ class StockViewModel(
 
     fun addItem(
         jahr: Int, art: String, quelle: String, einheit: String,
-        bestandVorjahr: String, einkauf: String, rest: String, fuerFolgejahr: String, bemerkung: String
+        bestandVorjahr: String, bedarf: String, rest: String, bemerkung: String
     ) {
         viewModelScope.launch {
             repository.insert(
                 StockItem(
                     jahr = jahr, art = art, quelle = quelle, einheit = einheit,
-                    bestandVorjahr = bestandVorjahr, einkauf = einkauf, rest = rest,
-                    fuerFolgejahr = fuerFolgejahr, bemerkung = bemerkung
+                    bestandVorjahr = bestandVorjahr, bedarf = bedarf, rest = rest, bemerkung = bemerkung
                 )
             )
         }
@@ -81,10 +80,6 @@ class StockViewModel(
         viewModelScope.launch { repository.deleteYearPermanently(jahr) }
     }
 
-    // Legt aus dem jeweils neuesten vorhandenen Jahr automatisch das
-    // Folgejahr an (Vorjahr-Bestand = bisheriger Rest, Einkauf = bisher
-    // "für Folgejahr"). onResult liefert Erfolg/Misserfolg + Meldungstext
-    // fuer eine einfache Rueckmeldung in der UI.
     fun createNextYear(onResult: (Boolean, String) -> Unit) {
         val latest = yearGroups.value.maxOfOrNull { it.jahr }
         if (latest == null) {
