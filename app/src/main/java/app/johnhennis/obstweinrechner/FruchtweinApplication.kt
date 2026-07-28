@@ -47,6 +47,10 @@ class FruchtweinApplication : Application() {
                 stockItemRepository.migrateEinkaufToBedarf()
                 prefs.edit().putBoolean("stockBedarfMigrated_v1", true).apply()
             }
+            if (!prefs.getBoolean("stockDedup_v1", false)) {
+                stockItemRepository.deduplicateItems()
+                prefs.edit().putBoolean("stockDedup_v1", true).apply()
+            }
         }
     }
 }

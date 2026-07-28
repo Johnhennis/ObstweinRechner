@@ -4,10 +4,16 @@ import android.content.Context
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -23,9 +29,6 @@ private const val PREFS_NAME = "app_prefs"
 private const val KEY_LAST_RESULT = "lastUpdateCheckResult"
 private const val KEY_LAST_TIME = "lastUpdateCheckTime"
 
-// Liest das Ergebnis des letzten Update-Checks (fuer die Anzeige in den
-// Einstellungen) - dauerhaft statt eines fluechtigen Toasts, damit man es
-// auch nachtraeglich noch nachschauen kann.
 fun readLastUpdateCheck(context: Context): Pair<String, Long>? {
     val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     val result = prefs.getString(KEY_LAST_RESULT, null) ?: return null
@@ -42,19 +45,17 @@ private fun persistResult(context: Context, result: String) {
 }
 
 // Prüft beim App-Start und bei jeder Rückkehr in den Vordergrund, ob im Play
-// Store eine neuere Version vorliegt. Funktioniert NUR bei einer über den
-// Play Store installierten App. Jedes Ergebnis wird sowohl kurz als Toast
-// gezeigt als auch dauerhaft gespeichert (sichtbar in den Einstellungen),
-// damit ein verpasster Toast nicht mehr die einzige Informationsquelle ist.
+// Store eine neuere Version vorliegt. Bewusst nur noch "Flexible" (laedt im
+// Hintergrund, fragt erst beim Fertigsein nach einem Neustart) - "Sofort"
+// killt den Prozess zwangsweise mitten in der Nutzung, was zu abgebrochenen
+// Firestore-Schreibvorgaengen und in der Folge zu Duplikaten fuehren kann.
 @Composable
 fun InAppUpdateChecker() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val appUpdateManager = remember { AppUpdateManagerFactory.create(context) }
+    var showRestartDialog by remember { mutableStateOf(false) }
 
-    val immediateLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartIntentSenderForResult()
-    ) { }
     val flexibleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) { }
@@ -72,29 +73,20 @@ fun InAppUpdateChecker() {
                         report("Kein Update verfügbar (Version aktuell)")
                     }
                     UpdateAvailability.UPDATE_AVAILABLE, UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS -> {
-                        when {
-                            info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) -> {
-                                report("Update gefunden (Play-Version ${info.availableVersionCode()}) – wird installiert")
-                                appUpdateManager.startUpdateFlowForResult(
-                                    info, immediateLauncher, AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build()
-                                )
-                            }
-                            info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE) -> {
-                                report("Update gefunden (Play-Version ${info.availableVersionCode()}) – lädt im Hintergrund")
-                                val listener = InstallStateUpdatedListener { state ->
-                                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
-                                        report("Update heruntergeladen – wird installiert")
-                                        appUpdateManager.completeUpdate()
-                                    }
+                        if (info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                            report("Update gefunden (Play-Version ${info.availableVersionCode()}) – lädt im Hintergrund")
+                            val listener = InstallStateUpdatedListener { state ->
+                                if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                                    report("Update heruntergeladen – bereit zum Neustart")
+                                    showRestartDialog = true
                                 }
-                                appUpdateManager.registerListener(listener)
-                                appUpdateManager.startUpdateFlowForResult(
-                                    info, flexibleLauncher, AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
-                                )
                             }
-                            else -> {
-                                report("Update (Play-Version ${info.availableVersionCode()}) verfügbar, aber von Play aktuell NICHT freigegeben")
-                            }
+                            appUpdateManager.registerListener(listener)
+                            appUpdateManager.startUpdateFlowForResult(
+                                info, flexibleLauncher, AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
+                            )
+                        } else {
+                            report("Update (Play-Version ${info.availableVersionCode()}) verfügbar, aber von Play aktuell NICHT freigegeben")
                         }
                     }
                     else -> {
@@ -115,5 +107,22 @@ fun InAppUpdateChecker() {
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    if (showRestartDialog) {
+        AlertDialog(
+            onDismissRequest = { showRestartDialog = false },
+            title = { Text("Update bereit") },
+            text = { Text("Das Update wurde heruntergeladen. Jetzt neu starten, um es zu installieren?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showRestartDialog = false
+                    appUpdateManager.completeUpdate()
+                }) { Text("Jetzt neu starten") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRestartDialog = false }) { Text("Später") }
+            }
+        )
     }
 }

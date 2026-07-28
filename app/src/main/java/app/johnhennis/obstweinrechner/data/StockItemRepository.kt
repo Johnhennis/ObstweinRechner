@@ -28,8 +28,20 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
     val allItems: Flow<List<StockItem>> = allDocuments.map { list -> list.filter { !it.geloescht } }
     val trashedItems: Flow<List<StockItem>> = allDocuments.map { list -> list.filter { it.geloescht } }
 
+    // Feste, aus Jahr+Art abgeleitete Dokument-ID statt einer zufaelligen.
+    // Macht das Anlegen idempotent: selbst wenn ein Schreibvorgang (z.B.
+    // durch einen abrupten Prozess-Kill mitten in der Bestaetigung)
+    // nochmal gesendet wird, entsteht KEIN zweites Dokument, sondern es
+    // wird schlicht dasselbe nochmal geschrieben.
+    private fun docId(jahr: Int, art: String): String {
+        val slug = art.trim().lowercase()
+            .replace(Regex("[^a-z0-9]+"), "-")
+            .trim('-')
+        return "${jahr}_$slug"
+    }
+
     suspend fun insert(item: StockItem) {
-        collection.add(item.copy(id = "", geloescht = false)).await()
+        collection.document(docId(item.jahr, item.art)).set(item.copy(id = "", geloescht = false)).await()
     }
 
     suspend fun update(item: StockItem) {
@@ -72,37 +84,54 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
     }
 
     // Legt ein neues Jahr an: Bestand = bisheriger Rest, Bedarf = bisheriger
-    // Bedarf (als Ausgangswert zum Anpassen - meist ändert sich der Bedarf
-    // von Jahr zu Jahr nur wenig). Rest startet leer, der wird ja erst am
-    // Ende der neuen Saison eingetragen.
+    // Bedarf. Rest startet leer. Nutzt dieselbe feste Dokument-ID wie
+    // insert() - auch hier idempotent bei wiederholtem Schreibvorgang.
     suspend fun createNextYear(fromYear: Int, toYear: Int): Int {
         val snapshot = collection.whereEqualTo("jahr", fromYear).get().await()
         val items = snapshot.documents
             .mapNotNull { it.toObject(StockItem::class.java) }
             .filter { !it.geloescht }
         items.forEach { old ->
-            collection.add(
-                StockItem(
-                    jahr = toYear,
-                    art = old.art,
-                    quelle = old.quelle,
-                    einheit = old.einheit,
-                    bestandVorjahr = old.rest,
-                    bedarf = old.bedarf,
-                    rest = "",
-                    bemerkung = ""
-                )
-            ).await()
+            val neu = StockItem(
+                jahr = toYear,
+                art = old.art,
+                quelle = old.quelle,
+                einheit = old.einheit,
+                bestandVorjahr = old.rest,
+                bedarf = old.bedarf,
+                rest = "",
+                bemerkung = ""
+            )
+            collection.document(docId(toYear, old.art)).set(neu.copy(id = "")).await()
         }
         return items.size
     }
 
-    // Einmalige Migration: das Feld hieß früher "einkauf", jetzt "bedarf"
-    // (Umbenennung mit Bedeutungswechsel von "tatsächlich gekauft" zu
-    // "geplanter Bedarf"). Übernimmt den alten Wert überall dort, wo
-    // "bedarf" noch leer ist, damit keine bereits erfasste Planung verloren
-    // geht. Greift auf die Rohdaten zu, weil das Datenmodell das alte Feld
-    // gar nicht mehr kennt.
+    // Einmalige Reparatur: entfernt echte Duplikate (gleiches Jahr + gleiche
+    // Art mehrfach vorhanden). Behaelt je Gruppe den Eintrag mit den
+    // meisten ausgefuellten Feldern (am ehesten der zuletzt bearbeitete),
+    // Rest wandert in den Papierkorb statt geloescht zu werden - falls die
+    // Auswahl doch mal daneben liegt, ist nichts endgueltig weg.
+    suspend fun deduplicateItems() {
+        val snapshot = collection.get().await()
+        val pairs = snapshot.documents.mapNotNull { doc ->
+            doc.toObject(StockItem::class.java)?.copy(id = doc.id)?.let { doc to it }
+        }
+        val gruppen = pairs.filter { !it.second.geloescht }
+            .groupBy { it.second.jahr to it.second.art.trim().lowercase() }
+
+        fun vollstaendigkeit(item: StockItem) = listOf(
+            item.quelle, item.einheit, item.bestandVorjahr, item.bedarf, item.rest, item.bemerkung
+        ).count { it.isNotBlank() }
+
+        gruppen.values.filter { it.size > 1 }.forEach { gruppe ->
+            val sortiert = gruppe.sortedByDescending { vollstaendigkeit(it.second) }
+            sortiert.drop(1).forEach { (doc, _) -> doc.reference.update("geloescht", true).await() }
+        }
+    }
+
+    // Einmalige Migration: das Feld hieß früher "einkauf", jetzt "bedarf".
+    // Übernimmt den alten Wert überall dort, wo "bedarf" noch leer ist.
     suspend fun migrateEinkaufToBedarf() {
         val snapshot = collection.get().await()
         snapshot.documents.forEach { doc ->
@@ -119,16 +148,13 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
     suspend fun seedIfEmpty() {
         val snapshot = collection.limit(1).get().await()
         if (snapshot.isEmpty) {
-            defaultItems().forEach { collection.add(it).await() }
+            defaultItems().forEach { collection.document(docId(it.jahr, it.art)).set(it).await() }
         }
     }
 
     // Aus Bestand.xls übernommen (2026 + 2027, je 12 Verpackungs-/Zubehör-
-    // Positionen). "Bedarf" ist hier retrospektiv mit den damaligen
-    // tatsächlichen Einkaufsmengen befüllt (für vergangene/laufende Jahre
-    // entspricht das dem geplanten Bedarf). Der Umsatz/Einnahmen-Block der
-    // Originaltabelle gehört nicht zur Bestandsliste und wurde bewusst
-    // nicht übernommen.
+    // Positionen). Der Umsatz/Einnahmen-Block der Originaltabelle gehört
+    // nicht zur Bestandsliste und wurde bewusst nicht übernommen.
     private fun defaultItems(): List<StockItem> = listOf(
         StockItem(art = "PET-Flaschen", jahr = 2026, quelle = "Internet", einheit = "Stk", bestandVorjahr = "400", bedarf = "960", rest = "640"),
         StockItem(art = "Pfandetiketten", jahr = 2026, quelle = "Stadt", einheit = "Stk", bestandVorjahr = "280", bedarf = "500", rest = "190"),
