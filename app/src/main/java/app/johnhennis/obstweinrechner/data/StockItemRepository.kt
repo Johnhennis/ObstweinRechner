@@ -71,9 +71,10 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
         return !snapshot.isEmpty
     }
 
-    // Legt ein neues Jahr an: Vorjahr-Bestand = bisheriger Rest. Bedarf und
-    // Rest starten leer, die sollen ja frisch für die neue Saison überlegt
-    // bzw. erst am Ende eingetragen werden.
+    // Legt ein neues Jahr an: Bestand = bisheriger Rest, Bedarf = bisheriger
+    // Bedarf (als Ausgangswert zum Anpassen - meist ändert sich der Bedarf
+    // von Jahr zu Jahr nur wenig). Rest startet leer, der wird ja erst am
+    // Ende der neuen Saison eingetragen.
     suspend fun createNextYear(fromYear: Int, toYear: Int): Int {
         val snapshot = collection.whereEqualTo("jahr", fromYear).get().await()
         val items = snapshot.documents
@@ -87,7 +88,7 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
                     quelle = old.quelle,
                     einheit = old.einheit,
                     bestandVorjahr = old.rest,
-                    bedarf = "",
+                    bedarf = old.bedarf,
                     rest = "",
                     bemerkung = ""
                 )

@@ -203,7 +203,7 @@ fun StockScreen(
             title = { ScaledContent(factory) { Text("Jahr ${latestYear + 1} anlegen?") } },
             text = {
                 ScaledContent(factory) {
-                    Text("Alle Positionen aus $latestYear werden übernommen: Bestand = bisheriger Rest. Bedarf und Rest bleiben offen, bis du sie einträgst.")
+                    Text("Alle Positionen aus $latestYear werden übernommen: Bestand = bisheriger Rest, Bedarf = bisheriger Bedarf (als Ausgangswert, du kannst ihn anpassen). Rest bleibt offen, bis du ihn einträgst.")
                 }
             },
             confirmButton = {
