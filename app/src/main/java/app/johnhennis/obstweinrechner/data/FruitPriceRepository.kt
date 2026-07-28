@@ -66,32 +66,35 @@ class FruitPriceRepository(private val firestore: FirebaseFirestore) {
             .forEach { it.reference.delete().await() }
     }
 
+    // Einmalige Reparatur: entfernt echte Duplikate (ALLE Felder exakt
+    // gleich - bewusst nicht nur Fruchtart+Jahr, da zwei echte Käufe
+    // derselben Frucht im selben Jahr an unterschiedlichen Tagen/Preisen
+    // gewollt sein können und nicht verschmolzen werden sollen). Duplikate
+    // wandern in den Papierkorb statt geloescht zu werden.
+    suspend fun deduplicatePrices() {
+        val snapshot = collection.get().await()
+        val pairs = snapshot.documents.mapNotNull { doc ->
+            doc.toObject(FruitPrice::class.java)?.copy(id = doc.id)?.let { doc to it }
+        }
+        val gruppen = pairs.filter { !it.second.geloescht }.groupBy {
+            listOf(
+                it.second.fruchtart.trim().lowercase(),
+                it.second.jahr,
+                it.second.datum.trim(),
+                it.second.preis,
+                it.second.quelle.trim().lowercase()
+            )
+        }
+        gruppen.values.filter { it.size > 1 }.forEach { gruppe ->
+            gruppe.drop(1).forEach { (doc, _) -> doc.reference.update("geloescht", true).await() }
+        }
+    }
+
     suspend fun seedIfEmpty() {
         val snapshot = collection.limit(1).get().await()
         if (snapshot.isEmpty) {
             defaultPrices().forEach { collection.add(it).await() }
         }
-    }
-
-    // Einmalige Reparatur: entfernt Eintraege mit leerer Fruchtart (Datenfehler
-    // durch eine frueher fehlerhafte App-Version) und ergaenzt fehlende
-    // Original-Eintraege aus der Seedliste, ohne bereits vorhandene (auch im
-    // Papierkorb!) oder selbst hinzugefuegte Eintraege anzutasten.
-    suspend fun repairSeedData() {
-        val allSnapshot = collection.get().await()
-
-        allSnapshot.documents
-            .filter { (it.getString("fruchtart") ?: "").isBlank() }
-            .forEach { it.reference.delete().await() }
-
-        val stillThere = collection.get().await().documents.mapNotNull {
-            it.toObject(FruitPrice::class.java)
-        }
-        val existingKeys = stillThere.map { it.fruchtart.trim().lowercase() to it.jahr }.toSet()
-
-        defaultPrices()
-            .filter { (it.fruchtart.trim().lowercase() to it.jahr) !in existingKeys }
-            .forEach { collection.add(it).await() }
     }
 
     // Aus Früchtekauf.xlsx übernommen (53 Einträge, Stand Juli 2026).

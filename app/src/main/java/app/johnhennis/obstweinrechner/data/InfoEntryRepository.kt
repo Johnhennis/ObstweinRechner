@@ -48,4 +48,17 @@ class InfoEntryRepository(private val firestore: FirebaseFirestore) {
         val snapshot = collection.whereEqualTo("geloescht", true).get().await()
         snapshot.documents.forEach { it.reference.delete().await() }
     }
+
+    // Einmalige Reparatur: entfernt echte Duplikate (identischer Text).
+    // Verschiebt sie in den Papierkorb statt sie zu loeschen.
+    suspend fun deduplicateEntries() {
+        val snapshot = collection.get().await()
+        val pairs = snapshot.documents.mapNotNull { doc ->
+            doc.toObject(InfoEntry::class.java)?.copy(id = doc.id)?.let { doc to it }
+        }
+        val gruppen = pairs.filter { !it.second.geloescht }.groupBy { it.second.text.trim() }
+        gruppen.values.filter { it.size > 1 }.forEach { gruppe ->
+            gruppe.drop(1).forEach { (doc, _) -> doc.reference.update("geloescht", true).await() }
+        }
+    }
 }

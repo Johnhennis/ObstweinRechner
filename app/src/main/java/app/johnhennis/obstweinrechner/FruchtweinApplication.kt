@@ -51,6 +51,14 @@ class FruchtweinApplication : Application() {
                 stockItemRepository.deduplicateItems()
                 prefs.edit().putBoolean("stockDedup_v1", true).apply()
             }
+            if (!prefs.getBoolean("priceDedup_v1", false)) {
+                fruitPriceRepository.deduplicatePrices()
+                prefs.edit().putBoolean("priceDedup_v1", true).apply()
+            }
+            if (!prefs.getBoolean("infoDedup_v1", false)) {
+                infoEntryRepository.deduplicateEntries()
+                prefs.edit().putBoolean("infoDedup_v1", true).apply()
+            }
         }
     }
 }
