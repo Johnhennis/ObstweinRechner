@@ -203,7 +203,7 @@ fun StockScreen(
             title = { ScaledContent(factory) { Text("Jahr ${latestYear + 1} anlegen?") } },
             text = {
                 ScaledContent(factory) {
-                    Text("Alle Positionen aus $latestYear werden übernommen: Vorjahr-Bestand = bisheriger Rest. Bedarf und Rest bleiben offen, bis du sie einträgst.")
+                    Text("Alle Positionen aus $latestYear werden übernommen: Bestand = bisheriger Rest. Bedarf und Rest bleiben offen, bis du sie einträgst.")
                 }
             },
             confirmButton = {
@@ -275,7 +275,7 @@ private fun StockRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             CompactField(einheit, { einheit = it; userEdited = true }, "Einheit", Modifier.weight(1f))
-            CompactField(bestandVorjahr, { bestandVorjahr = it; userEdited = true }, "Vorjahr", Modifier.weight(1f))
+            CompactField(bestandVorjahr, { bestandVorjahr = it; userEdited = true }, "Bestand", Modifier.weight(1f))
             CompactField(bedarf, { bedarf = it; userEdited = true }, "Bedarf", Modifier.weight(1f))
             CompactField(rest, { rest = it; userEdited = true }, "Rest", Modifier.weight(1f))
         }
@@ -352,7 +352,7 @@ private fun AddStockDialog(
                     OutlinedTextField(value = quelle, onValueChange = { quelle = it }, label = { Text("Quelle") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(value = einheit, onValueChange = { einheit = it }, label = { Text("Einheit") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(value = bestandVorjahr, onValueChange = { bestandVorjahr = it }, label = { Text("Vorjahr") }, singleLine = true, modifier = Modifier.weight(1f))
+                        OutlinedTextField(value = bestandVorjahr, onValueChange = { bestandVorjahr = it }, label = { Text("Bestand") }, singleLine = true, modifier = Modifier.weight(1f))
                         OutlinedTextField(value = bedarf, onValueChange = { bedarf = it }, label = { Text("Bedarf") }, singleLine = true, modifier = Modifier.weight(1f))
                     }
                     OutlinedTextField(value = rest, onValueChange = { rest = it }, label = { Text("Rest") }, singleLine = true, modifier = Modifier.fillMaxWidth())

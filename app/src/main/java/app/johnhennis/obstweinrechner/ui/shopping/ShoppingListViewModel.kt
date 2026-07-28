@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.Year
 
 enum class ShoppingListSource { STOCK, MANUAL }
 
@@ -29,20 +28,19 @@ private fun parseNum(s: String): Double? = s.trim().replace(',', '.').toDoubleOr
 
 private fun fmtNum(v: Double): String = if (v == v.toLong().toDouble()) v.toLong().toString() else v.toString()
 
-// Ermittelt die Einkaufsliste-Menge aus Bedarf minus Vorjahr-Bestand.
-// Leerer Bedarf -> nichts geplant, taucht nicht auf. Nicht-numerischer
-// Bedarf (z.B. "viele") -> direkt übernommen, da keine Differenz
-// berechenbar ist. Nicht-numerischer Vorjahresbestand (z.B. "viele")
-// -> als bereits ausreichend gewertet, taucht nicht auf. Differenz <= 0
-// -> bereits genug vorhanden, taucht nicht auf.
-private fun benoetigteMenge(bedarf: String, bestandVorjahr: String): String? {
+// Ermittelt die Einkaufsliste-Menge aus Bedarf minus Bestand. Leerer Bedarf
+// -> nichts geplant, taucht nicht auf. Nicht-numerischer Bedarf (z.B.
+// "viele") -> direkt übernommen, da keine Differenz berechenbar ist.
+// Nicht-numerischer Bestand (z.B. "viele") -> als bereits ausreichend
+// gewertet, taucht nicht auf. Differenz <= 0 -> bereits genug vorhanden.
+private fun benoetigteMenge(bedarf: String, bestand: String): String? {
     if (bedarf.isBlank()) return null
     val bedarfNum = parseNum(bedarf) ?: return bedarf
-    if (bestandVorjahr.isBlank()) {
+    if (bestand.isBlank()) {
         return if (bedarfNum > 0.0001) fmtNum(bedarfNum) else null
     }
-    val vorjahrNum = parseNum(bestandVorjahr) ?: return null
-    val diff = bedarfNum - vorjahrNum
+    val bestandNum = parseNum(bestand) ?: return null
+    val diff = bedarfNum - bestandNum
     return if (diff > 0.0001) fmtNum(diff) else null
 }
 
@@ -52,17 +50,18 @@ class ShoppingListViewModel(
     private val manualShoppingItemRepository: ManualShoppingItemRepository
 ) : ViewModel() {
 
-    private val currentYear = Year.now().value
-
-    // Nur das aktuelle Kalenderjahr - vergangene Jahre der Bestandsliste
-    // wurden ja bereits eingekauft und sollen nicht wieder auftauchen.
+    // Nicht das echte Kalenderjahr, sondern das neueste in der Bestandsliste
+    // vorhandene Jahr - das ist das Jahr, für das gerade aktiv geplant wird
+    // (ihr kauft ja bewusst im Voraus fürs Folgejahr ein).
     val entries: StateFlow<List<ShoppingListEntry>> = combine(
         stockItemRepository.allItems,
         shoppingListRepository.allStatus,
         manualShoppingItemRepository.allItems
     ) { stockItems, statusMap, manualItems ->
+        val aktivesJahr = stockItems.maxOfOrNull { it.jahr }
+
         val fromStock = stockItems
-            .filter { it.jahr == currentYear }
+            .filter { it.jahr == aktivesJahr }
             .mapNotNull { item ->
                 val menge = benoetigteMenge(item.bedarf, item.bestandVorjahr) ?: return@mapNotNull null
                 val status = statusMap[item.id]
