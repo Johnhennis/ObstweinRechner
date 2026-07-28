@@ -38,6 +38,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.johnhennis.obstweinrechner.data.InfoEntry
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+import app.johnhennis.obstweinrechner.ui.common.readLastUpdateCheck
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.roundToInt
 
 private fun readVersionLabel(context: android.content.Context): String {
@@ -54,6 +58,12 @@ private fun readVersionLabel(context: android.content.Context): String {
     }
 }
 
+private fun formatTimestamp(millis: Long): String {
+    if (millis == 0L) return ""
+    val fmt = SimpleDateFormat("dd.MM.yyyy, HH:mm", Locale.GERMANY)
+    return fmt.format(Date(millis))
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -66,6 +76,7 @@ fun SettingsScreen(
     val trashedInfoEntries by viewModel.trashedInfoEntries.collectAsState()
     val context = LocalContext.current
     val versionLabel = remember { readVersionLabel(context) }
+    val lastUpdateCheck = remember { readLastUpdateCheck(context) }
 
     var sliderPosition by remember { mutableFloatStateOf(savedFontScale) }
     LaunchedEffect(savedFontScale) { sliderPosition = savedFontScale }
@@ -95,6 +106,15 @@ fun SettingsScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            if (lastUpdateCheck != null) {
+                val (result, time) = lastUpdateCheck
+                Text(
+                    "Letzte Update-Prüfung (${formatTimestamp(time)}): $result",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             HorizontalDivider()
 
