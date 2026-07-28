@@ -32,12 +32,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.johnhennis.obstweinrechner.data.InfoEntry
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 import kotlin.math.roundToInt
+
+private fun readVersionLabel(context: android.content.Context): String {
+    return try {
+        val info = context.packageManager.getPackageInfo(context.packageName, 0)
+        val code = if (android.os.Build.VERSION.SDK_INT >= 28) {
+            info.longVersionCode
+        } else {
+            @Suppress("DEPRECATION") info.versionCode.toLong()
+        }
+        "Version ${info.versionName} (Code $code)"
+    } catch (e: Exception) {
+        "Version unbekannt"
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +64,8 @@ fun SettingsScreen(
     val savedFontScale by viewModel.fontScale.collectAsState()
     val infoEntries by viewModel.infoEntries.collectAsState()
     val trashedInfoEntries by viewModel.trashedInfoEntries.collectAsState()
+    val context = LocalContext.current
+    val versionLabel = remember { readVersionLabel(context) }
 
     var sliderPosition by remember { mutableFloatStateOf(savedFontScale) }
     LaunchedEffect(savedFontScale) { sliderPosition = savedFontScale }
@@ -73,6 +90,14 @@ fun SettingsScreen(
             modifier = Modifier.padding(padding).padding(16.dp).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Text(
+                versionLabel,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            HorizontalDivider()
+
             Text("Schriftgröße", style = MaterialTheme.typography.titleMedium)
             Text(
                 "Gilt nur auf diesem Gerät und wirkt sich auf die gesamte App aus.",
