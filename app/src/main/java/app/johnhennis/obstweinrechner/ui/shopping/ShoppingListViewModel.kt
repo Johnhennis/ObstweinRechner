@@ -25,6 +25,27 @@ data class ShoppingListEntry(
     val source: ShoppingListSource
 )
 
+private fun parseNum(s: String): Double? = s.trim().replace(',', '.').toDoubleOrNull()
+
+private fun fmtNum(v: Double): String = if (v == v.toLong().toDouble()) v.toLong().toString() else v.toString()
+
+// Ermittelt die Einkaufsliste-Menge aus Bedarf minus Vorjahr-Bestand.
+// Leerer Bedarf -> nichts geplant, taucht nicht auf. Nicht-numerischer
+// Bedarf (z.B. "viele") -> direkt übernommen, da keine Differenz
+// berechenbar ist. Nicht-numerischer Vorjahresbestand (z.B. "viele")
+// -> als bereits ausreichend gewertet, taucht nicht auf. Differenz <= 0
+// -> bereits genug vorhanden, taucht nicht auf.
+private fun benoetigteMenge(bedarf: String, bestandVorjahr: String): String? {
+    if (bedarf.isBlank()) return null
+    val bedarfNum = parseNum(bedarf) ?: return bedarf
+    if (bestandVorjahr.isBlank()) {
+        return if (bedarfNum > 0.0001) fmtNum(bedarfNum) else null
+    }
+    val vorjahrNum = parseNum(bestandVorjahr) ?: return null
+    val diff = bedarfNum - vorjahrNum
+    return if (diff > 0.0001) fmtNum(diff) else null
+}
+
 class ShoppingListViewModel(
     private val stockItemRepository: StockItemRepository,
     private val shoppingListRepository: ShoppingListRepository,
@@ -42,16 +63,13 @@ class ShoppingListViewModel(
     ) { stockItems, statusMap, manualItems ->
         val fromStock = stockItems
             .filter { it.jahr == currentYear }
-            .filter { item ->
-                val v = item.einkauf.trim()
-                v.isNotEmpty() && (v.toDoubleOrNull()?.let { it != 0.0 } ?: true)
-            }
-            .map { item ->
+            .mapNotNull { item ->
+                val menge = benoetigteMenge(item.bedarf, item.bestandVorjahr) ?: return@mapNotNull null
                 val status = statusMap[item.id]
                 ShoppingListEntry(
                     itemId = item.id,
                     name = item.art,
-                    mengeText = "${item.einkauf}${if (item.einheit.isBlank()) "" else " ${item.einheit}"}",
+                    mengeText = "$menge${if (item.einheit.isBlank()) "" else " ${item.einheit}"}",
                     erledigt = status?.erledigt ?: false,
                     quelle = status?.quelle?.ifBlank { item.quelle } ?: item.quelle,
                     source = ShoppingListSource.STOCK

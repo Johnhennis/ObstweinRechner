@@ -41,6 +41,12 @@ class FruchtweinApplication : Application() {
             schmalzRepository.seedIfEmpty()
             fruitPriceRepository.seedIfEmpty()
             stockItemRepository.seedIfEmpty()
+
+            val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+            if (!prefs.getBoolean("stockBedarfMigrated_v1", false)) {
+                stockItemRepository.migrateEinkaufToBedarf()
+                prefs.edit().putBoolean("stockBedarfMigrated_v1", true).apply()
+            }
         }
     }
 }
