@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -221,7 +222,7 @@ private fun PriceRow(
     val price = row.price
     var fruchtart by remember(price.id) { mutableStateOf(price.fruchtart) }
     var datum by remember(price.id) { mutableStateOf(price.datum) }
-    var preisText by remember(price.id) { mutableStateOf(if (price.preis == 0.0) "" else price.preis.toString()) }
+    var preisText by remember(price.id) { mutableStateOf(if (price.preis == 0.0) "" else fmt(price.preis)) }
     var quelle by remember(price.id) { mutableStateOf(price.quelle) }
     var userEdited by remember(price.id) { mutableStateOf(false) }
 
@@ -248,10 +249,13 @@ private fun PriceRow(
             RowField(fruchtart, { fruchtart = it; userEdited = true }, Modifier.weight(1.3f))
             RowField(datum, { datum = it; userEdited = true }, Modifier.width(DATUM_WIDTH))
             RowField(
-                preisText,
-                { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) { preisText = new; userEdited = true } },
-                Modifier.width(PREIS_WIDTH),
-                KeyboardType.Decimal
+                value = preisText,
+                onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) { preisText = new; userEdited = true } },
+                modifier = Modifier.width(PREIS_WIDTH),
+                keyboardType = KeyboardType.Decimal,
+                onFocusLost = {
+                    preisText.replace(',', '.').toDoubleOrNull()?.let { preisText = fmt(it) }
+                }
             )
             RowField(quelle, { quelle = it; userEdited = true }, Modifier.weight(1f))
             IconButton(onClick = onDelete, modifier = Modifier.size(DELETE_WIDTH)) {
@@ -274,7 +278,8 @@ private fun RowField(
     value: String,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
+    onFocusLost: () -> Unit = {}
 ) {
     OutlinedTextField(
         value = value,
@@ -282,7 +287,7 @@ private fun RowField(
         textStyle = MaterialTheme.typography.bodyMedium,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        modifier = modifier
+        modifier = modifier.onFocusChanged { if (!it.isFocused) onFocusLost() }
     )
 }
 
@@ -322,7 +327,11 @@ private fun AddPriceDialog(
                         label = { Text("Preis") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth().onFocusChanged { focus ->
+                            if (!focus.isFocused) {
+                                preis.replace(',', '.').toDoubleOrNull()?.let { preis = fmt(it) }
+                            }
+                        }
                     )
                     OutlinedTextField(value = quelle, onValueChange = { quelle = it }, label = { Text("Quelle") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
