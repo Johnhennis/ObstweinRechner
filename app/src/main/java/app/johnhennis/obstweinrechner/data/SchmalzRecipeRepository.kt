@@ -30,6 +30,18 @@ class SchmalzRecipeRepository(private val firestore: FirebaseFirestore) {
         }
     }
 
+    // Es soll immer nur genau ein Schmalz-Rezept geben (Lesen nutzt schon
+    // limit(1)), aber falls durch einen unterbrochenen Schreibvorgang doch
+    // mal ein zweites entstanden ist: alle bis auf das erste entfernen. Kein
+    // eigener Papierkorb hier (SchmalzRecipe kennt kein geloescht-Feld,
+    // war nie als löschbare Liste gedacht), daher direktes Löschen.
+    suspend fun deduplicate() {
+        val snapshot = collection.get().await()
+        if (snapshot.documents.size > 1) {
+            snapshot.documents.drop(1).forEach { it.reference.delete().await() }
+        }
+    }
+
     suspend fun seedIfEmpty() {
         val snapshot = collection.limit(1).get().await()
         if (snapshot.isEmpty) {

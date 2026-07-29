@@ -6,6 +6,7 @@ import app.johnhennis.obstweinrechner.data.ManualShoppingItem
 import app.johnhennis.obstweinrechner.data.ManualShoppingItemRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListStatus
+import app.johnhennis.obstweinrechner.data.StockItem
 import app.johnhennis.obstweinrechner.data.StockItemRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,19 +29,14 @@ private fun parseNum(s: String): Double? = s.trim().replace(',', '.').toDoubleOr
 
 private fun fmtNum(v: Double): String = if (v == v.toLong().toDouble()) v.toLong().toString() else v.toString()
 
-// Ermittelt die Einkaufsliste-Menge aus Bedarf minus Bestand. Leerer Bedarf
-// -> nichts geplant, taucht nicht auf. Nicht-numerischer Bedarf (z.B.
-// "viele") -> direkt übernommen, da keine Differenz berechenbar ist.
-// Nicht-numerischer Bestand (z.B. "viele") -> als bereits ausreichend
-// gewertet, taucht nicht auf. Differenz <= 0 -> bereits genug vorhanden.
-private fun benoetigteMenge(bedarf: String, bestand: String): String? {
+private fun benoetigteMenge(bedarf: String, bestandVorjahr: String): String? {
     if (bedarf.isBlank()) return null
     val bedarfNum = parseNum(bedarf) ?: return bedarf
-    if (bestand.isBlank()) {
+    if (bestandVorjahr.isBlank()) {
         return if (bedarfNum > 0.0001) fmtNum(bedarfNum) else null
     }
-    val bestandNum = parseNum(bestand) ?: return null
-    val diff = bedarfNum - bestandNum
+    val vorjahrNum = parseNum(bestandVorjahr) ?: return null
+    val diff = bedarfNum - vorjahrNum
     return if (diff > 0.0001) fmtNum(diff) else null
 }
 
@@ -50,27 +46,32 @@ class ShoppingListViewModel(
     private val manualShoppingItemRepository: ManualShoppingItemRepository
 ) : ViewModel() {
 
-    // Nicht das echte Kalenderjahr, sondern das neueste in der Bestandsliste
-    // vorhandene Jahr - das ist das Jahr, für das gerade aktiv geplant wird
-    // (ihr kauft ja bewusst im Voraus fürs Folgejahr ein).
+    // Eigener StateFlow, damit updateQuelle() beim Schreiben das passende
+    // Original-StockItem nachschlagen kann.
+    private val stockItems: StateFlow<List<StockItem>> = stockItemRepository.allItems.stateIn(
+        scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
+    )
+
+    // Quelle kommt jetzt IMMER direkt aus der Bestandsliste (item.quelle) -
+    // keine separate Kopie mehr, die aus dem Takt geraten könnte. Nur
+    // "erledigt" bleibt pro Einkaufstour separat (ShoppingListStatus).
     val entries: StateFlow<List<ShoppingListEntry>> = combine(
-        stockItemRepository.allItems,
+        stockItems,
         shoppingListRepository.allStatus,
         manualShoppingItemRepository.allItems
-    ) { stockItems, statusMap, manualItems ->
-        val aktivesJahr = stockItems.maxOfOrNull { it.jahr }
+    ) { stock, statusMap, manualItems ->
+        val aktivesJahr = stock.maxOfOrNull { it.jahr }
 
-        val fromStock = stockItems
+        val fromStock = stock
             .filter { it.jahr == aktivesJahr }
             .mapNotNull { item ->
                 val menge = benoetigteMenge(item.bedarf, item.bestandVorjahr) ?: return@mapNotNull null
-                val status = statusMap[item.id]
                 ShoppingListEntry(
                     itemId = item.id,
                     name = item.art,
                     mengeText = "$menge${if (item.einheit.isBlank()) "" else " ${item.einheit}"}",
-                    erledigt = status?.erledigt ?: false,
-                    quelle = status?.quelle?.ifBlank { item.quelle } ?: item.quelle,
+                    erledigt = statusMap[item.id]?.erledigt ?: false,
+                    quelle = item.quelle,
                     source = ShoppingListSource.STOCK
                 )
             }
@@ -110,7 +111,12 @@ class ShoppingListViewModel(
                 ShoppingListSource.MANUAL -> manualShoppingItemRepository.update(
                     ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = quelle, erledigt = entry.erledigt)
                 )
-                ShoppingListSource.STOCK -> shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = entry.erledigt, quelle = quelle))
+                // Schreibt direkt in die Bestandsliste zurück, statt eine
+                // zweite Kopie zu pflegen - genau das hat den Fehler verursacht.
+                ShoppingListSource.STOCK -> {
+                    val item = stockItems.value.find { it.id == entry.itemId } ?: return@launch
+                    stockItemRepository.update(item.copy(quelle = quelle))
+                }
             }
         }
     }

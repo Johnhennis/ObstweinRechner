@@ -11,8 +11,6 @@ class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
 
     private val recipesCollection = firestore.collection("recipes")
 
-    // Ein gemeinsamer Listener für die ganze Sammlung; aktive und
-    // Papierkorb-Rezepte werden lokal daraus gefiltert.
     private val allDocuments: Flow<List<FruitRecipe>> = callbackFlow {
         val listener = recipesCollection.addSnapshotListener { snapshot, error ->
             if (error != null) {
@@ -58,6 +56,19 @@ class FruitRecipeRepository(private val firestore: FirebaseFirestore) {
     suspend fun emptyTrash() {
         val snapshot = recipesCollection.whereEqualTo("geloescht", true).get().await()
         snapshot.documents.forEach { it.reference.delete().await() }
+    }
+
+    // Einmalige Reparatur: entfernt echte Duplikate (ALLE Felder inkl.
+    // Zusatzzutaten exakt gleich). Duplikate wandern in den Papierkorb.
+    suspend fun deduplicateRecipes() {
+        val snapshot = recipesCollection.get().await()
+        val pairs = snapshot.documents.mapNotNull { doc ->
+            doc.toObject(FruitRecipe::class.java)?.copy(id = doc.id)?.let { doc to it }
+        }
+        val gruppen = pairs.filter { !it.second.geloescht }.groupBy { it.second.copy(id = "") }
+        gruppen.values.filter { it.size > 1 }.forEach { gruppe ->
+            gruppe.drop(1).forEach { (doc, _) -> doc.reference.update("geloescht", true).await() }
+        }
     }
 
     suspend fun seedIfEmpty() {

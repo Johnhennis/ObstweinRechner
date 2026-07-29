@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,9 +39,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
@@ -49,10 +53,16 @@ import app.johnhennis.obstweinrechner.data.StockItem
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private fun tryParse(s: String): Double? = s.trim().replace(',', '.').toDoubleOrNull()
 
 private fun fmtNum(v: Double): String = if (v == v.toLong().toDouble()) v.toLong().toString() else v.toString()
+
+private sealed class StockListEntry {
+    data class YearHeader(val jahr: Int, val count: Int) : StockListEntry()
+    data class Row(val item: StockItem) : StockListEntry()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +81,19 @@ fun StockScreen(
     var expandedYear by remember { mutableStateOf<Int?>(null) }
 
     val latestYear = yearGroups.maxOfOrNull { it.jahr }
+
+    val flatList = remember(yearGroups, expandedYear) {
+        buildList {
+            yearGroups.forEach { group ->
+                add(StockListEntry.YearHeader(group.jahr, group.items.size))
+                if (group.jahr == expandedYear) {
+                    group.items.forEach { add(StockListEntry.Row(it)) }
+                }
+            }
+        }
+    }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -105,45 +128,57 @@ fun StockScreen(
             }
         } else {
             LazyColumn(
-                modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth(),
+                state = listState,
+                modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth().imePadding(),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                yearGroups.forEach { group ->
-                    val isExpanded = group.jahr == expandedYear
-                    item(key = "header_${group.jahr}") {
-                        Column {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { expandedYear = if (isExpanded) null else group.jahr }
-                                    .padding(top = 8.dp, bottom = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(
-                                        if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                        contentDescription = null
-                                    )
-                                    Text(
-                                        "${group.jahr} (${group.items.size})",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
-                                IconButton(onClick = { confirmDeleteYear = group.jahr }, modifier = Modifier.size(32.dp)) {
-                                    Icon(Icons.Filled.Delete, contentDescription = "Jahr ${group.jahr} in den Papierkorb", modifier = Modifier.size(18.dp))
-                                }
-                            }
-                            HorizontalDivider()
+                itemsIndexed(
+                    flatList,
+                    key = { _, entry ->
+                        when (entry) {
+                            is StockListEntry.YearHeader -> "header_${entry.jahr}"
+                            is StockListEntry.Row -> entry.item.id
                         }
                     }
-                    if (isExpanded) {
-                        items(group.items, key = { it.id }) { item ->
+                ) { index, entry ->
+                    when (entry) {
+                        is StockListEntry.YearHeader -> {
+                            val isExpanded = entry.jahr == expandedYear
+                            Column {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { expandedYear = if (isExpanded) null else entry.jahr }
+                                        .padding(top = 8.dp, bottom = 4.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                            contentDescription = null
+                                        )
+                                        Text(
+                                            "${entry.jahr} (${entry.count})",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                    IconButton(onClick = { confirmDeleteYear = entry.jahr }, modifier = Modifier.size(32.dp)) {
+                                        Icon(Icons.Filled.Delete, contentDescription = "Jahr ${entry.jahr} in den Papierkorb", modifier = Modifier.size(18.dp))
+                                    }
+                                }
+                                HorizontalDivider()
+                            }
+                        }
+                        is StockListEntry.Row -> {
                             StockRow(
-                                item = item,
+                                item = entry.item,
                                 onUpdate = { viewModel.updateItem(it) },
-                                onDelete = { confirmDeleteItem = item }
+                                onDelete = { confirmDeleteItem = entry.item },
+                                onFocusGained = {
+                                    coroutineScope.launch { listState.animateScrollToItem(index) }
+                                }
                             )
                         }
                     }
@@ -235,7 +270,8 @@ fun StockScreen(
 private fun StockRow(
     item: StockItem,
     onUpdate: (StockItem) -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onFocusGained: () -> Unit
 ) {
     var art by remember(item.id) { mutableStateOf(item.art) }
     var quelle by remember(item.id) { mutableStateOf(item.quelle) }
@@ -263,8 +299,8 @@ private fun StockRow(
 
     Column(modifier = Modifier.padding(vertical = 4.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-            CompactField(art, { art = it; userEdited = true }, "Art", Modifier.weight(1.4f))
-            CompactField(quelle, { quelle = it; userEdited = true }, "Quelle", Modifier.weight(1f))
+            CompactField(art, { art = it; userEdited = true }, "Art", Modifier.weight(1.4f), onFocus = onFocusGained)
+            CompactField(quelle, { quelle = it; userEdited = true }, "Quelle", Modifier.weight(1f), onFocus = onFocusGained)
             IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
                 Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
             }
@@ -274,10 +310,10 @@ private fun StockRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CompactField(einheit, { einheit = it; userEdited = true }, "Einheit", Modifier.weight(1f))
-            CompactField(bestandVorjahr, { bestandVorjahr = it; userEdited = true }, "Bestand", Modifier.weight(1f))
-            CompactField(bedarf, { bedarf = it; userEdited = true }, "Bedarf", Modifier.weight(1f))
-            CompactField(rest, { rest = it; userEdited = true }, "Rest", Modifier.weight(1f))
+            CompactField(einheit, { einheit = it; userEdited = true }, "Einheit", Modifier.weight(1f), onFocus = onFocusGained)
+            CompactField(bestandVorjahr, { bestandVorjahr = it; userEdited = true }, "Bestand", Modifier.weight(1f), onFocus = onFocusGained)
+            CompactField(bedarf, { bedarf = it; userEdited = true }, "Bedarf", Modifier.weight(1f), onFocus = onFocusGained)
+            CompactField(rest, { rest = it; userEdited = true }, "Rest", Modifier.weight(1f), onFocus = onFocusGained)
         }
         if (verbraucht != null) {
             Text(
@@ -289,7 +325,7 @@ private fun StockRow(
         }
         CompactField(
             bemerkung, { bemerkung = it; userEdited = true }, "Bemerkung",
-            Modifier.fillMaxWidth().padding(top = 3.dp)
+            Modifier.fillMaxWidth().padding(top = 3.dp), onFocus = onFocusGained
         )
         HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
     }
@@ -301,7 +337,8 @@ private fun CompactField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
+    onFocus: () -> Unit = {}
 ) {
     OutlinedTextField(
         value = value,
@@ -310,7 +347,7 @@ private fun CompactField(
         textStyle = MaterialTheme.typography.bodySmall,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        modifier = modifier
+        modifier = modifier.onFocusChanged { if (it.isFocused) onFocus() }
     )
 }
 

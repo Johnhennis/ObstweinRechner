@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.CompositionLocalProvider
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.lifecycle.viewmodel.compose.viewModel
+import app.johnhennis.obstweinrechner.data.ThemeMode
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.navigation.AppNavigation
 import app.johnhennis.obstweinrechner.ui.settings.SettingsViewModel
@@ -29,9 +31,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
             val fontScale by settingsViewModel.fontScale.collectAsState()
+            val themeMode by settingsViewModel.themeMode.collectAsState()
             val baseDensity = LocalDensity.current
+            val systemDark = isSystemInDarkTheme()
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> systemDark
+            }
 
-            FruchtweinRechnerTheme {
+            FruchtweinRechnerTheme(darkTheme = darkTheme) {
                 CompositionLocalProvider(LocalDensity provides Density(baseDensity.density, fontScale)) {
                     Surface(modifier = Modifier.fillMaxSize()) {
                         AppNavigation(factory = factory)

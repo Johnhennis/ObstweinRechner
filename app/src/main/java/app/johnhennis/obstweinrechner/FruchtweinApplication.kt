@@ -10,6 +10,7 @@ import app.johnhennis.obstweinrechner.data.SchmalzRecipeRepository
 import app.johnhennis.obstweinrechner.data.SettingsRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListRepository
 import app.johnhennis.obstweinrechner.data.StockItemRepository
+import app.johnhennis.obstweinrechner.data.ThemeRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,7 @@ class FruchtweinApplication : Application() {
     val recipeSessionRepository: RecipeSessionRepository by lazy { RecipeSessionRepository(FirebaseFirestore.getInstance()) }
     val manualShoppingItemRepository: ManualShoppingItemRepository by lazy { ManualShoppingItemRepository(FirebaseFirestore.getInstance()) }
     val stockItemRepository: StockItemRepository by lazy { StockItemRepository(FirebaseFirestore.getInstance()) }
+    val themeRepository: ThemeRepository by lazy { ThemeRepository(this) }
 
     override fun onCreate() {
         super.onCreate()
@@ -58,6 +60,11 @@ class FruchtweinApplication : Application() {
             if (!prefs.getBoolean("infoDedup_v1", false)) {
                 infoEntryRepository.deduplicateEntries()
                 prefs.edit().putBoolean("infoDedup_v1", true).apply()
+            }
+            if (!prefs.getBoolean("recipeDedup_v1", false)) {
+                repository.deduplicateRecipes()
+                schmalzRepository.deduplicate()
+                prefs.edit().putBoolean("recipeDedup_v1", true).apply()
             }
         }
     }
