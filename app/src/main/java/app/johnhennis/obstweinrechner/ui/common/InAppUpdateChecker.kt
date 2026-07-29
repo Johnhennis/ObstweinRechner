@@ -1,7 +1,5 @@
 package app.johnhennis.obstweinrechner.ui.common
 
-import android.content.Context
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
@@ -25,30 +23,13 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 
-private const val PREFS_NAME = "app_prefs"
-private const val KEY_LAST_RESULT = "lastUpdateCheckResult"
-private const val KEY_LAST_TIME = "lastUpdateCheckTime"
-
-fun readLastUpdateCheck(context: Context): Pair<String, Long>? {
-    val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-    val result = prefs.getString(KEY_LAST_RESULT, null) ?: return null
-    val time = prefs.getLong(KEY_LAST_TIME, 0L)
-    return result to time
-}
-
-private fun persistResult(context: Context, result: String) {
-    context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        .edit()
-        .putString(KEY_LAST_RESULT, result)
-        .putLong(KEY_LAST_TIME, System.currentTimeMillis())
-        .apply()
-}
-
-// Prüft beim App-Start und bei jeder Rückkehr in den Vordergrund, ob im Play
-// Store eine neuere Version vorliegt. Bewusst nur noch "Flexible" (laedt im
-// Hintergrund, fragt erst beim Fertigsein nach einem Neustart) - "Sofort"
-// killt den Prozess zwangsweise mitten in der Nutzung, was zu abgebrochenen
-// Firestore-Schreibvorgaengen und in der Folge zu Duplikaten fuehren kann.
+// Prüft beim App-Start und bei jeder Rückkehr in den Vordergrund still im
+// Hintergrund auf ein neues Play-Store-Update und startet bei Verfügbarkeit
+// automatisch den "Flexible"-Fluss (lädt im Hintergrund, killt die App nicht
+// mitten in der Nutzung). Bewusst ganz ohne Toasts/gespeichertes Ergebnis -
+// das war nur zur Fehlersuche gedacht und ist jetzt wieder raus. Einzige
+// sichtbare Stelle bleibt die Neustart-Abfrage, wenn ein Update fertig
+// heruntergeladen ist.
 @Composable
 fun InAppUpdateChecker() {
     val context = LocalContext.current
@@ -60,43 +41,22 @@ fun InAppUpdateChecker() {
         ActivityResultContracts.StartIntentSenderForResult()
     ) { }
 
-    fun report(text: String) {
-        persistResult(context, text)
-        Toast.makeText(context, text, Toast.LENGTH_LONG).show()
-    }
-
     fun checkAndStart() {
-        appUpdateManager.appUpdateInfo
-            .addOnSuccessListener { info ->
-                when (info.updateAvailability()) {
-                    UpdateAvailability.UPDATE_NOT_AVAILABLE -> {
-                        report("Kein Update verfügbar (Version aktuell)")
-                    }
-                    UpdateAvailability.UPDATE_AVAILABLE, UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS -> {
-                        if (info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                            report("Update gefunden (Play-Version ${info.availableVersionCode()}) – lädt im Hintergrund")
-                            val listener = InstallStateUpdatedListener { state ->
-                                if (state.installStatus() == InstallStatus.DOWNLOADED) {
-                                    report("Update heruntergeladen – bereit zum Neustart")
-                                    showRestartDialog = true
-                                }
-                            }
-                            appUpdateManager.registerListener(listener)
-                            appUpdateManager.startUpdateFlowForResult(
-                                info, flexibleLauncher, AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
-                            )
-                        } else {
-                            report("Update (Play-Version ${info.availableVersionCode()}) verfügbar, aber von Play aktuell NICHT freigegeben")
-                        }
-                    }
-                    else -> {
-                        report("Status unbekannt (${info.updateAvailability()})")
+        appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
+            val updateVerfuegbar = info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ||
+                info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
+            if (updateVerfuegbar && info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                val listener = InstallStateUpdatedListener { state ->
+                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                        showRestartDialog = true
                     }
                 }
+                appUpdateManager.registerListener(listener)
+                appUpdateManager.startUpdateFlowForResult(
+                    info, flexibleLauncher, AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
+                )
             }
-            .addOnFailureListener { e ->
-                report("Update-Check fehlgeschlagen: ${e.message}")
-            }
+        }
     }
 
     LaunchedEffect(Unit) { checkAndStart() }
