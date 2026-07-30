@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -52,6 +53,9 @@ import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private val MENGE_WIDTH = 72.dp
+private val DELETE_WIDTH = 28.dp
 
 private fun fmtWhole(v: Double): String = v.toLong().toString()
 private fun formatFieldValue(v: Double): String = if (v == 0.0) "" else v.toLong().toString()
@@ -168,8 +172,9 @@ fun WineStockScreen(
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         ColumnLabel("Sorte", Modifier.weight(1.5f))
-                                        ColumnLabel("Soll (L)", Modifier.width(72.dp))
-                                        ColumnLabel("Aktuell (L)", Modifier.width(72.dp))
+                                        ColumnLabel("Soll (L)", Modifier.width(MENGE_WIDTH))
+                                        ColumnLabel("Aktuell (L)", Modifier.width(MENGE_WIDTH))
+                                        Spacer(Modifier.size(DELETE_WIDTH))
                                     }
                                 }
                                 HorizontalDivider()
@@ -283,18 +288,18 @@ private fun WineStockRow(
             RowField(
                 value = sollText,
                 onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) { sollText = new; userEdited = true } },
-                modifier = Modifier.width(72.dp),
+                modifier = Modifier.width(MENGE_WIDTH),
                 keyboardType = KeyboardType.Number,
                 onFocus = onFocusGained
             )
             RowField(
                 value = aktuellText,
                 onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) { aktuellText = new; userEdited = true } },
-                modifier = Modifier.width(72.dp),
+                modifier = Modifier.width(MENGE_WIDTH),
                 keyboardType = KeyboardType.Number,
                 onFocus = onFocusGained
             )
-            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+            IconButton(onClick = onDelete, modifier = Modifier.size(DELETE_WIDTH)) {
                 Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
             }
         }
