@@ -52,9 +52,9 @@ import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Locale
 
-private fun fmt(v: Double): String = String.format(Locale.GERMANY, "%.2f", v)
+private fun fmtWhole(v: Double): String = v.toLong().toString()
+private fun formatFieldValue(v: Double): String = if (v == 0.0) "" else v.toLong().toString()
 
 private sealed class WineStockListEntry {
     data class YearHeader(val group: WineStockYearGroup) : WineStockListEntry()
@@ -157,7 +157,7 @@ fun WineStockScreen(
                                     }
                                 }
                                 Text(
-                                    "Soll gesamt: ${fmt(entry.group.sollSumme)} L    Aktuell gesamt: ${fmt(entry.group.aktuelleSumme)} L",
+                                    "Soll gesamt: ${fmtWhole(entry.group.sollSumme)} L    Aktuell gesamt: ${fmtWhole(entry.group.aktuelleSumme)} L",
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(bottom = 2.dp)
@@ -256,8 +256,8 @@ private fun WineStockRow(
     onFocusGained: () -> Unit
 ) {
     var sorte by remember(item.id) { mutableStateOf(item.sorte) }
-    var sollText by remember(item.id) { mutableStateOf(if (item.sollmenge == 0.0) "" else fmt(item.sollmenge)) }
-    var aktuellText by remember(item.id) { mutableStateOf(if (item.aktuelleMenge == 0.0) "" else fmt(item.aktuelleMenge)) }
+    var sollText by remember(item.id) { mutableStateOf(formatFieldValue(item.sollmenge)) }
+    var aktuellText by remember(item.id) { mutableStateOf(formatFieldValue(item.aktuelleMenge)) }
     var userEdited by remember(item.id) { mutableStateOf(false) }
 
     LaunchedEffect(sorte, sollText, aktuellText) {
@@ -266,8 +266,8 @@ private fun WineStockRow(
             onUpdate(
                 item.copy(
                     sorte = sorte,
-                    sollmenge = sollText.replace(',', '.').toDoubleOrNull() ?: item.sollmenge,
-                    aktuelleMenge = aktuellText.replace(',', '.').toDoubleOrNull() ?: item.aktuelleMenge
+                    sollmenge = sollText.toIntOrNull()?.toDouble() ?: item.sollmenge,
+                    aktuelleMenge = aktuellText.toIntOrNull()?.toDouble() ?: item.aktuelleMenge
                 )
             )
         }
@@ -282,19 +282,17 @@ private fun WineStockRow(
             RowField(sorte, { sorte = it; userEdited = true }, Modifier.weight(1.5f), onFocus = onFocusGained)
             RowField(
                 value = sollText,
-                onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) { sollText = new; userEdited = true } },
+                onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) { sollText = new; userEdited = true } },
                 modifier = Modifier.width(72.dp),
-                keyboardType = KeyboardType.Decimal,
-                onFocus = onFocusGained,
-                onFocusLost = { sollText.replace(',', '.').toDoubleOrNull()?.let { sollText = fmt(it) } }
+                keyboardType = KeyboardType.Number,
+                onFocus = onFocusGained
             )
             RowField(
                 value = aktuellText,
-                onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) { aktuellText = new; userEdited = true } },
+                onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) { aktuellText = new; userEdited = true } },
                 modifier = Modifier.width(72.dp),
-                keyboardType = KeyboardType.Decimal,
-                onFocus = onFocusGained,
-                onFocusLost = { aktuellText.replace(',', '.').toDoubleOrNull()?.let { aktuellText = fmt(it) } }
+                keyboardType = KeyboardType.Number,
+                onFocus = onFocusGained
             )
             IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
                 Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
@@ -310,8 +308,7 @@ private fun RowField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     keyboardType: KeyboardType = KeyboardType.Text,
-    onFocus: () -> Unit = {},
-    onFocusLost: () -> Unit = {}
+    onFocus: () -> Unit = {}
 ) {
     OutlinedTextField(
         value = value,
@@ -319,9 +316,7 @@ private fun RowField(
         textStyle = MaterialTheme.typography.bodyMedium,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        modifier = modifier.onFocusChanged {
-            if (it.isFocused) onFocus() else onFocusLost()
-        }
+        modifier = modifier.onFocusChanged { if (it.isFocused) onFocus() }
     )
 }
 
@@ -355,17 +350,17 @@ private fun AddWineStockDialog(
                     OutlinedTextField(value = sorte, onValueChange = { sorte = it }, label = { Text("Sorte") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(
                         value = soll,
-                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) soll = new },
+                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) soll = new },
                         label = { Text("Sollmenge (L)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = aktuell,
-                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*[.,]?[0-9]*$"))) aktuell = new },
+                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) aktuell = new },
                         label = { Text("Aktuelle Menge (L)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -379,8 +374,8 @@ private fun AddWineStockDialog(
                     val jahrValue = jahr.toIntOrNull()
                     if (jahrValue == null || jahrValue < 2000) { error = "Bitte ein gültiges Jahr eingeben."; return@TextButton }
                     if (sorte.isBlank()) { error = "Bitte eine Sorte eingeben."; return@TextButton }
-                    val sollValue = if (soll.isBlank()) 0.0 else soll.replace(',', '.').toDoubleOrNull()
-                    val aktuellValue = if (aktuell.isBlank()) 0.0 else aktuell.replace(',', '.').toDoubleOrNull()
+                    val sollValue = if (soll.isBlank()) 0.0 else soll.toIntOrNull()?.toDouble()
+                    val aktuellValue = if (aktuell.isBlank()) 0.0 else aktuell.toIntOrNull()?.toDouble()
                     if (sollValue == null || aktuellValue == null) { error = "Bitte gültige Zahlen eingeben."; return@TextButton }
                     onAdd(jahrValue, sorte.trim(), sollValue, aktuellValue)
                 }) { Text("Hinzufügen") }
