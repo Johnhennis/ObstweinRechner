@@ -1,7 +1,10 @@
 package app.johnhennis.obstweinrechner.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
@@ -46,19 +49,20 @@ class InfoEntryRepository(private val firestore: FirebaseFirestore) {
 
     suspend fun emptyTrash() {
         val snapshot = collection.whereEqualTo("geloescht", true).get().await()
-        snapshot.documents.forEach { it.reference.delete().await() }
+        coroutineScope {
+            snapshot.documents.map { async { it.reference.delete().await() } }.awaitAll()
+        }
     }
 
-    // Einmalige Reparatur: entfernt echte Duplikate (identischer Text).
-    // Verschiebt sie in den Papierkorb statt sie zu loeschen.
     suspend fun deduplicateEntries() {
         val snapshot = collection.get().await()
         val pairs = snapshot.documents.mapNotNull { doc ->
             doc.toObject(InfoEntry::class.java)?.copy(id = doc.id)?.let { doc to it }
         }
-        val gruppen = pairs.filter { !it.second.geloescht }.groupBy { it.second.text.trim() }
-        gruppen.values.filter { it.size > 1 }.forEach { gruppe ->
-            gruppe.drop(1).forEach { (doc, _) -> doc.reference.update("geloescht", true).await() }
+        val duplikate = pairs.filter { !it.second.geloescht }.groupBy { it.second.text.trim() }
+            .values.filter { it.size > 1 }.flatMap { it.drop(1) }
+        coroutineScope {
+            duplikate.map { (doc, _) -> async { doc.reference.update("geloescht", true).await() } }.awaitAll()
         }
     }
 }

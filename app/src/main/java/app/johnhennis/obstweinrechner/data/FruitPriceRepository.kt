@@ -1,7 +1,10 @@
 package app.johnhennis.obstweinrechner.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
@@ -48,29 +51,35 @@ class FruitPriceRepository(private val firestore: FirebaseFirestore) {
         collection.document(price.id).delete().await()
     }
 
+    // Alle Schreibvorgänge einer Gruppe gleichzeitig losschicken statt
+    // nacheinander zu warten - bei vielen Einträgen spürbar schneller.
     suspend fun moveYearToTrash(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") != true }
-            .forEach { it.reference.update("geloescht", true).await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") != true }
+                .map { async { it.reference.update("geloescht", true).await() } }
+                .awaitAll()
+        }
     }
 
     suspend fun restoreYear(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") == true }
-            .forEach { it.reference.update("geloescht", false).await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") == true }
+                .map { async { it.reference.update("geloescht", false).await() } }
+                .awaitAll()
+        }
     }
 
     suspend fun deleteYearPermanently(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") == true }
-            .forEach { it.reference.delete().await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") == true }
+                .map { async { it.reference.delete().await() } }
+                .awaitAll()
+        }
     }
 
-    // Einmalige Reparatur: entfernt echte Duplikate (ALLE Felder exakt
-    // gleich - bewusst nicht nur Fruchtart+Jahr, da zwei echte Käufe
-    // derselben Frucht im selben Jahr an unterschiedlichen Tagen/Preisen
-    // gewollt sein können und nicht verschmolzen werden sollen). Duplikate
-    // wandern in den Papierkorb statt geloescht zu werden.
     suspend fun deduplicatePrices() {
         val snapshot = collection.get().await()
         val pairs = snapshot.documents.mapNotNull { doc ->
@@ -85,15 +94,18 @@ class FruitPriceRepository(private val firestore: FirebaseFirestore) {
                 it.second.quelle.trim().lowercase()
             )
         }
-        gruppen.values.filter { it.size > 1 }.forEach { gruppe ->
-            gruppe.drop(1).forEach { (doc, _) -> doc.reference.update("geloescht", true).await() }
+        val duplikate = gruppen.values.filter { it.size > 1 }.flatMap { it.drop(1) }
+        coroutineScope {
+            duplikate.map { (doc, _) -> async { doc.reference.update("geloescht", true).await() } }.awaitAll()
         }
     }
 
     suspend fun seedIfEmpty() {
         val snapshot = collection.limit(1).get().await()
         if (snapshot.isEmpty) {
-            defaultPrices().forEach { collection.add(it).await() }
+            coroutineScope {
+                defaultPrices().map { async { collection.add(it).await() } }.awaitAll()
+            }
         }
     }
 

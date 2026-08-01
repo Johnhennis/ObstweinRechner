@@ -8,6 +8,9 @@ import app.johnhennis.obstweinrechner.data.ShoppingListRepository
 import app.johnhennis.obstweinrechner.data.ShoppingListStatus
 import app.johnhennis.obstweinrechner.data.StockItem
 import app.johnhennis.obstweinrechner.data.StockItemRepository
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -46,15 +49,10 @@ class ShoppingListViewModel(
     private val manualShoppingItemRepository: ManualShoppingItemRepository
 ) : ViewModel() {
 
-    // Eigener StateFlow, damit updateQuelle() beim Schreiben das passende
-    // Original-StockItem nachschlagen kann.
     private val stockItems: StateFlow<List<StockItem>> = stockItemRepository.allItems.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
-    // Quelle kommt jetzt IMMER direkt aus der Bestandsliste (item.quelle) -
-    // keine separate Kopie mehr, die aus dem Takt geraten könnte. Nur
-    // "erledigt" bleibt pro Einkaufstour separat (ShoppingListStatus).
     val entries: StateFlow<List<ShoppingListEntry>> = combine(
         stockItems,
         shoppingListRepository.allStatus,
@@ -111,8 +109,6 @@ class ShoppingListViewModel(
                 ShoppingListSource.MANUAL -> manualShoppingItemRepository.update(
                     ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = quelle, erledigt = entry.erledigt)
                 )
-                // Schreibt direkt in die Bestandsliste zurück, statt eine
-                // zweite Kopie zu pflegen - genau das hat den Fehler verursacht.
                 ShoppingListSource.STOCK -> {
                     val item = stockItems.value.find { it.id == entry.itemId } ?: return@launch
                     stockItemRepository.update(item.copy(quelle = quelle))
@@ -136,13 +132,17 @@ class ShoppingListViewModel(
 
     fun clearSelection() {
         viewModelScope.launch {
-            entries.value.filter { it.erledigt }.forEach { entry ->
-                when (entry.source) {
-                    ShoppingListSource.MANUAL -> manualShoppingItemRepository.update(
-                        ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = entry.quelle, erledigt = false)
-                    )
-                    ShoppingListSource.STOCK -> shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = false, quelle = entry.quelle))
-                }
+            coroutineScope {
+                entries.value.filter { it.erledigt }.map { entry ->
+                    async {
+                        when (entry.source) {
+                            ShoppingListSource.MANUAL -> manualShoppingItemRepository.update(
+                                ManualShoppingItem(id = entry.itemId, name = entry.name, menge = entry.mengeText, quelle = entry.quelle, erledigt = false)
+                            )
+                            ShoppingListSource.STOCK -> shoppingListRepository.setStatus(entry.itemId, ShoppingListStatus(erledigt = false, quelle = entry.quelle))
+                        }
+                    }
+                }.awaitAll()
             }
         }
     }

@@ -1,7 +1,10 @@
 package app.johnhennis.obstweinrechner.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
@@ -28,11 +31,6 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
     val allItems: Flow<List<StockItem>> = allDocuments.map { list -> list.filter { !it.geloescht } }
     val trashedItems: Flow<List<StockItem>> = allDocuments.map { list -> list.filter { it.geloescht } }
 
-    // Feste, aus Jahr+Art abgeleitete Dokument-ID statt einer zufaelligen.
-    // Macht das Anlegen idempotent: selbst wenn ein Schreibvorgang (z.B.
-    // durch einen abrupten Prozess-Kill mitten in der Bestaetigung)
-    // nochmal gesendet wird, entsteht KEIN zweites Dokument, sondern es
-    // wird schlicht dasselbe nochmal geschrieben.
     private fun docId(jahr: Int, art: String): String {
         val slug = art.trim().lowercase()
             .replace(Regex("[^a-z0-9]+"), "-")
@@ -62,20 +60,29 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
 
     suspend fun moveYearToTrash(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") != true }
-            .forEach { it.reference.update("geloescht", true).await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") != true }
+                .map { async { it.reference.update("geloescht", true).await() } }
+                .awaitAll()
+        }
     }
 
     suspend fun restoreYear(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") == true }
-            .forEach { it.reference.update("geloescht", false).await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") == true }
+                .map { async { it.reference.update("geloescht", false).await() } }
+                .awaitAll()
+        }
     }
 
     suspend fun deleteYearPermanently(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") == true }
-            .forEach { it.reference.delete().await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") == true }
+                .map { async { it.reference.delete().await() } }
+                .awaitAll()
+        }
     }
 
     suspend fun yearExists(jahr: Int): Boolean {
@@ -83,35 +90,43 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
         return !snapshot.isEmpty
     }
 
-    // Legt ein neues Jahr an: Bestand = bisheriger Rest, Bedarf = bisheriger
-    // Bedarf. Rest startet leer. Nutzt dieselbe feste Dokument-ID wie
-    // insert() - auch hier idempotent bei wiederholtem Schreibvorgang.
     suspend fun createNextYear(fromYear: Int, toYear: Int): Int {
         val snapshot = collection.whereEqualTo("jahr", fromYear).get().await()
         val items = snapshot.documents
             .mapNotNull { it.toObject(StockItem::class.java) }
             .filter { !it.geloescht }
-        items.forEach { old ->
-            val neu = StockItem(
-                jahr = toYear,
-                art = old.art,
-                quelle = old.quelle,
-                einheit = old.einheit,
-                bestandVorjahr = old.rest,
-                bedarf = old.bedarf,
-                rest = "",
-                bemerkung = ""
-            )
-            collection.document(docId(toYear, old.art)).set(neu.copy(id = "")).await()
+        coroutineScope {
+            items.map { old ->
+                async {
+                    val neu = StockItem(
+                        jahr = toYear,
+                        art = old.art,
+                        quelle = old.quelle,
+                        einheit = old.einheit,
+                        bestandVorjahr = old.rest,
+                        bedarf = old.bedarf,
+                        rest = "",
+                        bemerkung = ""
+                    )
+                    collection.document(docId(toYear, old.art)).set(neu.copy(id = "")).await()
+                }
+            }.awaitAll()
         }
         return items.size
     }
 
-    // Einmalige Reparatur: entfernt echte Duplikate (gleiches Jahr + gleiche
-    // Art mehrfach vorhanden). Behaelt je Gruppe den Eintrag mit den
-    // meisten ausgefuellten Feldern (am ehesten der zuletzt bearbeitete),
-    // Rest wandert in den Papierkorb statt geloescht zu werden - falls die
-    // Auswahl doch mal daneben liegt, ist nichts endgueltig weg.
+    suspend fun migrateEinkaufToBedarf() {
+        val snapshot = collection.get().await()
+        val zuMigrieren = snapshot.documents.filter { doc ->
+            doc.getString("bedarf").isNullOrBlank() && !doc.getString("einkauf").isNullOrBlank()
+        }
+        coroutineScope {
+            zuMigrieren.map { doc ->
+                async { doc.reference.update("bedarf", doc.getString("einkauf")).await() }
+            }.awaitAll()
+        }
+    }
+
     suspend fun deduplicateItems() {
         val snapshot = collection.get().await()
         val pairs = snapshot.documents.mapNotNull { doc ->
@@ -124,31 +139,20 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
             item.quelle, item.einheit, item.bestandVorjahr, item.bedarf, item.rest, item.bemerkung
         ).count { it.isNotBlank() }
 
-        gruppen.values.filter { it.size > 1 }.forEach { gruppe ->
-            val sortiert = gruppe.sortedByDescending { vollstaendigkeit(it.second) }
-            sortiert.drop(1).forEach { (doc, _) -> doc.reference.update("geloescht", true).await() }
+        val zuLoeschen = gruppen.values.filter { it.size > 1 }.flatMap { gruppe ->
+            gruppe.sortedByDescending { vollstaendigkeit(it.second) }.drop(1)
         }
-    }
-
-    // Einmalige Migration: das Feld hieß früher "einkauf", jetzt "bedarf".
-    // Übernimmt den alten Wert überall dort, wo "bedarf" noch leer ist.
-    suspend fun migrateEinkaufToBedarf() {
-        val snapshot = collection.get().await()
-        snapshot.documents.forEach { doc ->
-            val bedarfCurrent = doc.getString("bedarf")
-            if (bedarfCurrent.isNullOrBlank()) {
-                val oldEinkauf = doc.getString("einkauf")
-                if (!oldEinkauf.isNullOrBlank()) {
-                    doc.reference.update("bedarf", oldEinkauf).await()
-                }
-            }
+        coroutineScope {
+            zuLoeschen.map { (doc, _) -> async { doc.reference.update("geloescht", true).await() } }.awaitAll()
         }
     }
 
     suspend fun seedIfEmpty() {
         val snapshot = collection.limit(1).get().await()
         if (snapshot.isEmpty) {
-            defaultItems().forEach { collection.document(docId(it.jahr, it.art)).set(it).await() }
+            coroutineScope {
+                defaultItems().map { async { collection.document(docId(it.jahr, it.art)).set(it).await() } }.awaitAll()
+            }
         }
     }
 

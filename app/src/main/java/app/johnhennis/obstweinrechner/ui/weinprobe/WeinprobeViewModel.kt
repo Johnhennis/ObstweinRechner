@@ -38,9 +38,6 @@ class WeinprobeViewModel(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
-    // Legt eine neue Weinprobe an: übernimmt alle Sorten mit Ist-Bestand > 0
-    // aus dem Weinbestand (einmaliger Schnappschuss zum Anlege-Zeitpunkt),
-    // mit leerer Bemerkung.
     fun createWeinprobe(datum: String, onResult: (Boolean, String) -> Unit) {
         viewModelScope.launch {
             if (repository.datumExists(datum)) {
@@ -53,9 +50,7 @@ class WeinprobeViewModel(
                 onResult(false, "Kein Weinbestand mit Ist-Menge über 0 vorhanden.")
                 return@launch
             }
-            relevant.forEach { stock ->
-                repository.insert(WeinprobeEntry(datum = datum, sorte = stock.sorte))
-            }
+            repository.insertAll(relevant.map { WeinprobeEntry(datum = datum, sorte = it.sorte) })
             onResult(true, "Weinprobe angelegt mit ${relevant.size} Sorten.")
         }
     }

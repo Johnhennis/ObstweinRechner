@@ -1,7 +1,10 @@
 package app.johnhennis.obstweinrechner.data
 
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
@@ -28,9 +31,6 @@ class WineStockItemRepository(private val firestore: FirebaseFirestore) {
     val allItems: Flow<List<WineStockItem>> = allDocuments.map { list -> list.filter { !it.geloescht } }
     val trashedItems: Flow<List<WineStockItem>> = allDocuments.map { list -> list.filter { it.geloescht } }
 
-    // Feste, aus Jahr+Sorte abgeleitete Dokument-ID - verhindert von
-    // vornherein zwei Zeilen für dieselbe Sorte im selben Jahr und ist
-    // idempotent bei einem wiederholten Schreibvorgang.
     private fun docId(jahr: Int, sorte: String): String {
         val slug = sorte.trim().lowercase()
             .replace(Regex("[^a-z0-9]+"), "-")
@@ -60,19 +60,28 @@ class WineStockItemRepository(private val firestore: FirebaseFirestore) {
 
     suspend fun moveYearToTrash(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") != true }
-            .forEach { it.reference.update("geloescht", true).await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") != true }
+                .map { async { it.reference.update("geloescht", true).await() } }
+                .awaitAll()
+        }
     }
 
     suspend fun restoreYear(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") == true }
-            .forEach { it.reference.update("geloescht", false).await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") == true }
+                .map { async { it.reference.update("geloescht", false).await() } }
+                .awaitAll()
+        }
     }
 
     suspend fun deleteYearPermanently(jahr: Int) {
         val snapshot = collection.whereEqualTo("jahr", jahr).get().await()
-        snapshot.documents.filter { it.getBoolean("geloescht") == true }
-            .forEach { it.reference.delete().await() }
+        coroutineScope {
+            snapshot.documents.filter { it.getBoolean("geloescht") == true }
+                .map { async { it.reference.delete().await() } }
+                .awaitAll()
+        }
     }
 }
