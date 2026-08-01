@@ -33,6 +33,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.johnhennis.obstweinrechner.data.WeinprobeEntry
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
+import java.time.format.DateTimeFormatter
+
+private fun displayDate(iso: String): String = try {
+    java.time.LocalDate.parse(iso).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+} catch (e: Exception) {
+    iso
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
