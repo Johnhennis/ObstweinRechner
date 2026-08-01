@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -102,21 +101,19 @@ fun WineStockScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showAdd = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = "Position hinzufügen")
+                    }
                     IconButton(onClick = onOpenTrash) {
                         Icon(Icons.Filled.Delete, contentDescription = "Papierkorb öffnen")
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAdd = true }) {
-                Icon(Icons.Filled.Add, contentDescription = "Position hinzufügen")
-            }
         }
     ) { padding ->
         if (yearGroups.isEmpty()) {
             Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-                Text("Noch keine Positionen erfasst. Mit dem + unten rechts eine neue Position hinzufügen.", style = MaterialTheme.typography.bodyMedium)
+                Text("Noch keine Positionen erfasst. Oben rechts mit + eine neue Position hinzufügen.", style = MaterialTheme.typography.bodyMedium)
             }
         } else {
             LazyColumn(
@@ -161,8 +158,8 @@ fun WineStockScreen(
                                     }
                                 }
                                 Text(
-                                    "Soll gesamt: ${fmtWhole(entry.group.sollSumme)} L    Aktuell gesamt: ${fmtWhole(entry.group.aktuelleSumme)} L",
-                                    style = MaterialTheme.typography.labelMedium,
+                                    "Soll: ${fmtWhole(entry.group.sollSumme)} L    Ist: ${fmtWhole(entry.group.aktuelleSumme)} L",
+                                    style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(bottom = 2.dp)
                                 )
@@ -171,9 +168,9 @@ fun WineStockScreen(
                                         modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 2.dp),
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        ColumnLabel("Sorte", Modifier.weight(1.5f))
+                                        ColumnLabel("Sorte (${entry.group.items.size})", Modifier.weight(1.5f))
                                         ColumnLabel("Soll (L)", Modifier.width(MENGE_WIDTH))
-                                        ColumnLabel("Aktuell (L)", Modifier.width(MENGE_WIDTH))
+                                        ColumnLabel("Ist (L)", Modifier.width(MENGE_WIDTH))
                                         Spacer(Modifier.size(DELETE_WIDTH))
                                     }
                                 }
@@ -356,7 +353,7 @@ private fun AddWineStockDialog(
                     OutlinedTextField(
                         value = soll,
                         onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) soll = new },
-                        label = { Text("Sollmenge (L)") },
+                        label = { Text("Soll-Menge (L)") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
@@ -364,7 +361,7 @@ private fun AddWineStockDialog(
                     OutlinedTextField(
                         value = aktuell,
                         onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) aktuell = new },
-                        label = { Text("Aktuelle Menge (L)") },
+                        label = { Text("Ist-Menge (L)") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
