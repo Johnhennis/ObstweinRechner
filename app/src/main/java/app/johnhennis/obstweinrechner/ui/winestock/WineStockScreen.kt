@@ -57,7 +57,7 @@ private val MENGE_WIDTH = 72.dp
 private val DELETE_WIDTH = 28.dp
 
 private fun fmtWhole(v: Double): String = v.toLong().toString()
-private fun formatFieldValue(v: Double): String = if (v == 0.0) "" else v.toLong().toString()
+private fun formatFieldValue(v: Double): String = v.toLong().toString()
 
 private sealed class WineStockListEntry {
     data class YearHeader(val group: WineStockYearGroup) : WineStockListEntry()
@@ -133,12 +133,13 @@ fun WineStockScreen(
                     when (entry) {
                         is WineStockListEntry.YearHeader -> {
                             val isExpanded = entry.group.jahr == expandedYear
-                            Column {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { expandedYear = if (isExpanded) null else entry.group.jahr }
+                            ) {
                                 Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { expandedYear = if (isExpanded) null else entry.group.jahr }
-                                        .padding(top = 10.dp, bottom = 2.dp),
+                                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp, bottom = 2.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -159,9 +160,9 @@ fun WineStockScreen(
                                 }
                                 Text(
                                     "Soll: ${fmtWhole(entry.group.sollSumme)} L    Ist: ${fmtWhole(entry.group.aktuelleSumme)} L",
-                                    style = MaterialTheme.typography.bodyLarge,
+                                    style = MaterialTheme.typography.headlineSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(bottom = 2.dp)
+                                    modifier = Modifier.padding(bottom = 4.dp)
                                 )
                                 if (isExpanded) {
                                     Row(
@@ -331,8 +332,8 @@ private fun AddWineStockDialog(
 ) {
     var jahr by remember { mutableStateOf(defaultYear.toString()) }
     var sorte by remember { mutableStateOf("") }
-    var soll by remember { mutableStateOf("") }
-    var aktuell by remember { mutableStateOf("") }
+    var soll by remember { mutableStateOf("0") }
+    var aktuell by remember { mutableStateOf("0") }
     var error by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
