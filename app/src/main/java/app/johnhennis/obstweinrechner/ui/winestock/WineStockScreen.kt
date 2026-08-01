@@ -169,7 +169,10 @@ fun WineStockScreen(
                                         modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 2.dp),
                                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        ColumnLabel("Sorte (${entry.group.items.size})", Modifier.weight(1.5f))
+                                        ColumnLabel(
+                                            "Sorte (${entry.group.items.size}) – ${entry.group.vorhandenAnzahl} vorhanden",
+                                            Modifier.weight(1.5f)
+                                        )
                                         ColumnLabel("Soll (L)", Modifier.width(MENGE_WIDTH))
                                         ColumnLabel("Ist (L)", Modifier.width(MENGE_WIDTH))
                                         Spacer(Modifier.size(DELETE_WIDTH))

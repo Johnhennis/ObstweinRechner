@@ -15,7 +15,10 @@ data class WineStockYearGroup(
     val jahr: Int,
     val items: List<WineStockItem>,
     val sollSumme: Double,
-    val aktuelleSumme: Double
+    val aktuelleSumme: Double,
+    // Anzahl Sorten mit aktuellem Bestand > 0 - also Soll-Anzahl (items.size)
+    // minus die Sorten, bei denen "Ist" auf 0 steht.
+    val vorhandenAnzahl: Int
 )
 
 class WineStockViewModel(
@@ -24,7 +27,7 @@ class WineStockViewModel(
 
     val currentYear: Int = Year.now().value
 
-    val yearGroups: StateFlow<List<WineStockYearGroup>> = repository.allItems.map { items ->
+    private fun toGroups(items: List<WineStockItem>): List<WineStockYearGroup> =
         items.groupBy { it.jahr }
             .toSortedMap(compareByDescending { it })
             .map { (jahr, list) ->
@@ -33,26 +36,16 @@ class WineStockViewModel(
                     jahr = jahr,
                     items = sorted,
                     sollSumme = sorted.sumOf { it.sollmenge },
-                    aktuelleSumme = sorted.sumOf { it.aktuelleMenge }
+                    aktuelleSumme = sorted.sumOf { it.aktuelleMenge },
+                    vorhandenAnzahl = sorted.count { it.aktuelleMenge > 0.0 }
                 )
             }
-    }.stateIn(
+
+    val yearGroups: StateFlow<List<WineStockYearGroup>> = repository.allItems.map { toGroups(it) }.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
-    val trashedByYear: StateFlow<List<WineStockYearGroup>> = repository.trashedItems.map { items ->
-        items.groupBy { it.jahr }
-            .toSortedMap(compareByDescending { it })
-            .map { (jahr, list) ->
-                val sorted = list.sortedBy { it.sorte }
-                WineStockYearGroup(
-                    jahr = jahr,
-                    items = sorted,
-                    sollSumme = sorted.sumOf { it.sollmenge },
-                    aktuelleSumme = sorted.sumOf { it.aktuelleMenge }
-                )
-            }
-    }.stateIn(
+    val trashedByYear: StateFlow<List<WineStockYearGroup>> = repository.trashedItems.map { toGroups(it) }.stateIn(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
