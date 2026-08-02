@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +12,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 private fun currentlyOnline(context: Context): Boolean {
     return try {
@@ -34,9 +35,13 @@ private fun currentlyOnline(context: Context): Boolean {
 }
 
 // Zeigt einen durchgehenden Streifen, solange keine Internetverbindung
-// besteht - bewusst kein Toast, da der nur kurz aufblitzt und die App
-// komplett auf Firestore/Internet angewiesen ist. Verschwindet automatisch,
-// sobald die Verbindung wieder da ist.
+// besteht. Zwei unabhängige Mechanismen kombiniert, da reine Callback-
+// Benachrichtigungen (registerNetworkCallback) auf manchen Android-Varianten
+// bei einem Verbindungswechsel WÄHREND die App bereits läuft unzuverlässig
+// ankommen: registerDefaultNetworkCallback (robuster als die alte
+// Capability-gefilterte Variante) für die schnelle Reaktion, zusätzlich
+// eine Nachprüfung alle 3 Sekunden als Sicherheitsnetz, das den Zustand so
+// oder so irgendwann richtigstellt.
 @Composable
 fun NoInternetBanner() {
     val context = LocalContext.current
@@ -46,7 +51,7 @@ fun NoInternetBanner() {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
-                isOnline = true
+                isOnline = currentlyOnline(context)
             }
             override fun onLost(network: Network) {
                 isOnline = currentlyOnline(context)
@@ -54,19 +59,28 @@ fun NoInternetBanner() {
             override fun onCapabilitiesChanged(network: Network, capabilities: NetworkCapabilities) {
                 isOnline = currentlyOnline(context)
             }
+            override fun onUnavailable() {
+                isOnline = currentlyOnline(context)
+            }
         }
         try {
-            val request = NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .build()
-            connectivityManager?.registerNetworkCallback(request, callback)
-        } catch (e: SecurityException) {
-            // Fehlende Berechtigung - Banner bleibt dann einfach dauerhaft aus.
+            connectivityManager?.registerDefaultNetworkCallback(callback)
+        } catch (e: Exception) {
+            // Fehlende Berechtigung o.ä. - die 3-Sekunden-Nachprüfung unten
+            // fängt das trotzdem auf, nur etwas verzögert statt sofort.
         }
         onDispose {
             try {
                 connectivityManager?.unregisterNetworkCallback(callback)
             } catch (e: Exception) { }
+        }
+    }
+
+    LaunchedEffect(context) {
+        while (true) {
+            delay(3000)
+            val actual = currentlyOnline(context)
+            if (actual != isOnline) isOnline = actual
         }
     }
 
