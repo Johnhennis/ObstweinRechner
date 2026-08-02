@@ -1,5 +1,6 @@
 package app.johnhennis.obstweinrechner.ui.stock
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -166,7 +168,7 @@ fun StockScreen(
                                         Icon(Icons.Filled.Delete, contentDescription = "Jahr ${entry.jahr} in den Papierkorb", modifier = Modifier.size(18.dp))
                                     }
                                 }
-                                HorizontalDivider()
+                                HorizontalDivider(modifier = Modifier.padding(bottom = 6.dp))
                             }
                         }
                         is StockListEntry.Row -> {
@@ -288,7 +290,17 @@ private fun StockRow(
     val bedarfNum = tryParse(bedarf)
     val verbraucht = bedarfNum?.let { bd -> tryParse(rest)?.let { r -> bd - r } }
 
-    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+    // Eigener, leicht abgesetzter Hintergrund pro Position statt nur einem
+    // dünnen Strich dazwischen - klar erkennbare Abgrenzung, aber bewusst
+    // ohne Schatten/Elevation wie ein echtes Card, um bei vielen Positionen
+    // performant zu bleiben.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(10.dp))
+            .padding(10.dp)
+    ) {
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
             CompactField(art, { art = it; userEdited = true }, "Art", Modifier.weight(1.4f), onFocus = onFocusGained)
             CompactField(quelle, { quelle = it; userEdited = true }, "Quelle", Modifier.weight(1f), onFocus = onFocusGained)
@@ -313,7 +325,6 @@ private fun StockRow(
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
-        HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
     }
 }
 
