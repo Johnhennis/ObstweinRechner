@@ -23,7 +23,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,7 +78,9 @@ fun StockScreen(
     var confirmDeleteItem by remember { mutableStateOf<StockItem?>(null) }
     var confirmNewYear by remember { mutableStateOf(false) }
     var resultMessage by remember { mutableStateOf<String?>(null) }
-    var expandedYear by remember { mutableStateOf<Int?>(null) }
+    // rememberSaveable statt remember: übersteht auch eine Bildschirm-
+    // Drehung, nicht nur eine reine Rekomposition.
+    var expandedYear by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val latestYear = yearGroups.maxOfOrNull { it.jahr }
 
@@ -105,6 +107,9 @@ fun StockScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showAdd = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = "Position hinzufügen")
+                    }
                     if (latestYear != null) {
                         IconButton(onClick = { confirmNewYear = true }) {
                             Icon(Icons.Filled.ContentCopy, contentDescription = "Neues Jahr anlegen")
@@ -115,16 +120,11 @@ fun StockScreen(
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAdd = true }) {
-                Icon(Icons.Filled.Add, contentDescription = "Position hinzufügen")
-            }
         }
     ) { padding ->
         if (yearGroups.isEmpty()) {
             Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-                Text("Noch keine Positionen erfasst. Mit dem + unten rechts eine neue Position hinzufügen.", style = MaterialTheme.typography.bodyMedium)
+                Text("Noch keine Positionen erfasst. Oben rechts mit + eine neue Position hinzufügen.", style = MaterialTheme.typography.bodyMedium)
             }
         } else {
             LazyColumn(

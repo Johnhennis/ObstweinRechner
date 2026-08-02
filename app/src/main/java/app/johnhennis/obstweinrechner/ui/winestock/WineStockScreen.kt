@@ -38,6 +38,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -76,7 +77,7 @@ fun WineStockScreen(
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
     var confirmDeleteItem by remember { mutableStateOf<WineStockItem?>(null) }
-    var expandedYear by remember { mutableStateOf<Int?>(null) }
+    var expandedYear by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val flatList = remember(yearGroups, expandedYear) {
         buildList {

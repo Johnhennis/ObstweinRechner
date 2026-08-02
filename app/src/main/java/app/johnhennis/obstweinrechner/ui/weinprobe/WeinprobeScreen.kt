@@ -39,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -82,7 +83,7 @@ fun WeinprobeScreen(
     var confirmDeleteDatum by remember { mutableStateOf<String?>(null) }
     var confirmDeleteEntry by remember { mutableStateOf<WeinprobeEntry?>(null) }
     var resultMessage by remember { mutableStateOf<String?>(null) }
-    var expandedDatum by remember { mutableStateOf<String?>(null) }
+    var expandedDatum by rememberSaveable { mutableStateOf<String?>(null) }
 
     val flatList = remember(dateGroups, expandedDatum) {
         buildList {

@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,7 +77,7 @@ fun SettingsScreen(
     LaunchedEffect(savedFontScale) { sliderPosition = savedFontScale }
 
     var showAddInfo by remember { mutableStateOf(false) }
-    var showTrash by remember { mutableStateOf(false) }
+    var showTrash by rememberSaveable { mutableStateOf(false) }
     var confirmDelete by remember { mutableStateOf<InfoEntry?>(null) }
 
     Scaffold(

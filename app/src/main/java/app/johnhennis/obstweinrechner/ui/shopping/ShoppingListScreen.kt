@@ -29,9 +29,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +65,10 @@ fun ShoppingListScreen(
     var quelleTarget by remember { mutableStateOf<ShoppingListEntry?>(null) }
     var showAddManual by remember { mutableStateOf(false) }
     var confirmDeleteManual by remember { mutableStateOf<ShoppingListEntry?>(null) }
-    val expanded = remember { mutableStateMapOf<String, Boolean>() }
+    // Liste statt Map, da rememberSaveable dafür ohne eigenen Saver
+    // zuverlässig funktioniert - übersteht damit auch eine Drehung.
+    // Enthält die Quellen, die eingeklappt sind (Standard: alle offen).
+    var collapsedQuellen by rememberSaveable { mutableStateOf(listOf<String>()) }
 
     val groups = remember(entries) {
         val map = entries.groupBy { it.quelle.ifBlank { UNKATEGORISIERT } }
@@ -105,12 +108,14 @@ fun ShoppingListScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 groups.forEach { (quelle, groupEntries) ->
-                    val isExpanded = expanded[quelle] ?: true
+                    val isExpanded = quelle !in collapsedQuellen
                     item(key = "header_$quelle") {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { expanded[quelle] = !isExpanded },
+                                .clickable {
+                                    collapsedQuellen = if (isExpanded) collapsedQuellen + quelle else collapsedQuellen - quelle
+                                },
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
