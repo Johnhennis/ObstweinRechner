@@ -18,7 +18,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,9 +43,6 @@ import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 
 private const val UNKATEGORISIERT = "Unkategorisiert"
 
-// Zerlegt "5 Stk" in Anzeige "5x Becher Wein 0,2" + Einheit-Zusatz "Stk".
-// Nur wenn die führende Angabe wirklich eine Zahl ist (nicht z.B. "viele") -
-// sonst bliebe es beim alten "Name: viele Stk"-Format.
 private fun formatEntryLabel(name: String, mengeText: String): Pair<String, String?> {
     if (mengeText.isBlank()) return name to null
     val parts = mengeText.trim().split(" ", limit = 2)
@@ -92,13 +88,11 @@ fun ShoppingListScreen(
                     if (hatAuswahl) {
                         TextButton(onClick = { viewModel.clearSelection() }) { Text("Auswahl aufheben") }
                     }
+                    IconButton(onClick = { showAddManual = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = "Position hinzufügen")
+                    }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAddManual = true }) {
-                Icon(Icons.Filled.Add, contentDescription = "Position hinzufügen")
-            }
         }
     ) { padding ->
         if (entries.isEmpty()) {

@@ -1,7 +1,9 @@
 package app.johnhennis.obstweinrechner.ui.navigation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -32,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorScreen
 import app.johnhennis.obstweinrechner.ui.common.InAppUpdateChecker
+import app.johnhennis.obstweinrechner.ui.common.NoInternetBanner
 import app.johnhennis.obstweinrechner.ui.prices.PricesScreen
 import app.johnhennis.obstweinrechner.ui.prices.PricesTrashScreen
 import app.johnhennis.obstweinrechner.ui.recipes.RecipeListScreen
@@ -68,157 +71,162 @@ private object Routes {
 fun AppNavigation(factory: AppViewModelFactory) {
     InAppUpdateChecker()
 
-    val navController = rememberNavController()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    Column(modifier = Modifier.fillMaxSize()) {
+        NoInternetBanner()
 
-    BackHandler(enabled = drawerState.isOpen) {
-        scope.launch { drawerState.close() }
-    }
+        val navController = rememberNavController()
+        val drawerState = rememberDrawerState(DrawerValue.Closed)
+        val scope = rememberCoroutineScope()
 
-    fun navigateToTopLevel(route: String) {
-        scope.launch { drawerState.close() }
-        navController.navigate(route) {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
+        BackHandler(enabled = drawerState.isOpen) {
+            scope.launch { drawerState.close() }
         }
-    }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Spacer(Modifier.height(12.dp))
-                Text("Menü", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
-                Spacer(Modifier.height(8.dp))
-                NavigationDrawerItem(
-                    label = { Text("Wein-Rechner") },
-                    icon = { Icon(Icons.Filled.WineBar, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.WEIN) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Schmalz-Rechner") },
-                    icon = { Icon(Icons.Filled.Kitchen, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.SCHMALZ) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Weinbestand") },
-                    icon = { Icon(Icons.Filled.Inventory2, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.WINE_STOCK) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Weinprobe") },
-                    icon = { Icon(Icons.Filled.RateReview, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.WEINPROBE) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Bestandsliste") },
-                    icon = { Icon(Icons.Filled.Inventory, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.STOCK) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Einkaufsliste") },
-                    icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.SHOPPING) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Preise Obst") },
-                    icon = { Icon(Icons.Filled.AttachMoney, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.PRICES) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-                NavigationDrawerItem(
-                    label = { Text("Einstellungen") },
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
-                    selected = false,
-                    onClick = { navigateToTopLevel(Routes.SETTINGS) },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
+        fun navigateToTopLevel(route: String) {
+            scope.launch { drawerState.close() }
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
             }
         }
-    ) {
-        NavHost(navController = navController, startDestination = Routes.WEIN) {
-            composable(Routes.WEIN) {
-                CalculatorScreen(
-                    factory = factory,
-                    onOpenRecipes = { navController.navigate(Routes.WEIN_RECIPES) },
-                    onOpenMenu = { scope.launch { drawerState.open() } }
-                )
+
+        ModalNavigationDrawer(
+            modifier = Modifier.weight(1f),
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    Spacer(Modifier.height(12.dp))
+                    Text("Menü", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 16.dp))
+                    Spacer(Modifier.height(8.dp))
+                    NavigationDrawerItem(
+                        label = { Text("Wein-Rechner") },
+                        icon = { Icon(Icons.Filled.WineBar, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.WEIN) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Schmalz-Rechner") },
+                        icon = { Icon(Icons.Filled.Kitchen, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.SCHMALZ) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Weinbestand") },
+                        icon = { Icon(Icons.Filled.Inventory2, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.WINE_STOCK) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Weinprobe") },
+                        icon = { Icon(Icons.Filled.RateReview, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.WEINPROBE) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Bestandsliste") },
+                        icon = { Icon(Icons.Filled.Inventory, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.STOCK) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Einkaufsliste") },
+                        icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.SHOPPING) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Preise Obst") },
+                        icon = { Icon(Icons.Filled.AttachMoney, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.PRICES) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Einstellungen") },
+                        icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.SETTINGS) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                }
             }
-            composable(Routes.WEIN_RECIPES) {
-                RecipeListScreen(
-                    factory = factory,
-                    onBack = { navController.popBackStack() },
-                    onOpenTrash = { navController.navigate(Routes.WEIN_TRASH) }
-                )
-            }
-            composable(Routes.WEIN_TRASH) {
-                RecipeTrashScreen(factory = factory, onBack = { navController.popBackStack() })
-            }
-            composable(Routes.SCHMALZ) {
-                SchmalzScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
-            }
-            composable(Routes.SHOPPING) {
-                ShoppingListScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
-            }
-            composable(Routes.PRICES) {
-                PricesScreen(
-                    factory = factory,
-                    onOpenMenu = { scope.launch { drawerState.open() } },
-                    onOpenTrash = { navController.navigate(Routes.PRICES_TRASH) }
-                )
-            }
-            composable(Routes.PRICES_TRASH) {
-                PricesTrashScreen(factory = factory, onBack = { navController.popBackStack() })
-            }
-            composable(Routes.STOCK) {
-                StockScreen(
-                    factory = factory,
-                    onOpenMenu = { scope.launch { drawerState.open() } },
-                    onOpenTrash = { navController.navigate(Routes.STOCK_TRASH) }
-                )
-            }
-            composable(Routes.STOCK_TRASH) {
-                StockTrashScreen(factory = factory, onBack = { navController.popBackStack() })
-            }
-            composable(Routes.WINE_STOCK) {
-                WineStockScreen(
-                    factory = factory,
-                    onOpenMenu = { scope.launch { drawerState.open() } },
-                    onOpenTrash = { navController.navigate(Routes.WINE_STOCK_TRASH) }
-                )
-            }
-            composable(Routes.WINE_STOCK_TRASH) {
-                WineStockTrashScreen(factory = factory, onBack = { navController.popBackStack() })
-            }
-            composable(Routes.WEINPROBE) {
-                WeinprobeScreen(
-                    factory = factory,
-                    onOpenMenu = { scope.launch { drawerState.open() } },
-                    onOpenTrash = { navController.navigate(Routes.WEINPROBE_TRASH) }
-                )
-            }
-            composable(Routes.WEINPROBE_TRASH) {
-                WeinprobeTrashScreen(factory = factory, onBack = { navController.popBackStack() })
-            }
-            composable(Routes.SETTINGS) {
-                SettingsScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+        ) {
+            NavHost(navController = navController, startDestination = Routes.WEIN) {
+                composable(Routes.WEIN) {
+                    CalculatorScreen(
+                        factory = factory,
+                        onOpenRecipes = { navController.navigate(Routes.WEIN_RECIPES) },
+                        onOpenMenu = { scope.launch { drawerState.open() } }
+                    )
+                }
+                composable(Routes.WEIN_RECIPES) {
+                    RecipeListScreen(
+                        factory = factory,
+                        onBack = { navController.popBackStack() },
+                        onOpenTrash = { navController.navigate(Routes.WEIN_TRASH) }
+                    )
+                }
+                composable(Routes.WEIN_TRASH) {
+                    RecipeTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+                }
+                composable(Routes.SCHMALZ) {
+                    SchmalzScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+                }
+                composable(Routes.SHOPPING) {
+                    ShoppingListScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+                }
+                composable(Routes.PRICES) {
+                    PricesScreen(
+                        factory = factory,
+                        onOpenMenu = { scope.launch { drawerState.open() } },
+                        onOpenTrash = { navController.navigate(Routes.PRICES_TRASH) }
+                    )
+                }
+                composable(Routes.PRICES_TRASH) {
+                    PricesTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+                }
+                composable(Routes.STOCK) {
+                    StockScreen(
+                        factory = factory,
+                        onOpenMenu = { scope.launch { drawerState.open() } },
+                        onOpenTrash = { navController.navigate(Routes.STOCK_TRASH) }
+                    )
+                }
+                composable(Routes.STOCK_TRASH) {
+                    StockTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+                }
+                composable(Routes.WINE_STOCK) {
+                    WineStockScreen(
+                        factory = factory,
+                        onOpenMenu = { scope.launch { drawerState.open() } },
+                        onOpenTrash = { navController.navigate(Routes.WINE_STOCK_TRASH) }
+                    )
+                }
+                composable(Routes.WINE_STOCK_TRASH) {
+                    WineStockTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+                }
+                composable(Routes.WEINPROBE) {
+                    WeinprobeScreen(
+                        factory = factory,
+                        onOpenMenu = { scope.launch { drawerState.open() } },
+                        onOpenTrash = { navController.navigate(Routes.WEINPROBE_TRASH) }
+                    )
+                }
+                composable(Routes.WEINPROBE_TRASH) {
+                    WeinprobeTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+                }
+                composable(Routes.SETTINGS) {
+                    SettingsScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })
+                }
             }
         }
     }

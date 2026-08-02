@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -79,21 +78,19 @@ fun PricesScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showAdd = true }) {
+                        Icon(Icons.Filled.Add, contentDescription = "Preis hinzufügen")
+                    }
                     IconButton(onClick = onOpenTrash) {
                         Icon(Icons.Filled.Delete, contentDescription = "Papierkorb öffnen")
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAdd = true }) {
-                Icon(Icons.Filled.Add, contentDescription = "Preis hinzufügen")
-            }
         }
     ) { padding ->
         if (yearGroups.isEmpty()) {
             Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-                Text("Noch keine Preise erfasst. Mit dem + unten rechts einen Preis hinzufügen.", style = MaterialTheme.typography.bodyMedium)
+                Text("Noch keine Preise erfasst. Oben rechts mit + einen Preis hinzufügen.", style = MaterialTheme.typography.bodyMedium)
             }
         } else {
             LazyColumn(
