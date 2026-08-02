@@ -78,8 +78,6 @@ fun StockScreen(
     var confirmDeleteItem by remember { mutableStateOf<StockItem?>(null) }
     var confirmNewYear by remember { mutableStateOf(false) }
     var resultMessage by remember { mutableStateOf<String?>(null) }
-    // rememberSaveable statt remember: übersteht auch eine Bildschirm-
-    // Drehung, nicht nur eine reine Rekomposition.
     var expandedYear by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val latestYear = yearGroups.maxOfOrNull { it.jahr }
@@ -192,8 +190,8 @@ fun StockScreen(
             factory = factory,
             defaultYear = viewModel.currentYear,
             onDismiss = { showAdd = false },
-            onAdd = { jahr, art, quelle, einheit, bv, bedarf, rest, bem ->
-                viewModel.addItem(jahr, art, quelle, einheit, bv, bedarf, rest, bem)
+            onAdd = { jahr, art, quelle, bv, bedarf, rest ->
+                viewModel.addItem(jahr, art, quelle, bv, bedarf, rest)
                 expandedYear = jahr
                 showAdd = false
             }
@@ -275,22 +273,15 @@ private fun StockRow(
 ) {
     var art by remember(item.id) { mutableStateOf(item.art) }
     var quelle by remember(item.id) { mutableStateOf(item.quelle) }
-    var einheit by remember(item.id) { mutableStateOf(item.einheit) }
     var bestandVorjahr by remember(item.id) { mutableStateOf(item.bestandVorjahr) }
     var bedarf by remember(item.id) { mutableStateOf(item.bedarf) }
     var rest by remember(item.id) { mutableStateOf(item.rest) }
-    var bemerkung by remember(item.id) { mutableStateOf(item.bemerkung) }
     var userEdited by remember(item.id) { mutableStateOf(false) }
 
-    LaunchedEffect(art, quelle, einheit, bestandVorjahr, bedarf, rest, bemerkung) {
+    LaunchedEffect(art, quelle, bestandVorjahr, bedarf, rest) {
         if (userEdited) {
             delay(500)
-            onUpdate(
-                item.copy(
-                    art = art, quelle = quelle, einheit = einheit,
-                    bestandVorjahr = bestandVorjahr, bedarf = bedarf, rest = rest, bemerkung = bemerkung
-                )
-            )
+            onUpdate(item.copy(art = art, quelle = quelle, bestandVorjahr = bestandVorjahr, bedarf = bedarf, rest = rest))
         }
     }
 
@@ -310,7 +301,6 @@ private fun StockRow(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CompactField(einheit, { einheit = it; userEdited = true }, "Einheit", Modifier.weight(1f), onFocus = onFocusGained)
             CompactField(bestandVorjahr, { bestandVorjahr = it; userEdited = true }, "Bestand", Modifier.weight(1f), onFocus = onFocusGained)
             CompactField(bedarf, { bedarf = it; userEdited = true }, "Bedarf", Modifier.weight(1f), onFocus = onFocusGained)
             CompactField(rest, { rest = it; userEdited = true }, "Rest", Modifier.weight(1f), onFocus = onFocusGained)
@@ -323,10 +313,6 @@ private fun StockRow(
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
-        CompactField(
-            bemerkung, { bemerkung = it; userEdited = true }, "Bemerkung",
-            Modifier.fillMaxWidth().padding(top = 3.dp), onFocus = onFocusGained
-        )
         HorizontalDivider(modifier = Modifier.padding(top = 4.dp))
     }
 }
@@ -356,16 +342,14 @@ private fun AddStockDialog(
     factory: AppViewModelFactory,
     defaultYear: Int,
     onDismiss: () -> Unit,
-    onAdd: (Int, String, String, String, String, String, String, String) -> Unit
+    onAdd: (Int, String, String, String, String, String) -> Unit
 ) {
     var jahr by remember { mutableStateOf(defaultYear.toString()) }
     var art by remember { mutableStateOf("") }
     var quelle by remember { mutableStateOf("") }
-    var einheit by remember { mutableStateOf("") }
     var bestandVorjahr by remember { mutableStateOf("") }
     var bedarf by remember { mutableStateOf("") }
     var rest by remember { mutableStateOf("") }
-    var bemerkung by remember { mutableStateOf("") }
     var error by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -387,13 +371,11 @@ private fun AddStockDialog(
                     )
                     OutlinedTextField(value = art, onValueChange = { art = it }, label = { Text("Art") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     OutlinedTextField(value = quelle, onValueChange = { quelle = it }, label = { Text("Quelle") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = einheit, onValueChange = { einheit = it }, label = { Text("Einheit") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(value = bestandVorjahr, onValueChange = { bestandVorjahr = it }, label = { Text("Bestand") }, singleLine = true, modifier = Modifier.weight(1f))
                         OutlinedTextField(value = bedarf, onValueChange = { bedarf = it }, label = { Text("Bedarf") }, singleLine = true, modifier = Modifier.weight(1f))
                     }
                     OutlinedTextField(value = rest, onValueChange = { rest = it }, label = { Text("Rest") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = bemerkung, onValueChange = { bemerkung = it }, label = { Text("Bemerkung") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
             }
@@ -404,7 +386,7 @@ private fun AddStockDialog(
                     val jahrValue = jahr.toIntOrNull()
                     if (jahrValue == null || jahrValue < 2000) { error = "Bitte ein gültiges Jahr eingeben."; return@TextButton }
                     if (art.isBlank()) { error = "Bitte eine Art eingeben."; return@TextButton }
-                    onAdd(jahrValue, art.trim(), quelle.trim(), einheit.trim(), bestandVorjahr.trim(), bedarf.trim(), rest.trim(), bemerkung.trim())
+                    onAdd(jahrValue, art.trim(), quelle.trim(), bestandVorjahr.trim(), bedarf.trim(), rest.trim())
                 }) { Text("Hinzufügen") }
             }
         },

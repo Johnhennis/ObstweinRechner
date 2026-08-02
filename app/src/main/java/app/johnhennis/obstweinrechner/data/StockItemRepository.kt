@@ -102,11 +102,9 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
                         jahr = toYear,
                         art = old.art,
                         quelle = old.quelle,
-                        einheit = old.einheit,
                         bestandVorjahr = old.rest,
                         bedarf = old.bedarf,
-                        rest = "",
-                        bemerkung = ""
+                        rest = ""
                     )
                     collection.document(docId(toYear, old.art)).set(neu.copy(id = "")).await()
                 }
@@ -136,7 +134,7 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
             .groupBy { it.second.jahr to it.second.art.trim().lowercase() }
 
         fun vollstaendigkeit(item: StockItem) = listOf(
-            item.quelle, item.einheit, item.bestandVorjahr, item.bedarf, item.rest, item.bemerkung
+            item.quelle, item.bestandVorjahr, item.bedarf, item.rest
         ).count { it.isNotBlank() }
 
         val zuLoeschen = gruppen.values.filter { it.size > 1 }.flatMap { gruppe ->
@@ -157,32 +155,33 @@ class StockItemRepository(private val firestore: FirebaseFirestore) {
     }
 
     // Aus Bestand.xls übernommen (2026 + 2027, je 12 Verpackungs-/Zubehör-
-    // Positionen). Der Umsatz/Einnahmen-Block der Originaltabelle gehört
+    // Positionen). Einheit/Bemerkung entfernt, entsprach nicht mehr dem
+    // Datenmodell. Der Umsatz/Einnahmen-Block der Originaltabelle gehört
     // nicht zur Bestandsliste und wurde bewusst nicht übernommen.
     private fun defaultItems(): List<StockItem> = listOf(
-        StockItem(art = "PET-Flaschen", jahr = 2026, quelle = "Internet", einheit = "Stk", bestandVorjahr = "400", bedarf = "960", rest = "640"),
-        StockItem(art = "Pfandetiketten", jahr = 2026, quelle = "Stadt", einheit = "Stk", bestandVorjahr = "280", bedarf = "500", rest = "190"),
-        StockItem(art = "Gewürzgurken", jahr = 2026, quelle = "Selgros", einheit = "10 Liter (40/45)", bestandVorjahr = "1", bedarf = "9", rest = "2"),
-        StockItem(art = "Becher Struch 0,2", jahr = 2026, quelle = "Inernet", einheit = "Stk", bestandVorjahr = "250", bedarf = "0", rest = "50"),
-        StockItem(art = "Becher Wein 0,2", jahr = 2026, quelle = "Selgros", einheit = "Pack (100)", bestandVorjahr = "7", bedarf = "60", rest = "36"),
-        StockItem(art = "Kaffeebecher 0,18", jahr = 2026, quelle = "Selgros", einheit = "100 Stk", bestandVorjahr = "250", bedarf = "0", rest = "200"),
-        StockItem(art = "Kaffee", jahr = 2026, quelle = "Supermarkt", einheit = "Stk", bestandVorjahr = "0", bedarf = "1", rest = "1"),
-        StockItem(art = "Kaffeefilter", jahr = 2026, quelle = "Supermarkt", einheit = "Packung", bestandVorjahr = "1", bedarf = "0", rest = "0.5"),
-        StockItem(art = "Kaffee-Rührstäbchen", jahr = 2026, quelle = "Selgros", einheit = "Stk", bestandVorjahr = "viele", bedarf = "", rest = ""),
-        StockItem(art = "Pappen rechteckig", jahr = 2026, quelle = "Selgros", einheit = "10 x 16", bestandVorjahr = "550", bedarf = "300", rest = "250"),
-        StockItem(art = "Pappschalen", jahr = 2026, quelle = "Selgros", einheit = "9 x 14 x 3", bestandVorjahr = "750", bedarf = "0", rest = "500"),
-        StockItem(art = "Schmalzbecher", jahr = 2026, quelle = "Selgros", einheit = "Stk", bestandVorjahr = "260", bedarf = "0", rest = "260"),
-        StockItem(art = "PET-Flaschen", jahr = 2027, quelle = "Internet", einheit = "Stk", bestandVorjahr = "640", bedarf = "200", rest = ""),
-        StockItem(art = "Pfandetiketten", jahr = 2027, quelle = "Stadt", einheit = "Stk", bestandVorjahr = "190", bedarf = "500", rest = ""),
-        StockItem(art = "Gewürzgurken", jahr = 2027, quelle = "Selgros", einheit = "10 Liter (40/45)", bestandVorjahr = "2", bedarf = "6", rest = ""),
-        StockItem(art = "Becher Struch 0,2", jahr = 2027, quelle = "Inernet", einheit = "Stk", bestandVorjahr = "50", bedarf = "200", rest = ""),
-        StockItem(art = "Becher Wein 0,2", jahr = 2027, quelle = "Selgros", einheit = "Pack (100)", bestandVorjahr = "36", bedarf = "0", rest = ""),
-        StockItem(art = "Kaffeebecher 0,18", jahr = 2027, quelle = "Selgros", einheit = "100 Stk", bestandVorjahr = "200", bedarf = "0", rest = ""),
-        StockItem(art = "Kaffee", jahr = 2027, quelle = "Supermarkt", einheit = "Stk", bestandVorjahr = "0", bedarf = "1", rest = ""),
-        StockItem(art = "Kaffeefilter", jahr = 2027, quelle = "Supermarkt", einheit = "Packung", bestandVorjahr = "1", bedarf = "0", rest = ""),
-        StockItem(art = "Kaffee-Rührstäbchen", jahr = 2027, quelle = "Selgros", einheit = "Stk", bestandVorjahr = "viele", bedarf = "0", rest = ""),
-        StockItem(art = "Pappen rechteckig", jahr = 2027, quelle = "Selgros", einheit = "10 x 16", bestandVorjahr = "250", bedarf = "400", rest = ""),
-        StockItem(art = "Pappschalen", jahr = 2027, quelle = "Selgros", einheit = "9 x 14 x 3", bestandVorjahr = "500", bedarf = "0", rest = ""),
-        StockItem(art = "Schmalzbecher", jahr = 2027, quelle = "Selgros", einheit = "Stk", bestandVorjahr = "260", bedarf = "0", rest = "")
+        StockItem(art = "PET-Flaschen", jahr = 2026, quelle = "Internet", bestandVorjahr = "400", bedarf = "960", rest = "640"),
+        StockItem(art = "Pfandetiketten", jahr = 2026, quelle = "Stadt", bestandVorjahr = "280", bedarf = "500", rest = "190"),
+        StockItem(art = "Gewürzgurken", jahr = 2026, quelle = "Selgros", bestandVorjahr = "1", bedarf = "9", rest = "2"),
+        StockItem(art = "Becher Struch 0,2", jahr = 2026, quelle = "Inernet", bestandVorjahr = "250", bedarf = "0", rest = "50"),
+        StockItem(art = "Becher Wein 0,2", jahr = 2026, quelle = "Selgros", bestandVorjahr = "7", bedarf = "60", rest = "36"),
+        StockItem(art = "Kaffeebecher 0,18", jahr = 2026, quelle = "Selgros", bestandVorjahr = "250", bedarf = "0", rest = "200"),
+        StockItem(art = "Kaffee", jahr = 2026, quelle = "Supermarkt", bestandVorjahr = "0", bedarf = "1", rest = "1"),
+        StockItem(art = "Kaffeefilter", jahr = 2026, quelle = "Supermarkt", bestandVorjahr = "1", bedarf = "0", rest = "0.5"),
+        StockItem(art = "Kaffee-Rührstäbchen", jahr = 2026, quelle = "Selgros", bestandVorjahr = "viele", bedarf = "", rest = ""),
+        StockItem(art = "Pappen rechteckig", jahr = 2026, quelle = "Selgros", bestandVorjahr = "550", bedarf = "300", rest = "250"),
+        StockItem(art = "Pappschalen", jahr = 2026, quelle = "Selgros", bestandVorjahr = "750", bedarf = "0", rest = "500"),
+        StockItem(art = "Schmalzbecher", jahr = 2026, quelle = "Selgros", bestandVorjahr = "260", bedarf = "0", rest = "260"),
+        StockItem(art = "PET-Flaschen", jahr = 2027, quelle = "Internet", bestandVorjahr = "640", bedarf = "200", rest = ""),
+        StockItem(art = "Pfandetiketten", jahr = 2027, quelle = "Stadt", bestandVorjahr = "190", bedarf = "500", rest = ""),
+        StockItem(art = "Gewürzgurken", jahr = 2027, quelle = "Selgros", bestandVorjahr = "2", bedarf = "6", rest = ""),
+        StockItem(art = "Becher Struch 0,2", jahr = 2027, quelle = "Inernet", bestandVorjahr = "50", bedarf = "200", rest = ""),
+        StockItem(art = "Becher Wein 0,2", jahr = 2027, quelle = "Selgros", bestandVorjahr = "36", bedarf = "0", rest = ""),
+        StockItem(art = "Kaffeebecher 0,18", jahr = 2027, quelle = "Selgros", bestandVorjahr = "200", bedarf = "0", rest = ""),
+        StockItem(art = "Kaffee", jahr = 2027, quelle = "Supermarkt", bestandVorjahr = "0", bedarf = "1", rest = ""),
+        StockItem(art = "Kaffeefilter", jahr = 2027, quelle = "Supermarkt", bestandVorjahr = "1", bedarf = "0", rest = ""),
+        StockItem(art = "Kaffee-Rührstäbchen", jahr = 2027, quelle = "Selgros", bestandVorjahr = "viele", bedarf = "0", rest = ""),
+        StockItem(art = "Pappen rechteckig", jahr = 2027, quelle = "Selgros", bestandVorjahr = "250", bedarf = "400", rest = ""),
+        StockItem(art = "Pappschalen", jahr = 2027, quelle = "Selgros", bestandVorjahr = "500", bedarf = "0", rest = ""),
+        StockItem(art = "Schmalzbecher", jahr = 2027, quelle = "Selgros", bestandVorjahr = "260", bedarf = "0", rest = "")
     )
 }

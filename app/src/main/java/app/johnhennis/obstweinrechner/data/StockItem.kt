@@ -8,10 +8,8 @@ data class StockItem(
     val jahr: Int = 0,
     val art: String = "",
     val quelle: String = "",
-    val einheit: String = "",
     val bestandVorjahr: String = "",
     val bedarf: String = "",
     val rest: String = "",
-    val bemerkung: String = "",
     val geloescht: Boolean = false
 )

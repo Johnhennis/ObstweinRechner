@@ -38,16 +38,10 @@ class StockViewModel(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
-    fun addItem(
-        jahr: Int, art: String, quelle: String, einheit: String,
-        bestandVorjahr: String, bedarf: String, rest: String, bemerkung: String
-    ) {
+    fun addItem(jahr: Int, art: String, quelle: String, bestandVorjahr: String, bedarf: String, rest: String) {
         viewModelScope.launch {
             repository.insert(
-                StockItem(
-                    jahr = jahr, art = art, quelle = quelle, einheit = einheit,
-                    bestandVorjahr = bestandVorjahr, bedarf = bedarf, rest = rest, bemerkung = bemerkung
-                )
+                StockItem(jahr = jahr, art = art, quelle = quelle, bestandVorjahr = bestandVorjahr, bedarf = bedarf, rest = rest)
             )
         }
     }

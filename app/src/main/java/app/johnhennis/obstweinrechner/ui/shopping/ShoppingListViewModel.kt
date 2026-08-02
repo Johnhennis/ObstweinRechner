@@ -67,7 +67,7 @@ class ShoppingListViewModel(
                 ShoppingListEntry(
                     itemId = item.id,
                     name = item.art,
-                    mengeText = "$menge${if (item.einheit.isBlank()) "" else " ${item.einheit}"}",
+                    mengeText = menge,
                     erledigt = statusMap[item.id]?.erledigt ?: false,
                     quelle = item.quelle,
                     source = ShoppingListSource.STOCK
