@@ -12,6 +12,7 @@ import app.johnhennis.obstweinrechner.data.ShoppingListRepository
 import app.johnhennis.obstweinrechner.data.StockItemRepository
 import app.johnhennis.obstweinrechner.data.ThemeRepository
 import app.johnhennis.obstweinrechner.data.WeinprobeRepository
+import app.johnhennis.obstweinrechner.data.WineOrderRepository
 import app.johnhennis.obstweinrechner.data.WineStockItemRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -36,6 +37,7 @@ class FruchtweinApplication : Application() {
     val themeRepository: ThemeRepository by lazy { ThemeRepository(this) }
     val wineStockItemRepository: WineStockItemRepository by lazy { WineStockItemRepository(FirebaseFirestore.getInstance()) }
     val weinprobeRepository: WeinprobeRepository by lazy { WeinprobeRepository(FirebaseFirestore.getInstance()) }
+    val wineOrderRepository: WineOrderRepository by lazy { WineOrderRepository(FirebaseFirestore.getInstance()) }
 
     override fun onCreate() {
         super.onCreate()

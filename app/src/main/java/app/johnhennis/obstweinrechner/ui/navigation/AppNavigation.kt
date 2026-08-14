@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Kitchen
@@ -46,6 +47,8 @@ import app.johnhennis.obstweinrechner.ui.stock.StockScreen
 import app.johnhennis.obstweinrechner.ui.stock.StockTrashScreen
 import app.johnhennis.obstweinrechner.ui.weinprobe.WeinprobeScreen
 import app.johnhennis.obstweinrechner.ui.weinprobe.WeinprobeTrashScreen
+import app.johnhennis.obstweinrechner.ui.wineorder.WineOrderScreen
+import app.johnhennis.obstweinrechner.ui.wineorder.WineOrderTrashScreen
 import app.johnhennis.obstweinrechner.ui.winestock.WineStockScreen
 import app.johnhennis.obstweinrechner.ui.winestock.WineStockTrashScreen
 import kotlinx.coroutines.launch
@@ -64,6 +67,8 @@ private object Routes {
     const val WINE_STOCK_TRASH = "wine_stock_trash"
     const val WEINPROBE = "weinprobe"
     const val WEINPROBE_TRASH = "weinprobe_trash"
+    const val WINE_ORDER = "wine_order"
+    const val WINE_ORDER_TRASH = "wine_order_trash"
     const val SETTINGS = "settings"
 }
 
@@ -127,6 +132,13 @@ fun AppNavigation(factory: AppViewModelFactory) {
                         icon = { Icon(Icons.Filled.RateReview, contentDescription = null) },
                         selected = false,
                         onClick = { navigateToTopLevel(Routes.WEINPROBE) },
+                        modifier = Modifier.padding(horizontal = 12.dp)
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Weinvorbestellung") },
+                        icon = { Icon(Icons.Filled.EventNote, contentDescription = null) },
+                        selected = false,
+                        onClick = { navigateToTopLevel(Routes.WINE_ORDER) },
                         modifier = Modifier.padding(horizontal = 12.dp)
                     )
                     NavigationDrawerItem(
@@ -223,6 +235,16 @@ fun AppNavigation(factory: AppViewModelFactory) {
                 }
                 composable(Routes.WEINPROBE_TRASH) {
                     WeinprobeTrashScreen(factory = factory, onBack = { navController.popBackStack() })
+                }
+                composable(Routes.WINE_ORDER) {
+                    WineOrderScreen(
+                        factory = factory,
+                        onOpenMenu = { scope.launch { drawerState.open() } },
+                        onOpenTrash = { navController.navigate(Routes.WINE_ORDER_TRASH) }
+                    )
+                }
+                composable(Routes.WINE_ORDER_TRASH) {
+                    WineOrderTrashScreen(factory = factory, onBack = { navController.popBackStack() })
                 }
                 composable(Routes.SETTINGS) {
                     SettingsScreen(factory = factory, onOpenMenu = { scope.launch { drawerState.open() } })

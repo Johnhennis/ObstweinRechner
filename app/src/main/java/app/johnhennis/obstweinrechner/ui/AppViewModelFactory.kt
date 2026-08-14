@@ -15,6 +15,7 @@ import app.johnhennis.obstweinrechner.data.ShoppingListRepository
 import app.johnhennis.obstweinrechner.data.StockItemRepository
 import app.johnhennis.obstweinrechner.data.ThemeRepository
 import app.johnhennis.obstweinrechner.data.WeinprobeRepository
+import app.johnhennis.obstweinrechner.data.WineOrderRepository
 import app.johnhennis.obstweinrechner.data.WineStockItemRepository
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorViewModel
 import app.johnhennis.obstweinrechner.ui.prices.PricesViewModel
@@ -25,6 +26,7 @@ import app.johnhennis.obstweinrechner.ui.settings.SettingsViewModel
 import app.johnhennis.obstweinrechner.ui.shopping.ShoppingListViewModel
 import app.johnhennis.obstweinrechner.ui.stock.StockViewModel
 import app.johnhennis.obstweinrechner.ui.weinprobe.WeinprobeViewModel
+import app.johnhennis.obstweinrechner.ui.wineorder.WineOrderViewModel
 import app.johnhennis.obstweinrechner.ui.winestock.WineStockViewModel
 
 class AppViewModelFactory(
@@ -39,7 +41,8 @@ class AppViewModelFactory(
     private val stockItemRepository: StockItemRepository,
     private val themeRepository: ThemeRepository,
     private val wineStockItemRepository: WineStockItemRepository,
-    private val weinprobeRepository: WeinprobeRepository
+    private val weinprobeRepository: WeinprobeRepository,
+    private val wineOrderRepository: WineOrderRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -55,6 +58,7 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(StockViewModel::class.java) -> StockViewModel(stockItemRepository) as T
             modelClass.isAssignableFrom(WineStockViewModel::class.java) -> WineStockViewModel(wineStockItemRepository) as T
             modelClass.isAssignableFrom(WeinprobeViewModel::class.java) -> WeinprobeViewModel(weinprobeRepository, wineStockItemRepository) as T
+            modelClass.isAssignableFrom(WineOrderViewModel::class.java) -> WineOrderViewModel(wineOrderRepository) as T
             else -> throw IllegalArgumentException("Unbekannte ViewModel-Klasse: ${modelClass.name}")
         }
     }
@@ -72,7 +76,8 @@ class AppViewModelFactory(
             application.stockItemRepository,
             application.themeRepository,
             application.wineStockItemRepository,
-            application.weinprobeRepository
+            application.weinprobeRepository,
+            application.wineOrderRepository
         )
     }
 }
