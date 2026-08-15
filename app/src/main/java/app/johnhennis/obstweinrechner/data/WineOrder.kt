@@ -6,8 +6,11 @@ data class WineOrder(
     val wer: String = "",
     val sorte: String = "",
     val menge: Double = 0.0,
-    // ISO JJJJ-MM-TT; leer = kein Termin/keine Erinnerung gesetzt
-    val wannDatum: String = "",
+    // Format "JJJJ-MM-TTTHH:mm"; leer = kein Termin gesetzt
+    val wannZeitpunkt: String = "",
+    // Stunden vor dem Termin, zu denen jeweils eine eigene Erinnerung
+    // ausgeloest wird (z.B. [24, 1] = einen Tag und eine Stunde vorher)
+    val erinnerungenStunden: List<Int> = emptyList(),
     val abgefuellt: Boolean = false,
     val abgeholt: Boolean = false,
     val geloescht: Boolean = false

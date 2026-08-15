@@ -18,34 +18,26 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -60,25 +52,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.johnhennis.obstweinrechner.data.WineOrder
+import app.johnhennis.obstweinrechner.notifications.parseWannZeitpunkt
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 private fun fmtNum(v: Double): String = if (v == 0.0) "" else v.toLong().toString()
 
-private fun displayDate(iso: String): String = if (iso.isBlank()) "" else try {
-    java.time.LocalDate.parse(iso).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-} catch (e: Exception) {
-    iso
+private fun displayZeitpunkt(iso: String): String {
+    val dt = parseWannZeitpunkt(iso) ?: return ""
+    return dt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
+}
+
+private fun displayErinnerungen(stunden: List<Int>): String {
+    if (stunden.isEmpty()) return "Keine Erinnerung"
+    return stunden.sortedDescending().joinToString(", ") { "${it}h" }
 }
 
 private sealed class WineOrderListEntry {
@@ -200,6 +193,7 @@ fun WineOrderScreen(
                         }
                         is WineOrderListEntry.Row -> {
                             WineOrderRow(
+                                factory = factory,
                                 order = entry.order,
                                 onUpdate = { viewModel.updateOrder(context, it) },
                                 onDelete = { confirmDeleteOrder = entry.order },
@@ -219,8 +213,8 @@ fun WineOrderScreen(
             factory = factory,
             defaultYear = viewModel.currentYear,
             onDismiss = { showAdd = false },
-            onAdd = { jahr, wer, sorte, menge, wann ->
-                viewModel.addOrder(context, jahr, wer, sorte, menge, wann)
+            onAdd = { jahr, wer, sorte, menge, wann, erinnerungen ->
+                viewModel.addOrder(context, jahr, wer, sorte, menge, wann, erinnerungen)
                 expandedYear = jahr
                 showAdd = false
             }
@@ -247,7 +241,7 @@ fun WineOrderScreen(
         AlertDialog(
             onDismissRequest = { confirmDeleteOrder = null },
             title = { ScaledContent(factory) { Text("In den Papierkorb verschieben?") } },
-            text = { ScaledContent(factory) { Text("\"${order.wer} – ${order.sorte}\" wandert in den Papierkorb, eine geplante Erinnerung wird storniert.") } },
+            text = { ScaledContent(factory) { Text("\"${order.wer} – ${order.sorte}\" wandert in den Papierkorb, geplante Erinnerungen werden storniert.") } },
             confirmButton = {
                 ScaledContent(factory) {
                     TextButton(onClick = { viewModel.deleteOrder(context, order); confirmDeleteOrder = null }) {
@@ -262,6 +256,7 @@ fun WineOrderScreen(
 
 @Composable
 private fun WineOrderRow(
+    factory: AppViewModelFactory,
     order: WineOrder,
     onUpdate: (WineOrder) -> Unit,
     onDelete: () -> Unit,
@@ -271,16 +266,15 @@ private fun WineOrderRow(
     var sorte by remember(order.id) { mutableStateOf(order.sorte) }
     var mengeText by remember(order.id) { mutableStateOf(fmtNum(order.menge)) }
     var userEdited by remember(order.id) { mutableStateOf(false) }
-    var showDatePicker by remember { mutableStateOf(false) }
+    var showWannPicker by remember { mutableStateOf(false) }
+    var showReminders by remember { mutableStateOf(false) }
 
     LaunchedEffect(wer, sorte, mengeText) {
         if (userEdited) {
-            delay(500)
+            kotlinx.coroutines.delay(500)
             onUpdate(order.copy(wer = wer, sorte = sorte, menge = mengeText.toIntOrNull()?.toDouble() ?: order.menge))
         }
     }
-
-    fun currentOrder() = order.copy(wer = wer, sorte = sorte, menge = mengeText.toIntOrNull()?.toDouble() ?: order.menge)
 
     Column(
         modifier = Modifier
@@ -304,32 +298,57 @@ private fun WineOrderRow(
             RowField(
                 mengeText,
                 { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) { mengeText = new; userEdited = true } },
-                "Menge", Modifier.weight(1f), keyboardType = KeyboardType.Number, onFocus = onFocusGained
+                "Menge", Modifier.weight(1f),
+                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, onFocus = onFocusGained
             )
-            Row(
-                modifier = Modifier.weight(1f).clickable { showDatePicker = true },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Icon(Icons.Filled.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
-                Text(
-                    if (order.wannDatum.isBlank()) "Datum wählen" else displayDate(order.wannDatum),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
         }
-        Row(modifier = Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = order.abgefuellt, onCheckedChange = { onUpdate(currentOrder().copy(abgefuellt = it)) })
+        Row(
+            modifier = Modifier.padding(top = 6.dp).fillMaxWidth().clickable { showWannPicker = true },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(Icons.Filled.CalendarMonth, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(
+                if (order.wannZeitpunkt.isBlank()) "Termin wählen" else displayZeitpunkt(order.wannZeitpunkt),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+        Row(
+            modifier = Modifier.padding(top = 4.dp).fillMaxWidth().clickable {
+                if (order.wannZeitpunkt.isNotBlank()) showReminders = true
+            },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(Icons.Filled.Notifications, contentDescription = null, modifier = Modifier.size(18.dp))
+            Text(
+                if (order.wannZeitpunkt.isBlank()) "Erst Termin wählen" else displayErinnerungen(order.erinnerungenStunden),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        Row(modifier = Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = order.abgefuellt, onCheckedChange = { onUpdate(order.copy(wer = wer, sorte = sorte, abgefuellt = it)) })
             Text("Abgefüllt", style = MaterialTheme.typography.bodyMedium)
-            Checkbox(checked = order.abgeholt, onCheckedChange = { onUpdate(currentOrder().copy(abgeholt = it)) })
+            Checkbox(checked = order.abgeholt, onCheckedChange = { onUpdate(order.copy(wer = wer, sorte = sorte, abgeholt = it)) })
             Text("Abgeholt", style = MaterialTheme.typography.bodyMedium)
         }
     }
 
-    if (showDatePicker) {
-        WineOrderDatePicker(
-            onDismiss = { showDatePicker = false },
-            onConfirm = { iso -> onUpdate(currentOrder().copy(wannDatum = iso)); showDatePicker = false }
+    if (showWannPicker) {
+        WannPicker(
+            initial = order.wannZeitpunkt,
+            onDismiss = { showWannPicker = false },
+            onConfirm = { iso -> onUpdate(order.copy(wer = wer, sorte = sorte, wannZeitpunkt = iso)); showWannPicker = false }
+        )
+    }
+
+    if (showReminders) {
+        RemindersDialog(
+            factory = factory,
+            current = order.erinnerungenStunden,
+            onSave = { list -> onUpdate(order.copy(wer = wer, sorte = sorte, erinnerungenStunden = list)); showReminders = false },
+            onDismiss = { showReminders = false }
         )
     }
 }
@@ -340,41 +359,146 @@ private fun RowField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text,
+    keyboardType: androidx.compose.ui.text.input.KeyboardType = androidx.compose.ui.text.input.KeyboardType.Text,
     onFocus: () -> Unit = {}
 ) {
-    OutlinedTextField(
+    androidx.compose.material3.OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label, style = MaterialTheme.typography.labelSmall) },
         textStyle = MaterialTheme.typography.bodySmall,
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType),
         modifier = modifier.onFocusChanged { if (it.isFocused) onFocus() }
     )
 }
 
+// Zweistufig: erst Datum, danach Uhrzeit - beides mit den Standard-Material3-
+// Dialogen, kein Zusatzpaket noetig. "initial" vorbelegt beide mit dem
+// bisherigen Wert, falls schon einer gesetzt war (zum Bearbeiten).
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WineOrderDatePicker(
+private fun WannPicker(
+    initial: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    val state = rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis())
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                val millis = state.selectedDateMillis ?: return@TextButton
-                val iso = Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate()
-                    .format(DateTimeFormatter.ISO_LOCAL_DATE)
-                onConfirm(iso)
-            }) { Text("Übernehmen") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Abbrechen") } }
-    ) {
-        DatePicker(state = state)
+    val initialParsed = parseWannZeitpunkt(initial)
+    var step by remember { mutableStateOf(1) }
+    var selectedDate by remember { mutableStateOf<java.time.LocalDate?>(null) }
+
+    val dateState = androidx.compose.material3.rememberDatePickerState(
+        initialSelectedDateMillis = initialParsed
+            ?.toLocalDate()
+            ?.atStartOfDay(java.time.ZoneOffset.UTC)
+            ?.toInstant()
+            ?.toEpochMilli()
+            ?: System.currentTimeMillis()
+    )
+    val timeState = androidx.compose.material3.rememberTimePickerState(
+        initialHour = initialParsed?.hour ?: 12,
+        initialMinute = initialParsed?.minute ?: 0,
+        is24Hour = true
+    )
+
+    if (step == 1) {
+        androidx.compose.material3.DatePickerDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = {
+                    val millis = dateState.selectedDateMillis ?: return@TextButton
+                    selectedDate = java.time.Instant.ofEpochMilli(millis).atZone(java.time.ZoneOffset.UTC).toLocalDate()
+                    step = 2
+                }) { Text("Weiter") }
+            },
+            dismissButton = { TextButton(onClick = onDismiss) { Text("Abbrechen") } }
+        ) {
+            androidx.compose.material3.DatePicker(state = dateState)
+        }
+    } else {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("Uhrzeit wählen") },
+            text = { androidx.compose.material3.TimePicker(state = timeState) },
+            confirmButton = {
+                TextButton(onClick = {
+                    val date = selectedDate ?: return@TextButton
+                    val dateTime = java.time.LocalDateTime.of(date, java.time.LocalTime.of(timeState.hour, timeState.minute))
+                    onConfirm(dateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")))
+                }) { Text("Übernehmen") }
+            },
+            dismissButton = { TextButton(onClick = onDismiss) { Text("Abbrechen") } }
+        )
     }
+}
+
+// Verwaltet die Liste der "Stunden vorher"-Erinnerungen: bestehende
+// einzeln entfernbar, neue per Zahl 1-24 hinzufuegbar. Kann jederzeit
+// erneut geoeffnet werden, um die Auswahl nachtraeglich zu aendern.
+@Composable
+private fun RemindersDialog(
+    factory: AppViewModelFactory,
+    current: List<Int>,
+    onSave: (List<Int>) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var reminders by remember { mutableStateOf(current.sortedDescending()) }
+    var newHours by remember { mutableStateOf("") }
+    var error by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { ScaledContent(factory) { Text("Erinnerungen") } },
+        text = {
+            ScaledContent(factory) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "Wie viele Stunden vor dem Termin erinnert werden soll. Mehrere Erinnerungen möglich.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (reminders.isEmpty()) {
+                        Text("Noch keine Erinnerung angelegt.", style = MaterialTheme.typography.bodySmall)
+                    } else {
+                        reminders.forEach { hours ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(if (hours == 1) "1 Stunde vorher" else "$hours Stunden vorher")
+                                IconButton(onClick = { reminders = reminders - hours }) {
+                                    Icon(Icons.Filled.Delete, contentDescription = "Entfernen")
+                                }
+                            }
+                        }
+                    }
+                    HorizontalDivider()
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        androidx.compose.material3.OutlinedTextField(
+                            value = newHours,
+                            onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]{0,2}$"))) newHours = new },
+                            label = { Text("Std. vorher (1-24)") },
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                            singleLine = true,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(onClick = {
+                            val h = newHours.toIntOrNull()
+                            when {
+                                h == null || h !in 1..24 -> error = "Bitte eine Zahl von 1 bis 24 eingeben."
+                                h in reminders -> error = "Diese Erinnerung gibt es schon."
+                                else -> { reminders = (reminders + h).sortedDescending(); newHours = ""; error = null }
+                            }
+                        }) { Text("Hinzufügen") }
+                    }
+                    error?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                }
+            }
+        },
+        confirmButton = { ScaledContent(factory) { TextButton(onClick = { onSave(reminders) }) { Text("Speichern") } } },
+        dismissButton = { ScaledContent(factory) { TextButton(onClick = onDismiss) { Text("Abbrechen") } } }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -383,14 +507,16 @@ private fun AddWineOrderDialog(
     factory: AppViewModelFactory,
     defaultYear: Int,
     onDismiss: () -> Unit,
-    onAdd: (Int, String, String, Double, String) -> Unit
+    onAdd: (Int, String, String, Double, String, List<Int>) -> Unit
 ) {
     var jahr by remember { mutableStateOf(defaultYear.toString()) }
     var wer by remember { mutableStateOf("") }
     var sorte by remember { mutableStateOf("") }
     var menge by remember { mutableStateOf("") }
-    var wannDatum by remember { mutableStateOf("") }
-    var showDatePicker by remember { mutableStateOf(false) }
+    var wannZeitpunkt by remember { mutableStateOf("") }
+    var erinnerungen by remember { mutableStateOf(listOf<Int>()) }
+    var showWannPicker by remember { mutableStateOf(false) }
+    var showReminders by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -399,34 +525,45 @@ private fun AddWineOrderDialog(
         text = {
             ScaledContent(factory) {
                 Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedTextField(
+                    androidx.compose.material3.OutlinedTextField(
                         value = jahr,
                         onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]{0,4}$"))) jahr = new },
                         label = { Text("Jahr") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    OutlinedTextField(value = wer, onValueChange = { wer = it }, label = { Text("Wer") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = sorte, onValueChange = { sorte = it }, label = { Text("Sorte") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(
+                    androidx.compose.material3.OutlinedTextField(value = wer, onValueChange = { wer = it }, label = { Text("Wer") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    androidx.compose.material3.OutlinedTextField(value = sorte, onValueChange = { sorte = it }, label = { Text("Sorte") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    androidx.compose.material3.OutlinedTextField(
                         value = menge,
                         onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) menge = new },
                         label = { Text("Menge") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     Row(
-                        modifier = Modifier.fillMaxWidth().clickable { showDatePicker = true },
+                        modifier = Modifier.fillMaxWidth().clickable { showWannPicker = true },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Filled.EventNote, contentDescription = null)
-                        Text(if (wannDatum.isBlank()) "Wann? Datum wählen (optional)" else displayDate(wannDatum))
+                        Icon(Icons.Filled.CalendarMonth, contentDescription = null)
+                        Text(if (wannZeitpunkt.isBlank()) "Termin wählen (optional)" else displayZeitpunkt(wannZeitpunkt))
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth().clickable { if (wannZeitpunkt.isNotBlank()) showReminders = true },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(Icons.Filled.Notifications, contentDescription = null)
+                        Text(
+                            if (wannZeitpunkt.isBlank()) "Erst Termin wählen" else displayErinnerungen(erinnerungen),
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                     error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 }
@@ -440,17 +577,27 @@ private fun AddWineOrderDialog(
                     if (wer.isBlank()) { error = "Bitte angeben, wer bestellt hat."; return@TextButton }
                     val mengeValue = if (menge.isBlank()) 0.0 else menge.toIntOrNull()?.toDouble()
                     if (mengeValue == null) { error = "Bitte eine gültige Menge eingeben."; return@TextButton }
-                    onAdd(jahrValue, wer.trim(), sorte.trim(), mengeValue, wannDatum)
+                    onAdd(jahrValue, wer.trim(), sorte.trim(), mengeValue, wannZeitpunkt, erinnerungen)
                 }) { Text("Hinzufügen") }
             }
         },
         dismissButton = { ScaledContent(factory) { TextButton(onClick = onDismiss) { Text("Abbrechen") } } }
     )
 
-    if (showDatePicker) {
-        WineOrderDatePicker(
-            onDismiss = { showDatePicker = false },
-            onConfirm = { iso -> wannDatum = iso; showDatePicker = false }
+    if (showWannPicker) {
+        WannPicker(
+            initial = wannZeitpunkt,
+            onDismiss = { showWannPicker = false },
+            onConfirm = { iso -> wannZeitpunkt = iso; showWannPicker = false }
+        )
+    }
+
+    if (showReminders) {
+        RemindersDialog(
+            factory = factory,
+            current = erinnerungen,
+            onSave = { list -> erinnerungen = list; showReminders = false },
+            onDismiss = { showReminders = false }
         )
     }
 }

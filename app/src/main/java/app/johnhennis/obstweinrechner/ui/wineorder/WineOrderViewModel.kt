@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.johnhennis.obstweinrechner.data.WineOrder
 import app.johnhennis.obstweinrechner.data.WineOrderRepository
-import app.johnhennis.obstweinrechner.notifications.cancelReminder
-import app.johnhennis.obstweinrechner.notifications.scheduleReminder
+import app.johnhennis.obstweinrechner.notifications.cancelAllPossibleReminders
+import app.johnhennis.obstweinrechner.notifications.scheduleReminders
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -41,34 +41,40 @@ class WineOrderViewModel(
         scope = viewModelScope, started = SharingStarted.WhileSubscribed(5_000), initialValue = emptyList()
     )
 
-    fun addOrder(context: Context, jahr: Int, wer: String, sorte: String, menge: Double, wannDatum: String) {
+    fun addOrder(
+        context: Context, jahr: Int, wer: String, sorte: String, menge: Double,
+        wannZeitpunkt: String, erinnerungenStunden: List<Int>
+    ) {
         viewModelScope.launch {
-            val id = repository.insert(WineOrder(jahr = jahr, wer = wer, sorte = sorte, menge = menge, wannDatum = wannDatum))
-            if (wannDatum.isNotBlank()) scheduleReminder(context, id, wer, sorte, wannDatum)
+            val order = WineOrder(
+                jahr = jahr, wer = wer, sorte = sorte, menge = menge,
+                wannZeitpunkt = wannZeitpunkt, erinnerungenStunden = erinnerungenStunden
+            )
+            val id = repository.insert(order)
+            scheduleReminders(context, order.copy(id = id))
         }
     }
 
+    // Deckt sowohl Feldaenderungen als auch Termin-/Erinnerungs-Aenderungen
+    // ab - scheduleReminders() storniert intern immer erst alles und plant
+    // dann neu, das ist also auch fuer nachtraegliches Bearbeiten sicher.
     fun updateOrder(context: Context, order: WineOrder) {
         viewModelScope.launch {
             repository.update(order)
-            if (order.abgeholt || order.wannDatum.isBlank()) {
-                cancelReminder(context, order.id)
-            } else {
-                scheduleReminder(context, order.id, order.wer, order.sorte, order.wannDatum)
-            }
+            scheduleReminders(context, order)
         }
     }
 
     fun deleteOrder(context: Context, order: WineOrder) {
         viewModelScope.launch {
-            cancelReminder(context, order.id)
+            cancelAllPossibleReminders(context, order.id)
             repository.moveToTrash(order)
         }
     }
 
     fun deleteYear(context: Context, jahr: Int) {
         viewModelScope.launch {
-            yearGroups.value.find { it.jahr == jahr }?.orders?.forEach { cancelReminder(context, it.id) }
+            yearGroups.value.find { it.jahr == jahr }?.orders?.forEach { cancelAllPossibleReminders(context, it.id) }
             repository.moveYearToTrash(jahr)
         }
     }
@@ -76,38 +82,32 @@ class WineOrderViewModel(
     fun restoreOrder(context: Context, order: WineOrder) {
         viewModelScope.launch {
             repository.restore(order)
-            if (!order.abgeholt && order.wannDatum.isNotBlank()) {
-                scheduleReminder(context, order.id, order.wer, order.sorte, order.wannDatum)
-            }
+            scheduleReminders(context, order)
         }
     }
 
-    fun deleteOrderPermanently(order: WineOrder) {
-        viewModelScope.launch { repository.deletePermanently(order) }
+    fun deleteOrderPermanently(context: Context, order: WineOrder) {
+        viewModelScope.launch {
+            cancelAllPossibleReminders(context, order.id)
+            repository.deletePermanently(order)
+        }
     }
 
     fun restoreYear(context: Context, jahr: Int) {
         viewModelScope.launch {
             repository.restoreYear(jahr)
-            trashedByYear.value.find { it.jahr == jahr }?.orders?.forEach { order ->
-                if (!order.abgeholt && order.wannDatum.isNotBlank()) {
-                    scheduleReminder(context, order.id, order.wer, order.sorte, order.wannDatum)
-                }
-            }
+            trashedByYear.value.find { it.jahr == jahr }?.orders?.forEach { scheduleReminders(context, it) }
         }
     }
 
-    fun deleteYearPermanently(jahr: Int) {
-        viewModelScope.launch { repository.deleteYearPermanently(jahr) }
+    fun deleteYearPermanently(context: Context, jahr: Int) {
+        viewModelScope.launch {
+            trashedByYear.value.find { it.jahr == jahr }?.orders?.forEach { cancelAllPossibleReminders(context, it.id) }
+            repository.deleteYearPermanently(jahr)
+        }
     }
 
     fun rescheduleAllPending(context: Context) {
-        yearGroups.value.forEach { group ->
-            group.orders.forEach { order ->
-                if (!order.abgeholt && order.wannDatum.isNotBlank()) {
-                    scheduleReminder(context, order.id, order.wer, order.sorte, order.wannDatum)
-                }
-            }
-        }
+        yearGroups.value.forEach { group -> group.orders.forEach { order -> scheduleReminders(context, order) } }
     }
 }

@@ -3,6 +3,7 @@ package app.johnhennis.obstweinrechner.notifications
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import app.johnhennis.obstweinrechner.data.WineOrder
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,11 +11,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 // Android verwirft alle per AlarmManager geplanten Erinnerungen bei einem
-// Geräte-Neustart. Dieser Empfänger liest beim Hochfahren alle offenen
-// Weinvorbestellungen mit gesetztem Termin erneut aus Firestore und plant
-// die Erinnerungen neu. Zusätzliche Absicherung: WineOrderViewModel plant
-// beim Öffnen des Tabs ebenfalls alles neu, falls hier z.B. mangels Netz
-// beim Hochfahren nichts ankommt.
+// Geraete-Neustart. Dieser Empfaenger liest beim Hochfahren alle offenen
+// Weinvorbestellungen erneut aus Firestore und plant ihre Erinnerungen neu.
+// Zusaetzliche Absicherung: WineOrderViewModel plant beim Oeffnen des Tabs
+// ebenfalls alles neu, falls hier z.B. mangels Netz nichts ankommt.
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
@@ -24,12 +24,8 @@ class BootReceiver : BroadcastReceiver() {
             try {
                 val snapshot = FirebaseFirestore.getInstance().collection("wineOrders").get().await()
                 snapshot.documents.forEach { doc ->
-                    val geloescht = doc.getBoolean("geloescht") == true
-                    val abgeholt = doc.getBoolean("abgeholt") == true
-                    val wannDatum = doc.getString("wannDatum") ?: ""
-                    if (!geloescht && !abgeholt && wannDatum.isNotBlank()) {
-                        scheduleReminder(appContext, doc.id, doc.getString("wer") ?: "", doc.getString("sorte") ?: "", wannDatum)
-                    }
+                    val order = doc.toObject(WineOrder::class.java)?.copy(id = doc.id) ?: return@forEach
+                    if (!order.geloescht) scheduleReminders(appContext, order)
                 }
             } catch (e: Exception) {
                 // Kein Netz beim Hochfahren - Absicherung s.o.

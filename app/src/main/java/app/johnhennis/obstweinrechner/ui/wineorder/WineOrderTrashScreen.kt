@@ -109,7 +109,7 @@ fun WineOrderTrashScreen(
             text = { ScaledContent(factory) { Text("\"${order.wer} – ${order.sorte}\" wird unwiderruflich gelöscht.") } },
             confirmButton = {
                 ScaledContent(factory) {
-                    TextButton(onClick = { viewModel.deleteOrderPermanently(order); confirmDeleteOrder = null }) {
+                    TextButton(onClick = { viewModel.deleteOrderPermanently(context, order); confirmDeleteOrder = null }) {
                         Text("Löschen", color = MaterialTheme.colorScheme.error)
                     }
                 }
@@ -125,7 +125,7 @@ fun WineOrderTrashScreen(
             text = { ScaledContent(factory) { Text("Alle Vorbestellungen aus $jahr werden unwiderruflich gelöscht.") } },
             confirmButton = {
                 ScaledContent(factory) {
-                    TextButton(onClick = { viewModel.deleteYearPermanently(jahr); confirmDeleteYear = null }) {
+                    TextButton(onClick = { viewModel.deleteYearPermanently(context, jahr); confirmDeleteYear = null }) {
                         Text("Alle löschen", color = MaterialTheme.colorScheme.error)
                     }
                 }
