@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import app.johnhennis.obstweinrechner.data.WineOrder
@@ -34,6 +35,17 @@ fun parseWannZeitpunkt(value: String): LocalDateTime? = try {
     LocalDateTime.parse(value, WANN_FORMAT)
 } catch (e: Exception) {
     null
+}
+
+fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+    val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager ?: return true
+    return pm.isIgnoringBatteryOptimizations(context.packageName)
+}
+
+fun canScheduleExactAlarms(context: Context): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
+    val am = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return false
+    return am.canScheduleExactAlarms()
 }
 
 private fun requestCode(orderId: String, offsetHours: Int): Int = "${orderId}_$offsetHours".hashCode()
@@ -65,17 +77,28 @@ fun cancelAllPossibleReminders(context: Context, orderId: String) {
     }
 }
 
+// Nutzt exakte Alarme (setExactAndAllowWhileIdle), sofern die Berechtigung
+// dafuer erteilt ist - die werden von Androids Doze-Modus deutlich
+// zuverlaessiger behandelt als ungenaue. Faellt sonst auf die ungenaue
+// Variante zurueck (besser als gar nichts). Ersetzt die alte, rein
+// ungenaue Planung.
 fun scheduleReminders(context: Context, order: WineOrder) {
     cancelAllPossibleReminders(context, order.id)
     if (order.abgeholt) return
     val termin = parseWannZeitpunkt(order.wannZeitpunkt) ?: return
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
+    val exactErlaubt = canScheduleExactAlarms(context)
     order.erinnerungenStunden.distinct().filter { it in 1..24 }.forEach { hours ->
         val triggerMillis = termin.minusHours(hours.toLong())
             .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         if (triggerMillis > System.currentTimeMillis()) {
             try {
-                alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, pendingIntentFor(context, order, hours))
+                val pendingIntent = pendingIntentFor(context, order, hours)
+                if (exactErlaubt) {
+                    alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, pendingIntent)
+                } else {
+                    alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, pendingIntent)
+                }
             } catch (e: SecurityException) {
                 // Keine Berechtigung - diese Erinnerung faellt aus.
             }
@@ -83,13 +106,6 @@ fun scheduleReminders(context: Context, order: WineOrder) {
     }
 }
 
-// setSmallIcon() erzwingt seitens Android IMMER eine reine Silhouette in der
-// Statusleiste, egal welches Bild man uebergibt - das laesst sich nicht
-// umgehen. setLargeIcon() dagegen zeigt ein echtes Farbbild innerhalb der
-// aufgeklappten Benachrichtigung - dort erscheint jetzt das tatsaechliche,
-// bunte App-Icon statt der Standard-Glocke. applicationInfo.icon fragt
-// direkt das aktuell konfigurierte Launcher-Icon ab, unabhaengig vom
-// genauen Ressourcennamen.
 fun showReminderNotification(context: Context, wer: String, sortenText: String, offsetHours: Int) {
     ensureNotificationChannel(context)
     val zeitText = if (offsetHours == 1) "in 1 Stunde" else "in $offsetHours Stunden"

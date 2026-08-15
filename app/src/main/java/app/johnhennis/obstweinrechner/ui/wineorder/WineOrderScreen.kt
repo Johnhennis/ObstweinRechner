@@ -6,8 +6,6 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,10 +15,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
@@ -149,65 +150,68 @@ fun WineOrderScreen(
             )
         }
     ) { padding ->
-        if (yearGroups.isEmpty()) {
-            Column(modifier = Modifier.padding(padding).padding(16.dp)) {
-                Text("Noch keine Vorbestellungen erfasst. Oben rechts mit + eine neue hinzufügen.", style = MaterialTheme.typography.bodyMedium)
-            }
-        } else {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth().imePadding(),
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                itemsIndexed(
-                    flatList,
-                    key = { _, entry ->
-                        when (entry) {
-                            is WineOrderListEntry.YearHeader -> "header_${entry.jahr}"
-                            is WineOrderListEntry.Row -> entry.order.id
-                        }
-                    }
-                ) { index, entry ->
-                    when (entry) {
-                        is WineOrderListEntry.YearHeader -> {
-                            val isExpanded = entry.jahr == expandedYear
-                            Column {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { expandedYear = if (isExpanded) null else entry.jahr }
-                                        .padding(top = 8.dp, bottom = 4.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Icon(
-                                            if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                                            contentDescription = null
-                                        )
-                                        Text(
-                                            "${entry.jahr} (${entry.count})",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                    IconButton(onClick = { confirmDeleteYear = entry.jahr }, modifier = Modifier.size(32.dp)) {
-                                        Icon(Icons.Filled.Delete, contentDescription = "Jahr ${entry.jahr} in den Papierkorb", modifier = Modifier.size(18.dp))
-                                    }
-                                }
-                                HorizontalDivider(modifier = Modifier.padding(bottom = 6.dp))
+        Column(modifier = Modifier.padding(padding).fillMaxWidth()) {
+            ReminderPermissionsBanner()
+            if (yearGroups.isEmpty()) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Noch keine Vorbestellungen erfasst. Oben rechts mit + eine neue hinzufügen.", style = MaterialTheme.typography.bodyMedium)
+                }
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.weight(1f).padding(horizontal = 12.dp).fillMaxWidth().imePadding(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    itemsIndexed(
+                        flatList,
+                        key = { _, entry ->
+                            when (entry) {
+                                is WineOrderListEntry.YearHeader -> "header_${entry.jahr}"
+                                is WineOrderListEntry.Row -> entry.order.id
                             }
                         }
-                        is WineOrderListEntry.Row -> {
-                            WineOrderRow(
-                                factory = factory,
-                                order = entry.order,
-                                onUpdate = { viewModel.updateOrder(context, it) },
-                                onDelete = { confirmDeleteOrder = entry.order },
-                                onFocusGained = {
-                                    coroutineScope.launch { listState.animateScrollToItem(index) }
+                    ) { index, entry ->
+                        when (entry) {
+                            is WineOrderListEntry.YearHeader -> {
+                                val isExpanded = entry.jahr == expandedYear
+                                Column {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { expandedYear = if (isExpanded) null else entry.jahr }
+                                            .padding(top = 8.dp, bottom = 4.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                                                contentDescription = null
+                                            )
+                                            Text(
+                                                "${entry.jahr} (${entry.count})",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                        IconButton(onClick = { confirmDeleteYear = entry.jahr }, modifier = Modifier.size(32.dp)) {
+                                            Icon(Icons.Filled.Delete, contentDescription = "Jahr ${entry.jahr} in den Papierkorb", modifier = Modifier.size(18.dp))
+                                        }
+                                    }
+                                    HorizontalDivider(modifier = Modifier.padding(bottom = 6.dp))
                                 }
-                            )
+                            }
+                            is WineOrderListEntry.Row -> {
+                                WineOrderRow(
+                                    factory = factory,
+                                    order = entry.order,
+                                    onUpdate = { viewModel.updateOrder(context, it) },
+                                    onDelete = { confirmDeleteOrder = entry.order },
+                                    onFocusGained = {
+                                        coroutineScope.launch { listState.animateScrollToItem(index) }
+                                    }
+                                )
+                            }
                         }
                     }
                 }
