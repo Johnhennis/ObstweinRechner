@@ -13,6 +13,7 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import app.johnhennis.obstweinrechner.MainActivity
 import app.johnhennis.obstweinrechner.R
 import app.johnhennis.obstweinrechner.data.WineOrder
 import java.time.LocalDateTime
@@ -113,10 +114,21 @@ private fun appIconAsBitmap(context: Context, size: Int = 192): Bitmap? {
     return bitmap
 }
 
-// setSmallIcon() nutzt jetzt R.drawable.ic_notification - ein eigenes,
-// bewusst einfaches Symbol nur fuers Benachrichtigungssymbol (Android macht
-// daraus ohnehin immer eine reine Silhouette). setLargeIcon() zeigt weiterhin
-// das echte, farbige App-Icon.
+// Baut den PendingIntent fuers Antippen der Benachrichtigung selbst (nicht
+// zu verwechseln mit pendingIntentFor() oben, der fuers Ausloesen des
+// Alarms zustaendig ist). Startet MainActivity mit einer Ziel-Angabe, die
+// dort ausgelesen wird, um direkt zum Weinvorbestellung-Tab zu springen.
+private fun contentIntentFor(context: Context): PendingIntent {
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        putExtra(EXTRA_OPEN_SCREEN, SCREEN_WINE_ORDER)
+    }
+    return PendingIntent.getActivity(
+        context, 0, intent,
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+}
+
 fun showReminderNotification(context: Context, wer: String, sortenText: String, offsetHours: Int) {
     ensureNotificationChannel(context)
     val zeitText = if (offsetHours == 1) "in 1 Stunde" else "in $offsetHours Stunden"
@@ -127,6 +139,7 @@ fun showReminderNotification(context: Context, wer: String, sortenText: String, 
         .setContentText("$wer – $sortenText")
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setAutoCancel(true)
+        .setContentIntent(contentIntentFor(context))
     if (largeIcon != null) builder.setLargeIcon(largeIcon)
     try {
         NotificationManagerCompat.from(context).notify((wer + sortenText + offsetHours).hashCode(), builder.build())

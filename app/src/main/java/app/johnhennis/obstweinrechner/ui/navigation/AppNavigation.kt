@@ -26,6 +26,9 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,6 +36,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import app.johnhennis.obstweinrechner.notifications.SCREEN_WINE_ORDER
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.calculator.CalculatorScreen
 import app.johnhennis.obstweinrechner.ui.common.InAppUpdateChecker
@@ -78,7 +82,10 @@ private object Routes {
 }
 
 @Composable
-fun AppNavigation(factory: AppViewModelFactory) {
+fun AppNavigation(
+    factory: AppViewModelFactory,
+    pendingOpenScreen: MutableState<String?>? = null
+) {
     InAppUpdateChecker()
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -90,6 +97,23 @@ fun AppNavigation(factory: AppViewModelFactory) {
 
         BackHandler(enabled = drawerState.isOpen) {
             scope.launch { drawerState.close() }
+        }
+
+        // Reagiert, wenn eine Benachrichtigung angetippt wurde (siehe
+        // MainActivity) - springt einmalig zum gewuenschten Tab und
+        // loescht die Zielangabe danach wieder, damit sie nicht bei jeder
+        // Neuzusammensetzung erneut ausgeloest wird.
+        if (pendingOpenScreen != null) {
+            LaunchedEffect(pendingOpenScreen.value) {
+                if (pendingOpenScreen.value == SCREEN_WINE_ORDER) {
+                    navController.navigate(Routes.WINE_ORDER) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                    pendingOpenScreen.value = null
+                }
+            }
         }
 
         fun navigateToTopLevel(route: String) {
