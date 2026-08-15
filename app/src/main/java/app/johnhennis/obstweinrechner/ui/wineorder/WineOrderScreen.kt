@@ -6,6 +6,8 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -546,7 +548,7 @@ private fun AddWineOrderDialog(
         text = {
             ScaledContent(factory) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().androidx.compose.foundation.verticalScroll(androidx.compose.foundation.rememberScrollState()),
+                    modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     androidx.compose.material3.OutlinedTextField(

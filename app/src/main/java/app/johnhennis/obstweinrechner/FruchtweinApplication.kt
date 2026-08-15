@@ -76,6 +76,10 @@ class FruchtweinApplication : Application() {
                 wineOrderRepository.migrateToPositionen()
                 prefs.edit().putBoolean("wineOrderMigrated_v1", true).apply()
             }
+            if (!prefs.getBoolean("wineOrderMigrated_v1", false)) {
+                wineOrderRepository.migrateToPositionen()
+                prefs.edit().putBoolean("wineOrderMigrated_v1", true).apply()
+            }
         }
     }
 }
