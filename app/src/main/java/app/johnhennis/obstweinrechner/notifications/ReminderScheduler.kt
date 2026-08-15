@@ -6,11 +6,13 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import app.johnhennis.obstweinrechner.data.WineOrder
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -77,11 +79,6 @@ fun cancelAllPossibleReminders(context: Context, orderId: String) {
     }
 }
 
-// Nutzt exakte Alarme (setExactAndAllowWhileIdle), sofern die Berechtigung
-// dafuer erteilt ist - die werden von Androids Doze-Modus deutlich
-// zuverlaessiger behandelt als ungenaue. Faellt sonst auf die ungenaue
-// Variante zurueck (besser als gar nichts). Ersetzt die alte, rein
-// ungenaue Planung.
 fun scheduleReminders(context: Context, order: WineOrder) {
     cancelAllPossibleReminders(context, order.id)
     if (order.abgeholt) return
@@ -106,17 +103,26 @@ fun scheduleReminders(context: Context, order: WineOrder) {
     }
 }
 
+// BitmapFactory.decodeResource() kann grundsaetzlich KEINE Vektor-/Adaptive-
+// Icons lesen (nur klassische PNG/JPEG) - bei einem Vektor-Icon wie unserem
+// gab das bisher still "null" zurueck, das grosse Icon erschien nie. Richtige
+// Methode: das Drawable ganz normal laden (das kennt Vektoren/Adaptive Icons)
+// und selbst auf eine Bitmap-Leinwand zeichnen.
+private fun appIconAsBitmap(context: Context, size: Int = 192): Bitmap? {
+    val drawable = ContextCompat.getDrawable(context, context.applicationInfo.icon) ?: return null
+    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.draw(canvas)
+    return bitmap
+}
+
 fun showReminderNotification(context: Context, wer: String, sortenText: String, offsetHours: Int) {
     ensureNotificationChannel(context)
     val zeitText = if (offsetHours == 1) "in 1 Stunde" else "in $offsetHours Stunden"
-    val appIconRes = context.applicationInfo.icon
-    val largeIcon = try {
-        BitmapFactory.decodeResource(context.resources, appIconRes)
-    } catch (e: Exception) {
-        null
-    }
+    val largeIcon = appIconAsBitmap(context)
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(appIconRes)
+        .setSmallIcon(context.applicationInfo.icon)
         .setContentTitle("Weinvorbestellung $zeitText fällig")
         .setContentText("$wer – $sortenText")
         .setPriority(NotificationCompat.PRIORITY_HIGH)
