@@ -13,6 +13,7 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import app.johnhennis.obstweinrechner.R
 import app.johnhennis.obstweinrechner.data.WineOrder
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -103,11 +104,6 @@ fun scheduleReminders(context: Context, order: WineOrder) {
     }
 }
 
-// BitmapFactory.decodeResource() kann grundsaetzlich KEINE Vektor-/Adaptive-
-// Icons lesen (nur klassische PNG/JPEG) - bei einem Vektor-Icon wie unserem
-// gab das bisher still "null" zurueck, das grosse Icon erschien nie. Richtige
-// Methode: das Drawable ganz normal laden (das kennt Vektoren/Adaptive Icons)
-// und selbst auf eine Bitmap-Leinwand zeichnen.
 private fun appIconAsBitmap(context: Context, size: Int = 192): Bitmap? {
     val drawable = ContextCompat.getDrawable(context, context.applicationInfo.icon) ?: return null
     val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
@@ -117,12 +113,16 @@ private fun appIconAsBitmap(context: Context, size: Int = 192): Bitmap? {
     return bitmap
 }
 
+// setSmallIcon() nutzt jetzt R.drawable.ic_notification - ein eigenes,
+// bewusst einfaches Symbol nur fuers Benachrichtigungssymbol (Android macht
+// daraus ohnehin immer eine reine Silhouette). setLargeIcon() zeigt weiterhin
+// das echte, farbige App-Icon.
 fun showReminderNotification(context: Context, wer: String, sortenText: String, offsetHours: Int) {
     ensureNotificationChannel(context)
     val zeitText = if (offsetHours == 1) "in 1 Stunde" else "in $offsetHours Stunden"
     val largeIcon = appIconAsBitmap(context)
     val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(context.applicationInfo.icon)
+        .setSmallIcon(R.drawable.ic_notification)
         .setContentTitle("Weinvorbestellung $zeitText fällig")
         .setContentText("$wer – $sortenText")
         .setPriority(NotificationCompat.PRIORITY_HIGH)

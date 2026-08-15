@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Eigenes, bewusst einfaches Symbol nur fuers Benachrichtigungssymbol -
+     Android macht daraus ohnehin immer eine reine Silhouette (nur Alpha-
+     Kanal zaehlt), daher hier ganz bewusst ein simples Weinglas aus drei
+     einfachen Formen (Kelch/Stiel/Fuss) statt der detailreichen Flasche+
+     Glas-Grafik vom Start-Icon, die als Silhouette verschwimmt. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FFFFFF">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,3 C4,9 7,13 12,14 C17,13 20,9 18,3 Z M11,14 L13,14 L13,18 L11,18 Z M8,19 L16,19 L16,21 L8,21 Z" />
+</vector>
