@@ -35,6 +35,9 @@ import app.johnhennis.obstweinrechner.data.WineOrder
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
 
+private fun sortenSummary(order: WineOrder): String =
+    order.positionen.joinToString(", ") { it.sorte }.ifBlank { "–" }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WineOrderTrashScreen(
@@ -87,7 +90,7 @@ fun WineOrderTrashScreen(
                     items(group.orders, key = { it.id }) { order ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("${order.wer} – ${order.sorte}", style = MaterialTheme.typography.bodyMedium)
+                                Text("${order.wer} – ${sortenSummary(order)}", style = MaterialTheme.typography.bodyMedium)
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     TextButton(onClick = { viewModel.restoreOrder(context, order) }) { Text("Wiederherstellen") }
                                     TextButton(onClick = { confirmDeleteOrder = order }) {
@@ -106,7 +109,7 @@ fun WineOrderTrashScreen(
         AlertDialog(
             onDismissRequest = { confirmDeleteOrder = null },
             title = { ScaledContent(factory) { Text("Endgültig löschen?") } },
-            text = { ScaledContent(factory) { Text("\"${order.wer} – ${order.sorte}\" wird unwiderruflich gelöscht.") } },
+            text = { ScaledContent(factory) { Text("\"${order.wer} – ${sortenSummary(order)}\" wird unwiderruflich gelöscht.") } },
             confirmButton = {
                 ScaledContent(factory) {
                     TextButton(onClick = { viewModel.deleteOrderPermanently(context, order); confirmDeleteOrder = null }) {

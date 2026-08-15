@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -56,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import app.johnhennis.obstweinrechner.data.WineOrder
+import app.johnhennis.obstweinrechner.data.WineOrderItem
 import app.johnhennis.obstweinrechner.notifications.parseWannZeitpunkt
 import app.johnhennis.obstweinrechner.ui.AppViewModelFactory
 import app.johnhennis.obstweinrechner.ui.common.ScaledContent
@@ -73,6 +75,9 @@ private fun displayErinnerungen(stunden: List<Int>): String {
     if (stunden.isEmpty()) return "Keine Erinnerung"
     return stunden.sortedDescending().joinToString(", ") { "${it}h" }
 }
+
+private fun sortenSummary(order: WineOrder): String =
+    order.positionen.joinToString(", ") { it.sorte }.ifBlank { "–" }
 
 private sealed class WineOrderListEntry {
     data class YearHeader(val jahr: Int, val count: Int) : WineOrderListEntry()
@@ -213,8 +218,8 @@ fun WineOrderScreen(
             factory = factory,
             defaultYear = viewModel.currentYear,
             onDismiss = { showAdd = false },
-            onAdd = { jahr, wer, sorte, menge, wann, erinnerungen ->
-                viewModel.addOrder(context, jahr, wer, sorte, menge, wann, erinnerungen)
+            onAdd = { jahr, wer, positionen, wann, erinnerungen ->
+                viewModel.addOrder(context, jahr, wer, positionen, wann, erinnerungen)
                 expandedYear = jahr
                 showAdd = false
             }
@@ -241,7 +246,7 @@ fun WineOrderScreen(
         AlertDialog(
             onDismissRequest = { confirmDeleteOrder = null },
             title = { ScaledContent(factory) { Text("In den Papierkorb verschieben?") } },
-            text = { ScaledContent(factory) { Text("\"${order.wer} – ${order.sorte}\" wandert in den Papierkorb, geplante Erinnerungen werden storniert.") } },
+            text = { ScaledContent(factory) { Text("\"${order.wer} – ${sortenSummary(order)}\" wandert in den Papierkorb, geplante Erinnerungen werden storniert.") } },
             confirmButton = {
                 ScaledContent(factory) {
                     TextButton(onClick = { viewModel.deleteOrder(context, order); confirmDeleteOrder = null }) {
@@ -263,16 +268,25 @@ private fun WineOrderRow(
     onFocusGained: () -> Unit
 ) {
     var wer by remember(order.id) { mutableStateOf(order.wer) }
-    var sorte by remember(order.id) { mutableStateOf(order.sorte) }
-    var mengeText by remember(order.id) { mutableStateOf(fmtNum(order.menge)) }
+    val positionen = remember(order.id) {
+        androidx.compose.runtime.mutableStateListOf<Pair<String, String>>().apply {
+            if (order.positionen.isEmpty()) add("" to "")
+            else order.positionen.forEach { add(it.sorte to fmtNum(it.menge)) }
+        }
+    }
     var userEdited by remember(order.id) { mutableStateOf(false) }
     var showWannPicker by remember { mutableStateOf(false) }
     var showReminders by remember { mutableStateOf(false) }
 
-    LaunchedEffect(wer, sorte, mengeText) {
+    fun buildPositionen(): List<WineOrderItem> = positionen.mapNotNull { (sorte, mengeText) ->
+        if (sorte.isBlank() && mengeText.isBlank()) null
+        else WineOrderItem(sorte = sorte, menge = mengeText.toIntOrNull()?.toDouble() ?: 0.0)
+    }
+
+    LaunchedEffect(wer, positionen.toList()) {
         if (userEdited) {
             kotlinx.coroutines.delay(500)
-            onUpdate(order.copy(wer = wer, sorte = sorte, menge = mengeText.toIntOrNull()?.toDouble() ?: order.menge))
+            onUpdate(order.copy(wer = wer, positionen = buildPositionen()))
         }
     }
 
@@ -285,25 +299,39 @@ private fun WineOrderRow(
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
             RowField(wer, { wer = it; userEdited = true }, "Wer", Modifier.weight(1f), onFocus = onFocusGained)
-            RowField(sorte, { sorte = it; userEdited = true }, "Sorte", Modifier.weight(1f), onFocus = onFocusGained)
             IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
+                Icon(Icons.Filled.Delete, contentDescription = "Bestellung entfernen", modifier = Modifier.size(18.dp))
             }
         }
-        Row(
-            modifier = Modifier.padding(top = 3.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RowField(
-                mengeText,
-                { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) { mengeText = new; userEdited = true } },
-                "Menge", Modifier.weight(1f),
-                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, onFocus = onFocusGained
-            )
+
+        positionen.forEachIndexed { index, (sorte, mengeText) ->
+            Row(
+                modifier = Modifier.padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RowField(sorte, { positionen[index] = it to mengeText; userEdited = true }, "Sorte", Modifier.weight(1.3f), onFocus = onFocusGained)
+                RowField(
+                    mengeText,
+                    { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) { positionen[index] = sorte to new; userEdited = true } },
+                    "Menge", Modifier.weight(0.8f),
+                    keyboardType = androidx.compose.ui.text.input.KeyboardType.Number, onFocus = onFocusGained
+                )
+                IconButton(
+                    onClick = { if (positionen.size > 1) { positionen.removeAt(index); userEdited = true } },
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Icon(Icons.Filled.Close, contentDescription = "Sorte entfernen", modifier = Modifier.size(16.dp))
+                }
+            }
         }
+        TextButton(onClick = { positionen.add("" to ""); userEdited = true }, modifier = Modifier.padding(top = 2.dp)) {
+            Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+            Text("Sorte hinzufügen", style = MaterialTheme.typography.bodySmall)
+        }
+
         Row(
-            modifier = Modifier.padding(top = 6.dp).fillMaxWidth().clickable { showWannPicker = true },
+            modifier = Modifier.padding(top = 4.dp).fillMaxWidth().clickable { showWannPicker = true },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
@@ -328,9 +356,9 @@ private fun WineOrderRow(
             )
         }
         Row(modifier = Modifier.padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(checked = order.abgefuellt, onCheckedChange = { onUpdate(order.copy(wer = wer, sorte = sorte, abgefuellt = it)) })
+            Checkbox(checked = order.abgefuellt, onCheckedChange = { onUpdate(order.copy(wer = wer, positionen = buildPositionen(), abgefuellt = it)) })
             Text("Abgefüllt", style = MaterialTheme.typography.bodyMedium)
-            Checkbox(checked = order.abgeholt, onCheckedChange = { onUpdate(order.copy(wer = wer, sorte = sorte, abgeholt = it)) })
+            Checkbox(checked = order.abgeholt, onCheckedChange = { onUpdate(order.copy(wer = wer, positionen = buildPositionen(), abgeholt = it)) })
             Text("Abgeholt", style = MaterialTheme.typography.bodyMedium)
         }
     }
@@ -339,7 +367,7 @@ private fun WineOrderRow(
         WannPicker(
             initial = order.wannZeitpunkt,
             onDismiss = { showWannPicker = false },
-            onConfirm = { iso -> onUpdate(order.copy(wer = wer, sorte = sorte, wannZeitpunkt = iso)); showWannPicker = false }
+            onConfirm = { iso -> onUpdate(order.copy(wer = wer, positionen = buildPositionen(), wannZeitpunkt = iso)); showWannPicker = false }
         )
     }
 
@@ -347,7 +375,7 @@ private fun WineOrderRow(
         RemindersDialog(
             factory = factory,
             current = order.erinnerungenStunden,
-            onSave = { list -> onUpdate(order.copy(wer = wer, sorte = sorte, erinnerungenStunden = list)); showReminders = false },
+            onSave = { list -> onUpdate(order.copy(wer = wer, positionen = buildPositionen(), erinnerungenStunden = list)); showReminders = false },
             onDismiss = { showReminders = false }
         )
     }
@@ -373,9 +401,6 @@ private fun RowField(
     )
 }
 
-// Zweistufig: erst Datum, danach Uhrzeit - beides mit den Standard-Material3-
-// Dialogen, kein Zusatzpaket noetig. "initial" vorbelegt beide mit dem
-// bisherigen Wert, falls schon einer gesetzt war (zum Bearbeiten).
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WannPicker(
@@ -432,9 +457,6 @@ private fun WannPicker(
     }
 }
 
-// Verwaltet die Liste der "Stunden vorher"-Erinnerungen: bestehende
-// einzeln entfernbar, neue per Zahl 1-24 hinzufuegbar. Kann jederzeit
-// erneut geoeffnet werden, um die Auswahl nachtraeglich zu aendern.
 @Composable
 private fun RemindersDialog(
     factory: AppViewModelFactory,
@@ -507,12 +529,11 @@ private fun AddWineOrderDialog(
     factory: AppViewModelFactory,
     defaultYear: Int,
     onDismiss: () -> Unit,
-    onAdd: (Int, String, String, Double, String, List<Int>) -> Unit
+    onAdd: (Int, String, List<WineOrderItem>, String, List<Int>) -> Unit
 ) {
     var jahr by remember { mutableStateOf(defaultYear.toString()) }
     var wer by remember { mutableStateOf("") }
-    var sorte by remember { mutableStateOf("") }
-    var menge by remember { mutableStateOf("") }
+    val positionen = remember { androidx.compose.runtime.mutableStateListOf("" to "") }
     var wannZeitpunkt by remember { mutableStateOf("") }
     var erinnerungen by remember { mutableStateOf(listOf<Int>()) }
     var showWannPicker by remember { mutableStateOf(false) }
@@ -525,7 +546,7 @@ private fun AddWineOrderDialog(
         text = {
             ScaledContent(factory) {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().androidx.compose.foundation.verticalScroll(androidx.compose.foundation.rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     androidx.compose.material3.OutlinedTextField(
@@ -537,15 +558,30 @@ private fun AddWineOrderDialog(
                         modifier = Modifier.fillMaxWidth()
                     )
                     androidx.compose.material3.OutlinedTextField(value = wer, onValueChange = { wer = it }, label = { Text("Wer") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    androidx.compose.material3.OutlinedTextField(value = sorte, onValueChange = { sorte = it }, label = { Text("Sorte") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                    androidx.compose.material3.OutlinedTextField(
-                        value = menge,
-                        onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) menge = new },
-                        label = { Text("Menge") },
-                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+
+                    positionen.forEachIndexed { index, (sorte, mengeText) ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            androidx.compose.material3.OutlinedTextField(
+                                value = sorte, onValueChange = { positionen[index] = it to mengeText },
+                                label = { Text("Sorte") }, singleLine = true, modifier = Modifier.weight(1.3f)
+                            )
+                            androidx.compose.material3.OutlinedTextField(
+                                value = mengeText,
+                                onValueChange = { new -> if (new.isEmpty() || new.matches(Regex("^[0-9]*$"))) positionen[index] = sorte to new },
+                                label = { Text("Menge") },
+                                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                                singleLine = true, modifier = Modifier.weight(0.8f)
+                            )
+                            IconButton(onClick = { if (positionen.size > 1) positionen.removeAt(index) }, modifier = Modifier.size(28.dp)) {
+                                Icon(Icons.Filled.Close, contentDescription = "Sorte entfernen", modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
+                    TextButton(onClick = { positionen.add("" to "") }) {
+                        Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Text("Sorte hinzufügen", style = MaterialTheme.typography.bodySmall)
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth().clickable { showWannPicker = true },
                         verticalAlignment = Alignment.CenterVertically,
@@ -575,9 +611,11 @@ private fun AddWineOrderDialog(
                     val jahrValue = jahr.toIntOrNull()
                     if (jahrValue == null || jahrValue < 2000) { error = "Bitte ein gültiges Jahr eingeben."; return@TextButton }
                     if (wer.isBlank()) { error = "Bitte angeben, wer bestellt hat."; return@TextButton }
-                    val mengeValue = if (menge.isBlank()) 0.0 else menge.toIntOrNull()?.toDouble()
-                    if (mengeValue == null) { error = "Bitte eine gültige Menge eingeben."; return@TextButton }
-                    onAdd(jahrValue, wer.trim(), sorte.trim(), mengeValue, wannZeitpunkt, erinnerungen)
+                    val items = positionen.mapNotNull { (sorte, mengeText) ->
+                        if (sorte.isBlank() && mengeText.isBlank()) null
+                        else WineOrderItem(sorte = sorte.trim(), menge = mengeText.toIntOrNull()?.toDouble() ?: 0.0)
+                    }
+                    onAdd(jahrValue, wer.trim(), items, wannZeitpunkt, erinnerungen)
                 }) { Text("Hinzufügen") }
             }
         },

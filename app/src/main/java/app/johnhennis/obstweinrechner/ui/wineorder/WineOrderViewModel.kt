@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.johnhennis.obstweinrechner.data.WineOrder
+import app.johnhennis.obstweinrechner.data.WineOrderItem
 import app.johnhennis.obstweinrechner.data.WineOrderRepository
 import app.johnhennis.obstweinrechner.notifications.cancelAllPossibleReminders
 import app.johnhennis.obstweinrechner.notifications.scheduleReminders
@@ -42,12 +43,12 @@ class WineOrderViewModel(
     )
 
     fun addOrder(
-        context: Context, jahr: Int, wer: String, sorte: String, menge: Double,
+        context: Context, jahr: Int, wer: String, positionen: List<WineOrderItem>,
         wannZeitpunkt: String, erinnerungenStunden: List<Int>
     ) {
         viewModelScope.launch {
             val order = WineOrder(
-                jahr = jahr, wer = wer, sorte = sorte, menge = menge,
+                jahr = jahr, wer = wer, positionen = positionen,
                 wannZeitpunkt = wannZeitpunkt, erinnerungenStunden = erinnerungenStunden
             )
             val id = repository.insert(order)
@@ -55,9 +56,6 @@ class WineOrderViewModel(
         }
     }
 
-    // Deckt sowohl Feldaenderungen als auch Termin-/Erinnerungs-Aenderungen
-    // ab - scheduleReminders() storniert intern immer erst alles und plant
-    // dann neu, das ist also auch fuer nachtraegliches Bearbeiten sicher.
     fun updateOrder(context: Context, order: WineOrder) {
         viewModelScope.launch {
             repository.update(order)

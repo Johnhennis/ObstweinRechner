@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -37,10 +38,13 @@ fun parseWannZeitpunkt(value: String): LocalDateTime? = try {
 
 private fun requestCode(orderId: String, offsetHours: Int): Int = "${orderId}_$offsetHours".hashCode()
 
+private fun sortenText(order: WineOrder): String =
+    order.positionen.joinToString(", ") { it.sorte }.ifBlank { "Wein" }
+
 private fun pendingIntentFor(context: Context, order: WineOrder, offsetHours: Int): PendingIntent {
     val intent = Intent(context, ReminderReceiver::class.java).apply {
         putExtra(ReminderReceiver.EXTRA_WER, order.wer)
-        putExtra(ReminderReceiver.EXTRA_SORTE, order.sorte)
+        putExtra(ReminderReceiver.EXTRA_SORTE, sortenText(order))
         putExtra(ReminderReceiver.EXTRA_OFFSET, offsetHours)
     }
     return PendingIntent.getBroadcast(
@@ -49,10 +53,6 @@ private fun pendingIntentFor(context: Context, order: WineOrder, offsetHours: In
     )
 }
 
-// Storniert vorsorglich ALLE denkbaren Erinnerungs-Zeitpunkte (1-24 Stunden
-// vorher) fuer diese Bestellung - ein Abbrechen eines nie gesetzten Alarms
-// ist wirkungslos. So muss nirgendwo extra mitgefuehrt werden, welche
-// Erinnerungen zuvor genau geplant waren, wenn sich die Auswahl aendert.
 fun cancelAllPossibleReminders(context: Context, orderId: String) {
     val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
     (1..24).forEach { hours ->
@@ -65,11 +65,6 @@ fun cancelAllPossibleReminders(context: Context, orderId: String) {
     }
 }
 
-// Plant alle in order.erinnerungenStunden konfigurierten Erinnerungen neu.
-// Storniert vorher immer alles - so bleibt es korrekt, egal ob sich seit
-// dem letzten Planen der Termin, die Erinnerungsliste oder "abgeholt"
-// geaendert hat. Kann daher nach JEDER Aenderung einfach erneut aufgerufen
-// werden, ohne die vorherige Planung extra nachzuhalten.
 fun scheduleReminders(context: Context, order: WineOrder) {
     cancelAllPossibleReminders(context, order.id)
     if (order.abgeholt) return
@@ -88,18 +83,31 @@ fun scheduleReminders(context: Context, order: WineOrder) {
     }
 }
 
-fun showReminderNotification(context: Context, wer: String, sorte: String, offsetHours: Int) {
+// setSmallIcon() erzwingt seitens Android IMMER eine reine Silhouette in der
+// Statusleiste, egal welches Bild man uebergibt - das laesst sich nicht
+// umgehen. setLargeIcon() dagegen zeigt ein echtes Farbbild innerhalb der
+// aufgeklappten Benachrichtigung - dort erscheint jetzt das tatsaechliche,
+// bunte App-Icon statt der Standard-Glocke. applicationInfo.icon fragt
+// direkt das aktuell konfigurierte Launcher-Icon ab, unabhaengig vom
+// genauen Ressourcennamen.
+fun showReminderNotification(context: Context, wer: String, sortenText: String, offsetHours: Int) {
     ensureNotificationChannel(context)
     val zeitText = if (offsetHours == 1) "in 1 Stunde" else "in $offsetHours Stunden"
-    val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-        .setSmallIcon(android.R.drawable.ic_popup_reminder)
+    val appIconRes = context.applicationInfo.icon
+    val largeIcon = try {
+        BitmapFactory.decodeResource(context.resources, appIconRes)
+    } catch (e: Exception) {
+        null
+    }
+    val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        .setSmallIcon(appIconRes)
         .setContentTitle("Weinvorbestellung $zeitText fällig")
-        .setContentText("$wer – $sorte")
+        .setContentText("$wer – $sortenText")
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setAutoCancel(true)
-        .build()
+    if (largeIcon != null) builder.setLargeIcon(largeIcon)
     try {
-        NotificationManagerCompat.from(context).notify((wer + sorte + offsetHours).hashCode(), notification)
+        NotificationManagerCompat.from(context).notify((wer + sortenText + offsetHours).hashCode(), builder.build())
     } catch (e: SecurityException) {
         // Keine Benachrichtigungs-Berechtigung erteilt.
     }

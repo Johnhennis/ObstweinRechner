@@ -72,6 +72,10 @@ class FruchtweinApplication : Application() {
                 schmalzRepository.deduplicate()
                 prefs.edit().putBoolean("recipeDedup_v1", true).apply()
             }
+            if (!prefs.getBoolean("wineOrderMigrated_v1", false)) {
+                wineOrderRepository.migrateToPositionen()
+                prefs.edit().putBoolean("wineOrderMigrated_v1", true).apply()
+            }
         }
     }
 }

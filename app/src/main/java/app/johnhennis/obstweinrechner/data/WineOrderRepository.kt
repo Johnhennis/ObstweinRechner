@@ -31,11 +31,6 @@ class WineOrderRepository(private val firestore: FirebaseFirestore) {
     val allOrders: Flow<List<WineOrder>> = allDocuments.map { list -> list.filter { !it.geloescht } }
     val trashedOrders: Flow<List<WineOrder>> = allDocuments.map { list -> list.filter { it.geloescht } }
 
-    // Zufällige statt fester ID: dieselbe Person könnte dieselbe Sorte im
-    // selben Jahr durchaus zweimal bestellen (unterschiedliche Termine) -
-    // eine feste Jahr+Name-ID würde solche echten Zweitbestellungen fälschlich
-    // verschmelzen. Gibt die generierte ID zurück, damit direkt danach eine
-    // Erinnerung dafür geplant werden kann.
     suspend fun insert(order: WineOrder): String {
         val ref = collection.add(order.copy(id = "", geloescht = false)).await()
         return ref.id
@@ -81,6 +76,29 @@ class WineOrderRepository(private val firestore: FirebaseFirestore) {
             snapshot.documents.filter { it.getBoolean("geloescht") == true }
                 .map { async { it.reference.delete().await() } }
                 .awaitAll()
+        }
+    }
+
+    // Einmalige Migration: fruehere Version hatte pro Bestellung nur ein
+    // einzelnes sorte/menge-Feld statt der jetzigen "positionen"-Liste.
+    // Uebernimmt den alten Wert als einzige Position, wo "positionen" noch
+    // leer ist.
+    suspend fun migrateToPositionen() {
+        val snapshot = collection.get().await()
+        val zuMigrieren = snapshot.documents.filter { doc ->
+            val positionenRaw = doc.get("positionen")
+            val hatPositionen = positionenRaw is List<*> && positionenRaw.isNotEmpty()
+            val altSorte = doc.getString("sorte")
+            !hatPositionen && !altSorte.isNullOrBlank()
+        }
+        coroutineScope {
+            zuMigrieren.map { doc ->
+                async {
+                    val sorte = doc.getString("sorte") ?: ""
+                    val menge = doc.getDouble("menge") ?: 0.0
+                    doc.reference.update("positionen", listOf(mapOf("sorte" to sorte, "menge" to menge))).await()
+                }
+            }.awaitAll()
         }
     }
 }
