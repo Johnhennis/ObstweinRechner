@@ -6,6 +6,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import app.johnhennis.obstweinrechner.FruchtweinApplication
 import app.johnhennis.obstweinrechner.data.FruitPriceRepository
 import app.johnhennis.obstweinrechner.data.FruitRecipeRepository
+import app.johnhennis.obstweinrechner.data.FruitSponsorRepository
 import app.johnhennis.obstweinrechner.data.InfoEntryRepository
 import app.johnhennis.obstweinrechner.data.ManualShoppingItemRepository
 import app.johnhennis.obstweinrechner.data.RecipeSessionRepository
@@ -24,6 +25,7 @@ import app.johnhennis.obstweinrechner.ui.recipes.RecipeListViewModel
 import app.johnhennis.obstweinrechner.ui.schmalz.SchmalzViewModel
 import app.johnhennis.obstweinrechner.ui.settings.SettingsViewModel
 import app.johnhennis.obstweinrechner.ui.shopping.ShoppingListViewModel
+import app.johnhennis.obstweinrechner.ui.sponsors.SponsorViewModel
 import app.johnhennis.obstweinrechner.ui.stock.StockViewModel
 import app.johnhennis.obstweinrechner.ui.weinprobe.WeinprobeViewModel
 import app.johnhennis.obstweinrechner.ui.wineorder.WineOrderViewModel
@@ -42,7 +44,8 @@ class AppViewModelFactory(
     private val themeRepository: ThemeRepository,
     private val wineStockItemRepository: WineStockItemRepository,
     private val weinprobeRepository: WeinprobeRepository,
-    private val wineOrderRepository: WineOrderRepository
+    private val wineOrderRepository: WineOrderRepository,
+    private val fruitSponsorRepository: FruitSponsorRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
@@ -59,6 +62,7 @@ class AppViewModelFactory(
             modelClass.isAssignableFrom(WineStockViewModel::class.java) -> WineStockViewModel(wineStockItemRepository) as T
             modelClass.isAssignableFrom(WeinprobeViewModel::class.java) -> WeinprobeViewModel(weinprobeRepository, wineStockItemRepository) as T
             modelClass.isAssignableFrom(WineOrderViewModel::class.java) -> WineOrderViewModel(wineOrderRepository) as T
+            modelClass.isAssignableFrom(SponsorViewModel::class.java) -> SponsorViewModel(fruitSponsorRepository) as T
             else -> throw IllegalArgumentException("Unbekannte ViewModel-Klasse: ${modelClass.name}")
         }
     }
@@ -77,7 +81,8 @@ class AppViewModelFactory(
             application.themeRepository,
             application.wineStockItemRepository,
             application.weinprobeRepository,
-            application.wineOrderRepository
+            application.wineOrderRepository,
+            application.fruitSponsorRepository
         )
     }
 }

@@ -3,6 +3,7 @@ package app.johnhennis.obstweinrechner
 import android.app.Application
 import app.johnhennis.obstweinrechner.data.FruitPriceRepository
 import app.johnhennis.obstweinrechner.data.FruitRecipeRepository
+import app.johnhennis.obstweinrechner.data.FruitSponsorRepository
 import app.johnhennis.obstweinrechner.data.InfoEntryRepository
 import app.johnhennis.obstweinrechner.data.ManualShoppingItemRepository
 import app.johnhennis.obstweinrechner.data.RecipeSessionRepository
@@ -38,6 +39,7 @@ class FruchtweinApplication : Application() {
     val wineStockItemRepository: WineStockItemRepository by lazy { WineStockItemRepository(FirebaseFirestore.getInstance()) }
     val weinprobeRepository: WeinprobeRepository by lazy { WeinprobeRepository(FirebaseFirestore.getInstance()) }
     val wineOrderRepository: WineOrderRepository by lazy { WineOrderRepository(FirebaseFirestore.getInstance()) }
+    val fruitSponsorRepository: FruitSponsorRepository by lazy { FruitSponsorRepository(FirebaseFirestore.getInstance()) }
 
     override fun onCreate() {
         super.onCreate()
@@ -71,10 +73,6 @@ class FruchtweinApplication : Application() {
                 repository.deduplicateRecipes()
                 schmalzRepository.deduplicate()
                 prefs.edit().putBoolean("recipeDedup_v1", true).apply()
-            }
-            if (!prefs.getBoolean("wineOrderMigrated_v1", false)) {
-                wineOrderRepository.migrateToPositionen()
-                prefs.edit().putBoolean("wineOrderMigrated_v1", true).apply()
             }
             if (!prefs.getBoolean("wineOrderMigrated_v1", false)) {
                 wineOrderRepository.migrateToPositionen()
