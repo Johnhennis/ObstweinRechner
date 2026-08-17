@@ -99,7 +99,7 @@ fun WineOrderScreen(
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
     var confirmDeleteOrder by remember { mutableStateOf<WineOrder?>(null) }
-    var expandedYear by rememberSaveable { mutableStateOf<Int?>(null) }
+    var expandedYear by rememberSaveable { mutableStateOf<Int?>(viewModel.currentYear) }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()

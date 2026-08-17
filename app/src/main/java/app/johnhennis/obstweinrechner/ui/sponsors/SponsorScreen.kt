@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -257,19 +258,26 @@ private fun SponsorRow(
         }
     }
 
-    Row(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .background(MaterialTheme.colorScheme.surfaceContainerHigh, RoundedCornerShape(10.dp))
-            .padding(10.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(10.dp)
     ) {
-        RowField(wer, { wer = it; userEdited = true }, "Wer", Modifier.weight(1f), onFocus = onFocusGained)
-        RowField(sorte, { sorte = it; userEdited = true }, "Sorte", Modifier.weight(1f), onFocus = onFocusGained)
-        IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
-            Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+            RowField(wer, { wer = it; userEdited = true }, "Wer", Modifier.weight(1f), onFocus = onFocusGained)
+            RowField(sorte, { sorte = it; userEdited = true }, "Sorte", Modifier.weight(1f), onFocus = onFocusGained)
+            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
+                Icon(Icons.Filled.Delete, contentDescription = "Entfernen", modifier = Modifier.size(18.dp))
+            }
+        }
+        Row(modifier = Modifier.padding(top = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(
+                checked = sponsor.geschenkt,
+                onCheckedChange = { onUpdate(sponsor.copy(wer = wer, sorte = sorte, geschenkt = it)) }
+            )
+            Text("Geschenkt", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

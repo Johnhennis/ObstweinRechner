@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -36,7 +38,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +56,9 @@ private val DATUM_WIDTH = 76.dp
 private val PREIS_WIDTH = 70.dp
 private val DELETE_WIDTH = 28.dp
 
+private enum class SortColumn { FRUCHT, DATUM, PREIS, QUELLE }
+private enum class SortDirection { ASC, DESC }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PricesScreen(
@@ -67,7 +71,33 @@ fun PricesScreen(
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
     var confirmDeleteEntry by remember { mutableStateOf<FruitPrice?>(null) }
-    var expandedYear by rememberSaveable { mutableStateOf<Int?>(viewModel.currentYear) }
+    var expandedYear by remember { mutableStateOf<Int?>(viewModel.currentYear) }
+    var sortColumn by remember { mutableStateOf<SortColumn?>(null) }
+    var sortDirection by remember { mutableStateOf(SortDirection.ASC) }
+
+    fun onSortClick(column: SortColumn) {
+        if (sortColumn == column) {
+            sortDirection = if (sortDirection == SortDirection.ASC) SortDirection.DESC else SortDirection.ASC
+        } else {
+            sortColumn = column
+            sortDirection = SortDirection.ASC
+        }
+    }
+
+    // Sortiert die Zeilen innerhalb jedes Jahres (die Jahres-Gruppierung
+    // selbst bleibt unangetastet) - Preis als echte Zahl, Rest als Text.
+    val sortedYearGroups = remember(yearGroups, sortColumn, sortDirection) {
+        yearGroups.map { group ->
+            val sorted = when (sortColumn) {
+                SortColumn.FRUCHT -> group.rows.sortedBy { it.price.fruchtart.lowercase() }
+                SortColumn.DATUM -> group.rows.sortedBy { it.price.datum.lowercase() }
+                SortColumn.PREIS -> group.rows.sortedBy { it.price.preis }
+                SortColumn.QUELLE -> group.rows.sortedBy { it.price.quelle.lowercase() }
+                null -> group.rows
+            }
+            group.copy(rows = if (sortDirection == SortDirection.DESC) sorted.reversed() else sorted)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -89,7 +119,7 @@ fun PricesScreen(
             )
         }
     ) { padding ->
-        if (yearGroups.isEmpty()) {
+        if (sortedYearGroups.isEmpty()) {
             Column(modifier = Modifier.padding(padding).padding(16.dp)) {
                 Text("Noch keine Preise erfasst. Oben rechts mit + einen Preis hinzufügen.", style = MaterialTheme.typography.bodyMedium)
             }
@@ -98,7 +128,7 @@ fun PricesScreen(
                 modifier = Modifier.padding(padding).padding(horizontal = 12.dp).fillMaxWidth(),
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
-                yearGroups.forEach { group ->
+                sortedYearGroups.forEach { group ->
                     val isExpanded = group.jahr == expandedYear
                     item(key = "header_${group.jahr}") {
                         Row(
@@ -133,10 +163,22 @@ fun PricesScreen(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                ColumnLabel("Frucht", Modifier.weight(1.3f))
-                                ColumnLabel("Datum", Modifier.width(DATUM_WIDTH))
-                                ColumnLabel("Preis €", Modifier.width(PREIS_WIDTH))
-                                ColumnLabel("Quelle", Modifier.weight(1f))
+                                SortableColumnLabel(
+                                    "Frucht", sortColumn == SortColumn.FRUCHT, sortDirection,
+                                    { onSortClick(SortColumn.FRUCHT) }, Modifier.weight(1.3f)
+                                )
+                                SortableColumnLabel(
+                                    "Datum", sortColumn == SortColumn.DATUM, sortDirection,
+                                    { onSortClick(SortColumn.DATUM) }, Modifier.width(DATUM_WIDTH)
+                                )
+                                SortableColumnLabel(
+                                    "Preis €", sortColumn == SortColumn.PREIS, sortDirection,
+                                    { onSortClick(SortColumn.PREIS) }, Modifier.width(PREIS_WIDTH)
+                                )
+                                SortableColumnLabel(
+                                    "Quelle", sortColumn == SortColumn.QUELLE, sortDirection,
+                                    { onSortClick(SortColumn.QUELLE) }, Modifier.weight(1f)
+                                )
                                 Spacer(Modifier.size(DELETE_WIDTH))
                             }
                         }
@@ -201,14 +243,32 @@ fun PricesScreen(
 }
 
 @Composable
-private fun ColumnLabel(text: String, modifier: Modifier) {
-    Text(
-        text,
-        style = MaterialTheme.typography.labelMedium,
-        fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = modifier
-    )
+private fun SortableColumnLabel(
+    text: String,
+    active: Boolean,
+    direction: SortDirection,
+    onClick: () -> Unit,
+    modifier: Modifier
+) {
+    Row(
+        modifier = modifier.clickable(onClick = onClick),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        if (active) {
+            Icon(
+                if (direction == SortDirection.ASC) Icons.Filled.ArrowUpward else Icons.Filled.ArrowDownward,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(14.dp)
+            )
+        }
+    }
 }
 
 @Composable
