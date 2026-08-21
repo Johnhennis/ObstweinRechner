@@ -23,38 +23,54 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
 import com.google.android.play.core.install.model.UpdateAvailability
 
-// Prüft beim App-Start und bei jeder Rückkehr in den Vordergrund still im
-// Hintergrund auf ein neues Play-Store-Update und startet bei Verfügbarkeit
-// automatisch den "Flexible"-Fluss (lädt im Hintergrund, killt die App nicht
-// mitten in der Nutzung). Bewusst ganz ohne Toasts/gespeichertes Ergebnis -
-// das war nur zur Fehlersuche gedacht und ist jetzt wieder raus. Einzige
-// sichtbare Stelle bleibt die Neustart-Abfrage, wenn ein Update fertig
-// heruntergeladen ist.
+// Prueft beim App-Start und bei jeder Rueckkehr in den Vordergrund still im
+// Hintergrund auf ein neues Play-Store-Update.
 @Composable
 fun InAppUpdateChecker() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val appUpdateManager = remember { AppUpdateManagerFactory.create(context) }
     var showRestartDialog by remember { mutableStateOf(false) }
+    var listenerRegistered by remember { mutableStateOf(false) }
 
     val flexibleLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartIntentSenderForResult()
     ) { }
 
+    fun ensureListenerRegistered() {
+        if (listenerRegistered) return
+        appUpdateManager.registerListener(InstallStateUpdatedListener { state ->
+            if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                showRestartDialog = true
+            }
+        })
+        listenerRegistered = true
+    }
+
     fun checkAndStart() {
         appUpdateManager.appUpdateInfo.addOnSuccessListener { info ->
-            val updateVerfuegbar = info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE ||
-                info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS
-            if (updateVerfuegbar && info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-                val listener = InstallStateUpdatedListener { state ->
-                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
+            when (info.updateAvailability()) {
+                UpdateAvailability.UPDATE_AVAILABLE -> {
+                    if (info.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+                        ensureListenerRegistered()
+                        appUpdateManager.startUpdateFlowForResult(
+                            info, flexibleLauncher, AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
+                        )
+                    }
+                }
+                UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS -> {
+                    // Laeuft schon (Nutzer hat "Aktualisieren" bereits
+                    // angetippt) - NICHT erneut den Bestaetigungsdialog
+                    // starten, sonst erscheint er ein zweites Mal direkt
+                    // hintereinander beim Zurueckkehren zur App. Nur
+                    // sicherstellen, dass wir benachrichtigt werden,
+                    // sobald der Download fertig ist.
+                    ensureListenerRegistered()
+                    if (info.installStatus() == InstallStatus.DOWNLOADED) {
                         showRestartDialog = true
                     }
                 }
-                appUpdateManager.registerListener(listener)
-                appUpdateManager.startUpdateFlowForResult(
-                    info, flexibleLauncher, AppUpdateOptions.newBuilder(AppUpdateType.FLEXIBLE).build()
-                )
+                else -> { /* kein Update verfuegbar - nichts zu tun */ }
             }
         }
     }
