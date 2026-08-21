@@ -73,7 +73,7 @@ fun SponsorScreen(
     var showAdd by remember { mutableStateOf(false) }
     var confirmDeleteYear by remember { mutableStateOf<Int?>(null) }
     var confirmDeleteSponsor by remember { mutableStateOf<FruitSponsor?>(null) }
-    var expandedYear by rememberSaveable { mutableStateOf<Int?>(null) }
+    var expandedYear by rememberSaveable { mutableStateOf<Int?>(viewModel.currentYear) }
 
     val flatList = remember(yearGroups, expandedYear) {
         buildList {
